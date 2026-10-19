@@ -1,0 +1,658 @@
+{
+  "version": 2,
+  "source": "AI Countdown editorial everyday-task register",
+  "createdAt": "2026-10-19",
+  "updatedAt": "2026-10-19",
+  "note": "A transparent taxonomy of recurring household and personal-admin tasks. Occurrences per year and typical minutes are editorial starting assumptions and should be replaced or calibrated with survey evidence.",
+  "frequencyScale": {
+    "daily": {
+      "labelRu": "Ежедневно",
+      "labelEn": "Daily",
+      "occurrencesPerYear": 365
+    },
+    "weekly": {
+      "labelRu": "Еженедельно",
+      "labelEn": "Weekly",
+      "occurrencesPerYear": 52
+    },
+    "monthly": {
+      "labelRu": "Ежемесячно",
+      "labelEn": "Monthly",
+      "occurrencesPerYear": 12
+    },
+    "seasonal": {
+      "labelRu": "Сезонно",
+      "labelEn": "Seasonal",
+      "occurrencesPerYear": 2
+    }
+  },
+  "tasks": [
+    {
+      "id": "make-bed",
+      "titleRu": "Застилание кровати",
+      "titleEn": "Making the bed",
+      "category": "home-care",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 3,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "dishes-and-dishwasher",
+      "titleRu": "Мытьё и уборка посуды",
+      "titleEn": "Washing and putting away dishes",
+      "category": "kitchen",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 25,
+      "devices": [
+        "dishwasher"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "wipe-kitchen-surfaces",
+      "titleRu": "Протирание кухонных столешниц и рабочих поверхностей",
+      "titleEn": "Wiping kitchen counters and work surfaces",
+      "category": "kitchen",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 8,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "take-out-trash",
+      "titleRu": "Вынос мусора",
+      "titleEn": "Taking out the trash",
+      "category": "home-care",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 4,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "tidy-hotspots",
+      "titleRu": "Быстрый подбор вещей и наведение порядка",
+      "titleEn": "Tidying hotspots and scattered things",
+      "category": "home-care",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 10,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "spot-floor-cleanup",
+      "titleRu": "Локальная уборка загрязнений и крошек на полу",
+      "titleEn": "Spot-cleaning crumbs and small floor spills",
+      "category": "cleaning",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 5,
+      "devices": [
+        "robot-vacuum"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "wipe-bathroom-fixtures",
+      "titleRu": "Протирание сантехники и раковины",
+      "titleEn": "Wiping bathroom fixtures and the sink",
+      "category": "cleaning",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 5,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "feed-pets-and-litter",
+      "titleRu": "Кормление животных и уход за лотками",
+      "titleEn": "Feeding pets and caring for litter trays",
+      "category": "pet-care",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 8,
+      "devices": [
+        "smart-feeder",
+        "smart-litter-box"
+      ],
+      "householdShare": 0.5,
+      "householdShareNote": "Households with a pet"
+    },
+    {
+      "id": "walk-dog",
+      "titleRu": "Выгул собак",
+      "titleEn": "Walking dogs",
+      "category": "pet-care",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 35,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 0.3,
+      "householdShareNote": "Households with a dog"
+    },
+    {
+      "id": "cook-meals",
+      "titleRu": "Приготовление пищи",
+      "titleEn": "Cooking meals",
+      "category": "kitchen",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 45,
+      "devices": [
+        "smart-oven",
+        "smart-cooker"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "water-plants",
+      "titleRu": "Полив комнатных и балконных растений",
+      "titleEn": "Watering indoor and balcony plants",
+      "category": "home-care",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 5,
+      "devices": [
+        "smart-irrigation",
+        "moisture-sensor"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "sort-mail-packages",
+      "titleRu": "Разбор почты, посылок и доставок",
+      "titleEn": "Sorting mail, parcels, and deliveries",
+      "category": "personal-admin",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 7,
+      "devices": [
+        "smart-reminders"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "household-reminders",
+      "titleRu": "Ведение бытовых напоминаний и списка дел",
+      "titleEn": "Managing household reminders and to-do lists",
+      "category": "planning",
+      "frequency": "daily",
+      "occurrencesPerYear": 365,
+      "typicalMinutes": 8,
+      "devices": [
+        "voice-assistant",
+        "smart-calendar"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "wet-clean-floors",
+      "titleRu": "Влажная уборка и мытьё полов",
+      "titleEn": "Wet cleaning and mopping floors",
+      "category": "cleaning",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 45,
+      "devices": [
+        "robot-mop"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "vacuum-carpets-upholstery",
+      "titleRu": "Пылесошение ковров и мягкой мебели",
+      "titleEn": "Vacuuming carpets and upholstered furniture",
+      "category": "cleaning",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 35,
+      "devices": [
+        "robot-vacuum",
+        "vacuum-cleaner"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "change-bedding-towels",
+      "titleRu": "Смена постельного белья и полотенец",
+      "titleEn": "Changing bedding and towels",
+      "category": "laundry",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 20,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "laundry",
+      "titleRu": "Стирка, сушка и раскладывание одежды",
+      "titleEn": "Washing, drying, and putting away clothes",
+      "category": "laundry",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 75,
+      "devices": [
+        "washing-machine",
+        "dryer"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "deep-bathroom-cleaning",
+      "titleRu": "Генеральная чистка ванной и туалета",
+      "titleEn": "Deep-cleaning the bathroom and toilet",
+      "category": "cleaning",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 35,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "dust-surfaces",
+      "titleRu": "Удаление пыли с поверхностей, подоконников и техники",
+      "titleEn": "Dusting surfaces, windowsills, and appliances",
+      "category": "cleaning",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 30,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "refrigerator-audit",
+      "titleRu": "Ревизия холодильника",
+      "titleEn": "Checking the refrigerator and discarding spoiled food",
+      "category": "kitchen",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 15,
+      "devices": [
+        "smart-refrigerator"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "grocery-shopping",
+      "titleRu": "Покупка продуктов и составление списка",
+      "titleEn": "Planning and buying groceries",
+      "category": "planning",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 70,
+      "devices": [
+        "smart-list",
+        "delivery-service"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "meal-planning",
+      "titleRu": "Планирование меню и подготовка продуктов",
+      "titleEn": "Planning meals and preparing ingredients",
+      "category": "planning",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 35,
+      "devices": [
+        "meal-planner",
+        "smart-refrigerator"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "restock-household-supplies",
+      "titleRu": "Пополнение запасов бытовых товаров",
+      "titleEn": "Restocking household supplies",
+      "category": "planning",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 20,
+      "devices": [
+        "smart-inventory",
+        "delivery-service"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "pet-grooming",
+      "titleRu": "Уход за шерстью и гигиена домашних животных",
+      "titleEn": "Pet grooming and hygiene",
+      "category": "pet-care",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 25,
+      "devices": [
+        "smart-grooming-tools"
+      ],
+      "householdShare": 0.4,
+      "householdShareNote": "Households with a dog or long-haired pet"
+    },
+    {
+      "id": "change-pet-bedding",
+      "titleRu": "Смена и стирка лежанок домашних животных",
+      "titleEn": "Changing and washing pet bedding",
+      "category": "pet-care",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 20,
+      "devices": [
+        "washing-machine",
+        "dryer"
+      ],
+      "householdShare": 0.4,
+      "householdShareNote": "Households with a dog or cat"
+    },
+    {
+      "id": "sort-paperwork",
+      "titleRu": "Разбор документов и домашних бумаг",
+      "titleEn": "Sorting household documents and paperwork",
+      "category": "personal-admin",
+      "frequency": "weekly",
+      "occurrencesPerYear": 52,
+      "typicalMinutes": 25,
+      "devices": [
+        "document-scanner",
+        "smart-storage"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "clean-oven-microwave",
+      "titleRu": "Мытьё духовки и микроволновки изнутри",
+      "titleEn": "Cleaning the oven and microwave inside",
+      "category": "kitchen",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 35,
+      "devices": [
+        "self-cleaning-oven"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "clean-appliance-filters",
+      "titleRu": "Чистка фильтров стиральной, посудомоечной машины и кондиционеров",
+      "titleEn": "Cleaning washer, dishwasher, and air-conditioner filters",
+      "category": "maintenance",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 30,
+      "devices": [
+        "washing-machine",
+        "dishwasher",
+        "smart-ac"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "wash-trash-bins",
+      "titleRu": "Мытьё мусорных вёдер",
+      "titleEn": "Washing trash bins",
+      "category": "cleaning",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 15,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "wipe-baseboards-doors-switches",
+      "titleRu": "Влажная протирка плинтусов, дверей и выключателей",
+      "titleEn": "Wiping baseboards, doors, and switches",
+      "category": "cleaning",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 35,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "organize-storage",
+      "titleRu": "Разбор кухонных шкафов или зоны хранения",
+      "titleEn": "Organizing a kitchen cabinet or storage zone",
+      "category": "home-care",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 40,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "clean-windows-inside",
+      "titleRu": "Мытьё окон с внутренней стороны и зеркал",
+      "titleEn": "Cleaning the inside of windows and mirrors",
+      "category": "cleaning",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 35,
+      "devices": [
+        "window-cleaning-robot"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "wash-soft-furnishings",
+      "titleRu": "Стирка штор, пледов и чехлов",
+      "titleEn": "Washing curtains, blankets, and covers",
+      "category": "laundry",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 40,
+      "devices": [
+        "washing-machine",
+        "dryer"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "pay-bills-household-budget",
+      "titleRu": "Оплата счетов и ведение домашнего бюджета",
+      "titleEn": "Paying bills and managing the household budget",
+      "category": "personal-admin",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 35,
+      "devices": [
+        "banking-app",
+        "finance-assistant"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "clean-small-appliances",
+      "titleRu": "Чистка кофемашины, чайника и других малых приборов",
+      "titleEn": "Cleaning coffee makers, kettles, and small appliances",
+      "category": "kitchen",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 25,
+      "devices": [
+        "smart-coffee-maker",
+        "smart-kettle"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "clean-air-purifier-filters",
+      "titleRu": "Чистка фильтров очистителей воздуха",
+      "titleEn": "Cleaning air-purifier filters",
+      "category": "maintenance",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 20,
+      "devices": [
+        "smart-air-purifier"
+      ],
+      "householdShare": 0.25,
+      "householdShareNote": "Households with an air purifier"
+    },
+    {
+      "id": "test-smoke-co-detectors",
+      "titleRu": "Проверка датчиков дыма, газа и угарного газа",
+      "titleEn": "Testing smoke, gas, and carbon-monoxide detectors",
+      "category": "maintenance",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 10,
+      "devices": [
+        "smart-smoke-detector",
+        "smart-gas-detector"
+      ],
+      "householdShare": 0.6,
+      "householdShareNote": "Households with smoke or CO detectors"
+    },
+    {
+      "id": "schedule-home-maintenance",
+      "titleRu": "Поиск и планирование бытового ремонта и обслуживания",
+      "titleEn": "Finding and scheduling home repairs and maintenance",
+      "category": "maintenance",
+      "frequency": "monthly",
+      "occurrencesPerYear": 12,
+      "typicalMinutes": 30,
+      "devices": [
+        "maintenance-assistant",
+        "smart-calendar"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "seasonal-wardrobe",
+      "titleRu": "Смена гардероба",
+      "titleEn": "Changing the seasonal wardrobe",
+      "category": "home-care",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 120,
+      "devices": [
+        "none"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "deep-clean-carpets-mattresses",
+      "titleRu": "Генеральная чистка ковров и матрасов",
+      "titleEn": "Deep-cleaning carpets and mattresses",
+      "category": "cleaning",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 120,
+      "devices": [
+        "carpet-cleaner",
+        "vacuum-cleaner"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "clean-windows-outside",
+      "titleRu": "Мытьё окон с внешней стороны",
+      "titleEn": "Cleaning the outside of windows",
+      "category": "cleaning",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 90,
+      "devices": [
+        "window-cleaning-robot"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "medicine-cabinet-audit",
+      "titleRu": "Ревизия аптечки и бытовой химии",
+      "titleEn": "Auditing the medicine cabinet and household chemicals",
+      "category": "maintenance",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 30,
+      "devices": [
+        "smart-inventory"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "check-ventilation-heating",
+      "titleRu": "Очистка вентиляции и проверка отопления/кондиционирования",
+      "titleEn": "Checking ventilation, heating, and air conditioning",
+      "category": "maintenance",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 45,
+      "devices": [
+        "smart-hvac"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "declutter-and-donate",
+      "titleRu": "Разбор вещей, расхламление и передача ненужного",
+      "titleEn": "Decluttering and donating unused items",
+      "category": "home-care",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 120,
+      "devices": [
+        "smart-inventory",
+        "donation-service"
+      ],
+      "householdShare": 1
+    },
+    {
+      "id": "defrost-freezer",
+      "titleRu": "Разморозка и глубокая чистка морозильной камеры",
+      "titleEn": "Defrosting and deep-cleaning the freezer",
+      "category": "kitchen",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 90,
+      "devices": [
+        "smart-freezer"
+      ],
+      "householdShare": 0.4,
+      "householdShareNote": "Households with a manual-defrost freezer"
+    },
+    {
+      "id": "balcony-yard-maintenance",
+      "titleRu": "Сезонный уход за балконом, двором и уличными растениями",
+      "titleEn": "Seasonal care of balconies, yards, and outdoor plants",
+      "category": "home-care",
+      "frequency": "seasonal",
+      "occurrencesPerYear": 2,
+      "typicalMinutes": 120,
+      "devices": [
+        "smart-irrigation",
+        "garden-robot"
+      ],
+      "householdShare": 1
+    }
+  ],
+  "householdShareNote": "householdShare is the share of households where the task exists at all (1 = every household). Values below 1 are editorial estimates for pet- and device-dependent tasks, informed by pet-ownership surveys (FEDIAF for the EU, APPA for the US); replace them with survey evidence when available."
+}

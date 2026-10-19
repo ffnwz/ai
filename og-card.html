@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1200, height=630, initial-scale=1" />
+  <title>AI Countdown — share card</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #000;
+      --panel: #08090b;
+      --line: #293238;
+      --ink: #f2faf8;
+      --muted: #8aa0a3;
+      --quiet: #687c80;
+      --track: #263237;
+      --code: #a98cff;
+      --work: #63f5ee;
+      --life: #d1ff63;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .card {
+      position: relative;
+      width: 1152px;
+      height: 582px;
+      margin: 24px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background:
+        radial-gradient(circle at 25% 58%, rgba(41, 61, 67, .12), transparent 27%),
+        var(--panel);
+    }
+    .brand {
+      position: absolute;
+      top: 32px;
+      left: 48px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand img { width: 48px; height: 48px; object-fit: contain; }
+    .brand-copy { display: grid; }
+    .brand-name {
+      color: var(--ink);
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      line-height: 1;
+    }
+    h1 {
+      position: absolute;
+      top: 99px;
+      left: 48px;
+      margin: 0;
+      color: var(--ink);
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.08;
+    }
+    .rings {
+      position: absolute;
+      top: 146px;
+      left: 54px;
+      width: 420px;
+      height: 420px;
+    }
+    .rings svg { display: block; width: 100%; height: 100%; overflow: visible; }
+    .rings .track { stroke: var(--track); }
+    .rings .life { stroke: url(#life-gradient); }
+    .rings .work { stroke: url(#work-gradient); }
+    .rings .code { stroke: url(#code-gradient); }
+    .ring-shadow { filter: drop-shadow(0 0 8px currentColor); }
+    .ring-center {
+      position: absolute;
+      top: 169px;
+      left: 150px;
+      width: 120px;
+      text-align: center;
+    }
+    .ring-total {
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      line-height: 1;
+    }
+    .ring-unknown {
+      position: relative;
+      margin-top: 10px;
+      color: rgba(242, 247, 245, .72);
+      font-size: 78px;
+      font-weight: 800;
+      letter-spacing: -.08em;
+      line-height: .8;
+      text-shadow: 0 0 5px rgba(255,255,255,.45), 0 0 15px rgba(255,255,255,.2);
+      filter: blur(.65px);
+    }
+    .legend {
+      position: absolute;
+      top: 246px;
+      right: 84px;
+      display: grid;
+      gap: 20px;
+      width: 500px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      width: 500px;
+      height: 76px;
+      padding: 0 34px 0 26px;
+      border: 1px solid currentColor;
+      border-radius: 16px;
+      background: #10161a;
+    }
+    .legend-item.code { color: var(--code); }
+    .legend-item.work { color: var(--work); }
+    .legend-item.life { color: var(--life); }
+    .dot { width: 18px; height: 18px; flex: 0 0 auto; border-radius: 50%; background: currentColor; }
+    .label { margin-left: 16px; color: var(--ink); font-size: 24px; font-weight: 800; }
+    .value {
+      margin-left: auto;
+      color: rgba(242, 247, 245, .68);
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      filter: blur(1px);
+      text-shadow: 0 0 8px rgba(255,255,255,.22);
+    }
+    .domain {
+      position: absolute;
+      right: 48px;
+      bottom: 17px;
+      color: var(--quiet);
+      font-size: 17px;
+    }
+  </style>
+</head>
+<body>
+  <main class="card" id="card">
+    <header class="brand">
+      <img src="robot-apple.png" alt="" />
+      <div class="brand-copy">
+        <div class="brand-name">AI COUNTDOWN</div>
+      </div>
+    </header>
+
+    <h1 id="title">HOW MUCH OF LIFE DOES AI ALREADY OCCUPY?</h1>
+
+    <div class="rings" aria-hidden="true">
+      <svg viewBox="0 0 420 420">
+        <defs>
+          <linearGradient id="life-gradient" x1="50" y1="370" x2="370" y2="50" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#b7ff4a" />
+            <stop offset=".52" stop-color="#d9ff69" />
+            <stop offset="1" stop-color="#f2ff9a" />
+          </linearGradient>
+          <linearGradient id="work-gradient" x1="90" y1="340" x2="350" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#42d9d6" />
+            <stop offset=".55" stop-color="#63f5ee" />
+            <stop offset="1" stop-color="#a2fff4" />
+          </linearGradient>
+          <linearGradient id="code-gradient" x1="130" y1="300" x2="300" y2="120" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#8a6bf0" />
+            <stop offset=".55" stop-color="#a98cff" />
+            <stop offset="1" stop-color="#d1c0ff" />
+          </linearGradient>
+        </defs>
+        <g transform="translate(210 210) rotate(-90)" fill="none" stroke-linecap="round" stroke-width="28">
+          <circle class="track" r="178" />
+          <circle class="life ring-shadow" r="178" stroke-dasharray="414 705" />
+          <circle class="track" r="137" />
+          <circle class="work ring-shadow" r="137" stroke-dasharray="327 534" />
+          <circle class="track" r="96" />
+          <circle class="code ring-shadow" r="96" stroke-dasharray="178 425" />
+        </g>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-total" id="overall">TOTAL</div>
+        <div class="ring-unknown">??</div>
+      </div>
+    </div>
+
+    <section class="legend" aria-label="AI Countdown categories">
+      <div class="legend-item code"><span class="dot"></span><span class="label" id="code-label">CODE</span><span class="value">??</span></div>
+      <div class="legend-item work"><span class="dot"></span><span class="label" id="work-label">WORK</span><span class="value">??</span></div>
+      <div class="legend-item life"><span class="dot"></span><span class="label" id="life-label">LIFE</span><span class="value">??</span></div>
+    </section>
+
+    <div class="domain">ai.ffnwz.lat</div>
+  </main>
+
+  <script>
+    const ru = new URLSearchParams(location.search).get('lang') === 'ru';
+    if (ru) {
+      document.documentElement.lang = 'ru';
+      document.title = 'AI Countdown — карточка отчёта';
+      document.querySelector('#title').textContent = 'КАКУЮ ЧАСТЬ ЖИЗНИ УЖЕ ЗАНИМАЕТ AI?';
+      document.querySelector('#overall').textContent = 'ИТОГО';
+      document.querySelector('#code-label').textContent = 'КОД';
+      document.querySelector('#work-label').textContent = 'РАБОТА';
+      document.querySelector('#life-label').textContent = 'ЖИЗНЬ';
+    }
+  </script>
+</body>
+</html>

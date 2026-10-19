@@ -1,6 +1,7 @@
 const AI_COUNTDOWN_BACKEND_ORIGIN = 'https://ai.ffnwz.lat';
 const IS_GITHUB_PAGES = /(^|\.)github\.io$/i.test(window.location.hostname);
 const API_ORIGIN = IS_GITHUB_PAGES ? AI_COUNTDOWN_BACKEND_ORIGIN : '';
+const ROUTE_IS_RUSSIAN = /(^|\/)ru\/?$/i.test(window.location.pathname);
 
 function apiUrl(path) {
   return `${API_ORIGIN}${path}`;
@@ -23,14 +24,14 @@ const translations = {
     },
     "hero": {
       "eyebrow": "TRACKING THE HUMAN WORK AI TAKES ON",
-      "title": "How much work<br /><em>does AI already do for us?</em>",
+      "title": "How much of life<br /><em>does AI already occupy?</em>",
       "lede": "Code, company workflows, everyday tasks. We track the work AI takes on and how much human involvement remains.",
       "status": "PROTOTYPE · PARTIAL DATA",
       "date": "Version 0.2 · 18 Oct 2026"
     },
     "meter": {
       "copy": "experimental model<br />across three areas",
-      "note": "Code is an AI involvement signal from a sample. Work is the median of the prototype estimate and AI ratings of occupations; Life is illustrative. The overall percentage is the total estimate.",
+      "note": "Code is an AI involvement signal from a sample. Work and Life are medians of compatible sources; Life task ratings are weighted by estimated annual minutes.",
       "copyChart": "COPY CHART",
       "copied": "COPIED",
       "copyFallback": "SUMMARY COPIED",
@@ -61,6 +62,13 @@ const translations = {
       "sourceJoin": " and ",
       "sourceRadar": "AI Code Radar {value}% ({repos} repos, snapshot {date})",
       "sourceOurs": "our analyses {value}% ({repos} repos)",
+      "sourceSurvey": "Sonar developer survey {value}%",
+      "sourceStudy": "Daniotti et al. detector {value}% (US, Python, 2024)",
+      "barRadar": "AI Code Radar",
+      "barOurs": "AI Countdown",
+      "barSurvey": "Sonar survey",
+      "barStudy": "Daniotti et al.",
+      "barMedian": "median",
     },
     "legend": {
       "aria": "Ring legend",
@@ -77,7 +85,7 @@ const translations = {
       "life": {
         "label": "Life",
         "help": "What is Life?",
-        "tip": "Personal tasks handed to AI. The value is currently illustrative."
+        "tip": "Recurring household tasks AI or smart-home devices can complete: a frequency-and-time-weighted task rating joined by the median rule."
       }
     },
     "code": {
@@ -89,7 +97,7 @@ const translations = {
     },
     "work": {
       "title": "02 / WORK",
-      "confidence": "illustrative value",
+      "confidence": "median of sources",
       "label": "AI carries out work tasks",
       "note": "customer requests, documents, reports",
       "observed": "median of sources",
@@ -100,9 +108,14 @@ const translations = {
     },
     "life": {
       "title": "03 / LIFE",
-      "confidence": "illustrative value",
+      "confidence": "median of sources",
       "label": "AI takes on everyday tasks",
-      "note": "messages, finding information, planning"
+      "note": "home care, cooking, laundry; devices and people share the workflow",
+      "observed": "median of sources",
+      "sources": {
+        "baseline": "Prototype estimate",
+        "tasks": "Everyday task ratings"
+      }
     },
     "model": {
       "eyebrow": "WHAT COUNTS AS REPLACEMENT",
@@ -116,8 +129,12 @@ const translations = {
     },
     "selfBuild": {
       "label": "A special case: <b>AI building AI</b>",
-      "note": "Code, tests, and experiments for new models. Assessing independence requires separate evidence.",
-      "status": "NO ESTIMATE YET"
+      "note": "AI companies and major software developers report how much code AI writes inside their engineering work. The bar is the median of comparable code-share statements, not a measure of autonomous self-improvement.",
+      "sources": "Anthropic 80%+ · Google 75% · Microsoft 20–30%",
+      "status": "MEDIAN: 75% AI-WRITTEN CODE",
+      "statusTemplate": "MEDIAN: {value} AI-WRITTEN CODE",
+      "value": "75%",
+      "aria": "AI-written code reported by AI companies: 75 percent"
     },
     "reading": {
       "eyebrow": "DEGREE OF REPLACEMENT",
@@ -164,14 +181,18 @@ const translations = {
       "eyebrow": "SOURCES AND OBSERVATIONS",
       "title": "What is behind the numbers",
       "copy": "Repository measurements, surveys, and company reports describe different aspects of replacement. Each source has its own sample, date, and unit of measurement.",
+      "registryEyebrow": "SOURCE REGISTRY",
+      "registryTitle": "Every source used by the project",
+      "registryCopy": "The registry includes live feeds, open datasets, public dashboards, company statements, and cross-checks. Each link keeps its original scope and measurement unit.",
       "methodologyLink": "How the numbers are calculated",
-      "occupationsLink": "AI and human share by occupation"
+      "occupationsLink": "AI and human share by occupation",
+      "lifeTasksLink": "Everyday tasks and devices"
     },
     "contribute": {
       "eyebrow": "OPEN PROJECT",
-      "title": "Help make the index more precise",
-      "copy": "Suggest methodology changes, new sources, or data corrections in the public repository.",
-      "link": "Open the GitHub repository"
+      "title": "Found a new source?",
+      "copy": "Suggest it on GitHub with the link, method, date, sample, and the metric it measures. Methodology changes and data corrections are welcome too.",
+      "link": "Suggest a source or change on GitHub"
     },
     "repoAnalysis": {
       "eyebrow": "CHECK A REPOSITORY",
@@ -245,7 +266,7 @@ const translations = {
       "profileStatusUnavailable": "GitHub did not respond",
       "profileRepositories": "Sample",
       "profileNoCommits": "No own commits in the sampled repositories.",
-      "profileNote": "Shares are measured on the user's own commits in up to 5 recently pushed repositories they own (30 recent commits each): their own commits, commits with an agent co-author, and commits by agent accounts. An agent becomes the main one above {threshold}% of commits and lines. AI used without a public marker is not visible.",
+      "profileNote": "Shares are measured on the user's own commits in up to 30 recently pushed repositories they own (30 recent commits each). A recognized agent starts a temporal sequence: up to three agent-free commits on different days remain attributed to it; the next commit is human-owned again. A different agent switches the sequence immediately. AI used without a public marker is not visible.",
       "profileLoading": "ANALYZING THE GITHUB PROFILE…",
       "profileDone": "Profile @{login} analyzed",
       "downloadImage": "Download image",
@@ -377,17 +398,17 @@ const translations = {
       "ownershipTitle": "AI wrote the code. Which work did it replace?",
       "ownershipCopy": "Writing code is one step in development. Specification, review, testing, and release may still involve people. Assessing workflow replacement requires evidence about those steps.",
       "selfTitle": "What do the ring percentages mean?",
-      "selfCopy": "Code is an AI involvement signal from an available repository sample. Work is the median of the 31% prototype estimate and the median AI rating of ISCO-08 occupations. The 24% Life value is illustrative. Their weighted combination is labeled “Model.” There is no measured overall replacement share yet.",
+      "selfCopy": "Code is an AI involvement signal from an available repository sample. Work and Life are medians of compatible sources; Life uses recurring task ratings weighted by annual workload. Their weighted combination is labeled “Model.” There is no measured overall replacement share yet.",
       "claimTitle": "When can we say AI replaced an employee?",
       "claimCopy": "That requires evidence about roles, team size, the period, and the reasons for change. Work volume in employee equivalents and generated code percentages do not establish it on their own."
     },
     "footer": {
       "left": "tracking the work AI takes on",
-      "right": "Prototype: Code is a sample signal; Work is a median of sources; Life is illustrative. Methodology and sources are open.",
+      "right": "Prototype: Code is a sample signal; Work and Life are medians of sources. Life uses an explicit household-task dataset. Methodology and sources are open.",
       "github": "Source code and suggestions on GitHub"
     },
     "aria": {
-      "rings": "AI involvement in code and work, and an illustrative Life indicator"
+      "rings": "AI involvement in code, work, and recurring everyday tasks"
     },
     "states": {
       "code": {
@@ -404,8 +425,8 @@ const translations = {
       }
     },
     "meta": {
-      "title": "AI Countdown — how much work does AI already do?",
-      "description": "Track the human work AI takes on in code, company workflows, and everyday tasks. Sources, company reports, and the scope of each estimate."
+      "title": "AI Countdown — how much of life does AI already occupy?",
+      "description": "Track how much of life AI already occupies across code, company workflows, and everyday tasks. Sources, company reports, and the scope of each estimate."
     }
   },
   "ru": {
@@ -417,14 +438,14 @@ const translations = {
     },
     "hero": {
       "eyebrow": "ЗАМЕЩЕНИЕ ЧЕЛОВЕЧЕСКОЙ РАБОТЫ",
-      "title": "Сколько работы<br /><em>AI уже делает за нас?</em>",
+      "title": "Какую часть жизни<br /><em>уже занимает AI?</em>",
       "lede": "Код, рабочие процессы, повседневные задачи. Следим за тем, какую работу AI берёт на себя и сколько участия человека остаётся.",
       "status": "ПРОТОТИП · НЕПОЛНЫЕ ДАННЫЕ",
       "date": "Версия 0.2 · 18 окт. 2026"
     },
     "meter": {
       "copy": "экспериментальная модель<br />по трём направлениям",
-      "note": "Код — сигнал участия AI в выборке. Работа — медиана оценки прототипа и AI-оценки профессий; Жизнь — условное значение. Общий процент показывает итоговую оценку.",
+      "note": "Код — сигнал участия AI в выборке. Работа и Жизнь считаются медианой совместимых источников; для бытовых дел частота переводится в годовую нагрузку.",
       "copyChart": "СКОПИРОВАТЬ ГРАФИК",
       "copied": "СКОПИРОВАНО",
       "copyFallback": "СВОДКА СКОПИРОВАНА",
@@ -455,6 +476,13 @@ const translations = {
       "sourceJoin": " и ",
       "sourceRadar": "AI Code Radar {value}% ({repos} репо, снимок {date})",
       "sourceOurs": "наши анализы {value}% ({repos} репо)",
+      "sourceSurvey": "опрос разработчиков Sonar {value}%",
+      "sourceStudy": "детектор Daniotti et al. {value}% (США, Python, 2024)",
+      "barRadar": "AI Code Radar",
+      "barOurs": "AI Countdown",
+      "barSurvey": "опрос Sonar",
+      "barStudy": "Daniotti et al.",
+      "barMedian": "медиана",
     },
     "legend": {
       "aria": "Легенда колец",
@@ -471,7 +499,7 @@ const translations = {
       "life": {
         "label": "Жизнь",
         "help": "Что означает кольцо «Жизнь»?",
-        "tip": "Личные дела, которые человек поручает AI. Число пока условное."
+        "tip": "Повседневные задачи дома: оценки AI и умных устройств, взвешенные по частоте и типичной годовой нагрузке, затем объединённые медианой."
       }
     },
     "code": {
@@ -483,7 +511,7 @@ const translations = {
     },
     "work": {
       "title": "02 / РАБОТА",
-      "confidence": "условное значение",
+      "confidence": "медиана источников",
       "label": "AI выполняет рабочие задачи",
       "note": "обращения клиентов, документы, отчёты",
       "observed": "медиана источников",
@@ -494,9 +522,14 @@ const translations = {
     },
     "life": {
       "title": "03 / ЖИЗНЬ",
-      "confidence": "условное значение",
+      "confidence": "медиана источников",
       "label": "AI берёт на себя повседневные дела",
-      "note": "письма, поиск информации, планирование"
+      "note": "уборка, готовка, стирка; устройства и человек делят процесс",
+      "observed": "медиана источников",
+      "sources": {
+        "baseline": "Прототипная оценка",
+        "tasks": "Оценки бытовых задач"
+      }
     },
     "model": {
       "eyebrow": "ЧТО СЧИТАЕМ ЗАМЕЩЕНИЕМ",
@@ -510,8 +543,12 @@ const translations = {
     },
     "selfBuild": {
       "label": "Особый случай: <b>AI создаёт AI</b>",
-      "note": "Код, тесты и эксперименты для новых моделей. Для оценки самостоятельности нужны отдельные данные.",
-      "status": "ПОКА БЕЗ ОЦЕНКИ"
+      "note": "AI-компании и крупные разработчики сообщают, какую долю кода AI пишет внутри их инженерной работы. Бар показывает медиану сопоставимых заявлений о доле кода, а не самостоятельное саморазвитие.",
+      "sources": "Anthropic 80%+ · Google 75% · Microsoft 20–30%",
+      "status": "МЕДИАНА: 75% AI-КОДА",
+      "statusTemplate": "МЕДИАНА: {value} AI-КОДА",
+      "value": "75%",
+      "aria": "По заявлениям AI-компаний, AI пишет 75 процентов кода внутри их разработки"
     },
     "reading": {
       "eyebrow": "СТЕПЕНЬ ЗАМЕЩЕНИЯ",
@@ -558,14 +595,18 @@ const translations = {
       "eyebrow": "ИСТОЧНИКИ И НАБЛЮДЕНИЯ",
       "title": "Что стоит за числами",
       "copy": "Измерения репозиториев, опросы и заявления компаний описывают разные стороны замещения. У каждого источника — своя выборка, дата и единица измерения.",
+      "registryEyebrow": "РЕЕСТР ИСТОЧНИКОВ",
+      "registryTitle": "Все источники проекта",
+      "registryCopy": "В реестре собраны live feeds, открытые датасеты, публичные дашборды, заявления компаний и источники для перепроверки. У каждой ссылки сохранены исходный охват и единица измерения.",
       "methodologyLink": "Как считаются показатели",
-      "occupationsLink": "Доля AI и человека по профессиям"
+      "occupationsLink": "Доля AI и человека по профессиям",
+      "lifeTasksLink": "Повседневные задачи и устройства"
     },
     "contribute": {
       "eyebrow": "ОТКРЫТЫЙ ПРОЕКТ",
-      "title": "Помогите сделать индекс точнее",
-      "copy": "Предлагайте изменения в методологию, новые источники и исправления данных в открытом репозитории.",
-      "link": "Открыть репозиторий на GitHub"
+      "title": "Нашли новый источник?",
+      "copy": "Предложите его на GitHub: добавьте ссылку, методику, дату, выборку и объяснение, какой показатель он измеряет. Также принимаем изменения методологии и исправления данных.",
+      "link": "Предложить источник или изменение на GitHub"
     },
     "repoAnalysis": {
       "eyebrow": "ПРОВЕРИТЬ РЕПОЗИТОРИЙ",
@@ -639,7 +680,7 @@ const translations = {
       "profileStatusUnavailable": "GitHub не ответил",
       "profileRepositories": "Выборка",
       "profileNoCommits": "В выбранных репозиториях нет собственных коммитов.",
-      "profileNote": "Доли считаются по собственным коммитам пользователя в 5 последних по push собственных репозиториях (до 30 последних коммитов в каждом): его коммиты, коммиты с агентом в Co-Authored-By и коммиты агентских аккаунтов. Агент становится основным, если даёт больше {threshold}% коммитов и строк. AI без публичного маркера не виден.",
+      "profileNote": "Доли считаются по собственным коммитам пользователя в 30 последних по push собственных репозиториях (до 30 последних коммитов в каждом). Распознанный агент запускает временную последовательность: до трёх безагентных коммитов в разные дни всё ещё относятся к нему, следующий коммит снова считается собственным. Другой агент сразу переключает последовательность. AI без публичного маркера не виден.",
       "profileLoading": "АНАЛИЗИРУЕМ ПРОФИЛЬ GITHUB…",
       "profileDone": "Профиль @{login} проанализирован",
       "downloadImage": "Скачать картинку",
@@ -771,13 +812,13 @@ const translations = {
       "ownershipTitle": "AI написал код. Какую работу он заменил?",
       "ownershipCopy": "Создание кода — один этап разработки. Постановка задачи, проверка, тестирование и выпуск могут оставаться за человеком. Для оценки замещения процесса нужны данные об этих этапах.",
       "selfTitle": "Что означают проценты в кольцах?",
-      "selfCopy": "Код показывает сигнал участия AI в доступной выборке репозиториев. Работа — медиана условных 31% прототипа и медианной AI-оценки профессий ISCO-08. 24% для Жизни — условное значение. Общее число объединяет их по выбранным весам и подписано «Модель». Измеренной общей доли замещения пока нет.",
+      "selfCopy": "Код показывает сигнал участия AI в доступной выборке репозиториев. Работа и Жизнь — медианы совместимых источников; для Жизни оцениваются повторяющиеся бытовые задачи с весом годовой нагрузки. Общее число объединяет их по выбранным весам и подписано «Модель». Измеренной общей доли замещения пока нет.",
       "claimTitle": "Когда можно сказать, что AI заменил сотрудника?",
       "claimCopy": "Для такого вывода нужны данные о должностях, численности команды, периоде и причинах изменений. Объём работы в эквиваленте сотрудников и процент сгенерированного кода сами по себе такого вывода не дают."
     },
     "footer": {
       "left": "наблюдаем за замещением человеческой работы",
-      "right": "Прототип: Код — сигнал в выборке; Работа — медиана источников; Жизнь — условное значение. Методология и источники открыты.",
+      "right": "Прототип: Код — сигнал в выборке; Работа и Жизнь — медианы источников. Для Жизни есть отдельный реестр бытовых задач. Методология и источники открыты.",
       "github": "Исходный код и предложения на GitHub"
     },
     "aria": {
@@ -798,8 +839,8 @@ const translations = {
       }
     },
     "meta": {
-      "title": "AI Countdown — сколько работы уже делает AI?",
-      "description": "Какую человеческую работу AI уже берёт на себя: код, рабочие процессы и повседневные задачи. Данные, заявления компаний и границы каждой оценки."
+      "title": "AI Countdown — какую часть жизни уже занимает AI?",
+      "description": "Оценка того, какую часть жизни уже занимает AI: код, рабочие процессы и повседневная жизнь на основе открытых источников и методологии."
     }
   }
 };
@@ -807,6 +848,7 @@ const translations = {
 let currentLocale = 'ru';
 let activeSignal = 'code';
 let lastSlopPayload = null;
+let lastCombinedSnapshot = null;
 let lastSourceFeeds = null;
 let lastGithubContributors = null;
 let lastRepositoryAnalysis = null;
@@ -823,9 +865,12 @@ let pendingCodeValue = null;
 let centerMode = 'overall';
 let introSequenceRunning = false;
 let centerCounterFrame = 0;
+let introSequenceId = 0;
 const INITIAL_RING_VALUES = { code: 42, work: 31, life: 24 };
 let currentWorkValue = INITIAL_RING_VALUES.work;
+let currentLifeValue = INITIAL_RING_VALUES.life;
 let lastWorkIndex = null;
+let lastLifeIndex = null;
 const INTRO_RING_DURATION = 5000;
 const INTRO_RING_GAP = 400;
 const REPOSITORY_ANALYSIS_DEFAULT_ESTIMATE_MS = 12_000;
@@ -898,7 +943,9 @@ function applyLocale(locale) {
   activateSignal(activeSignal);
   setCenterLabel(centerMode);
   if (lastSlopPayload) updateDataStatus(lastSlopPayload);
+  if (lastCombinedSnapshot) updateSelfBuildMetric(lastCombinedSnapshot);
   if (lastWorkIndex) updateWorkMetric(lastWorkIndex);
+  if (lastLifeIndex) updateLifeMetric(lastLifeIndex);
   if (lastSourceFeeds) updateSourceFeedStatus(lastSourceFeeds);
   if (lastGithubContributors) updateGithubContributorStatus(lastGithubContributors);
   if (lastRepositoryAnalysis) renderRepositoryAnalysis(lastRepositoryAnalysis);
@@ -912,7 +959,7 @@ function applyLocale(locale) {
 function getOverallValue() {
   const parsed = Number(document.querySelector('#code-value')?.textContent);
   const code = Number.isFinite(parsed) ? parsed : INITIAL_RING_VALUES.code;
-  return (code * .4) + (currentWorkValue * .35) + (24 * .25);
+  return (code * .4) + (currentWorkValue * .35) + (currentLifeValue * .25);
 }
 
 function setCenterLabel(key) {
@@ -1006,12 +1053,43 @@ function updateWorkMetric(payload) {
   renderOverall();
 }
 
+function updateLifeMetric(payload) {
+  lastLifeIndex = payload;
+  const value = Number(payload?.value);
+  if (Number.isFinite(value)) {
+    const life = Math.round(Math.max(0, Math.min(100, value)));
+    currentLifeValue = life;
+    const ring = document.querySelector('#life-ring');
+    if (ring && !introSequenceRunning) ring.style.strokeDashoffset = String(100 - life);
+    const strong = document.querySelector('.signal[data-signal="life"] > strong');
+    if (strong) strong.innerHTML = `${life}<span>%</span>`;
+    const legend = document.querySelector('.legend-pct.life');
+    if (legend) legend.textContent = `${life}%`;
+  }
+
+  const sources = Array.isArray(payload?.sourceValues) ? payload.sourceValues : [];
+  const measured = sources.some((source) => source.id !== 'ai-countdown-life-baseline');
+  const status = document.querySelector('[data-i18n="life.confidence"]');
+  if (status) status.textContent = getTranslation(measured ? 'life.observed' : 'life.confidence');
+  const labels = {
+    'ai-countdown-life-baseline': getTranslation('life.sources.baseline'),
+    'ai-countdown-life-task-ratings': getTranslation('life.sources.tasks')
+  };
+  const breakdown = sources
+    .map((source) => `${labels[source.id] || source.id}: ${Number(source.value).toFixed(1)}%`)
+    .join(' · ');
+  const button = document.querySelector('.signal[data-signal="life"]');
+  if (button && breakdown) button.title = breakdown;
+  renderOverall();
+}
+
 function animateInitialRings() {
+  const sequenceId = ++introSequenceId;
   const stage = document.querySelector('.ring-stage');
   const signalKeys = ['code', 'work', 'life'];
   setSignalIntroState({ pending: true });
   if (!stage || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    Object.entries({ ...INITIAL_RING_VALUES, work: currentWorkValue }).forEach(([key, value]) => {
+    Object.entries({ ...INITIAL_RING_VALUES, work: currentWorkValue, life: currentLifeValue }).forEach(([key, value]) => {
       const ring = document.querySelector(`#${key}-ring`);
       if (ring) ring.style.strokeDashoffset = String(100 - value);
     });
@@ -1026,17 +1104,19 @@ function animateInitialRings() {
   const sequence = [
     { key: 'code', ringId: 'code-ring', value: () => Number(document.querySelector('#code-value')?.textContent) || INITIAL_RING_VALUES.code },
     { key: 'work', ringId: 'work-ring', value: () => currentWorkValue },
-    { key: 'life', ringId: 'life-ring', value: () => INITIAL_RING_VALUES.life }
+    { key: 'life', ringId: 'life-ring', value: () => currentLifeValue }
   ];
   const rings = sequence.map(({ key, ringId }) => ({ key, ring: document.querySelector(`#${ringId}`) })).filter(({ ring }) => ring);
 
   rings.forEach(({ ring }) => {
+    ring.getAnimations?.().forEach((animation) => animation.cancel());
     ring.style.transition = 'none';
-    ring.style.strokeDashoffset = '100';
+    ring.style.setProperty('stroke-dashoffset', '100', 'important');
     ring.classList.remove('intro-ring-active');
-    // Flush the empty state before enabling the long transition. Without a
-    // layout read, a browser refresh can occasionally interpolate from the
-    // previous painted ring state instead of starting at zero.
+    // Flush the empty state before enabling the long transition. A fresh
+    // API value can already have painted this ring; forcing the reset with
+    // !important plus a layout read prevents the first ring from travelling
+    // backwards from the cached value on refresh.
     ring.getBoundingClientRect();
   });
 
@@ -1066,18 +1146,24 @@ function animateInitialRings() {
     ring.classList.add('intro-ring-active');
     setCenterLabel(item.key);
     animateCenterCounter(value, INTRO_RING_DURATION, item.key, 0);
-    requestAnimationFrame(() => {
-      ring.style.transition = `stroke-dashoffset ${INTRO_RING_DURATION}ms cubic-bezier(.45,0,.55,1)`;
-      ring.style.strokeDashoffset = String(100 - value);
-    });
+    // Two frames make the empty state observable even on a hard refresh.
+    // Starting the timer only after the target value is written keeps the
+    // visual duration aligned with the counter in the centre.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (sequenceId !== introSequenceId) return;
+      ring.style.setProperty('transition', `stroke-dashoffset ${INTRO_RING_DURATION}ms cubic-bezier(.45,0,.55,1)`, 'important');
+      ring.style.setProperty('stroke-dashoffset', String(100 - value), 'important');
 
-    window.setTimeout(() => {
-      revealSignal(item.key);
-      ring.classList.remove('intro-ring-active');
-      ring.style.transition = '';
-      ring.style.opacity = '.92';
-      window.setTimeout(() => runRing(index + 1), INTRO_RING_GAP);
-    }, INTRO_RING_DURATION);
+      window.setTimeout(() => {
+        if (sequenceId !== introSequenceId) return;
+        revealSignal(item.key);
+        ring.classList.remove('intro-ring-active');
+        ring.style.setProperty('stroke-dashoffset', String(100 - value));
+        ring.style.removeProperty('transition');
+        ring.style.opacity = '.92';
+        window.setTimeout(() => runRing(index + 1), INTRO_RING_GAP);
+      }, INTRO_RING_DURATION);
+    }));
   };
 
   runRing(0);
@@ -1104,11 +1190,85 @@ function formatCodeSourceSentence(payload) {
         .replace('{value}', formatPercent(source.value))
         .replace('{repos}', Number(source.repositories || 0).toLocaleString(currentLocale));
     }
+    if (source.id === 'sonar-state-of-code-2026') {
+      return getTranslation('data.sourceSurvey').replace('{value}', formatPercent(source.value));
+    }
+    if (source.id === 'daniotti-2026-ai-python-functions') {
+      return getTranslation('data.sourceStudy').replace('{value}', formatPercent(source.value));
+    }
     return `${source.label || source.id} ${formatPercent(source.value)}%`;
   });
   return getTranslation(parts.length > 1 ? 'data.median' : 'data.single')
     .replace('{value}', formatPercent(codeValue))
-    .replace('{sources}', parts.join(getTranslation('data.sourceJoin')));
+    .replace('{sources}', parts.length > 2
+      ? `${parts.slice(0, -1).join(', ')}${getTranslation('data.sourceJoin')}${parts.at(-1)}`
+      : parts.join(getTranslation('data.sourceJoin')));
+}
+
+function updateCodeSourceVisual(payload) {
+  const visual = document.querySelector('#code-source-visual');
+  const medianEl = document.querySelector('#code-source-median');
+  const medianValueEl = document.querySelector('#code-source-median-value');
+  const radarMarker = document.querySelector('#code-source-radar-marker');
+  const radarValueEl = document.querySelector('#code-source-radar-value');
+  const oursMarker = document.querySelector('#code-source-ours-marker');
+  const oursValueEl = document.querySelector('#code-source-ours-value');
+  const surveyMarker = document.querySelector('#code-source-survey-marker');
+  const surveyKey = document.querySelector('#code-source-survey-key');
+  const surveyValueEl = document.querySelector('#code-source-survey-value');
+  const studyMarker = document.querySelector('#code-source-study-marker');
+  const studyKey = document.querySelector('#code-source-study-key');
+  const studyValueEl = document.querySelector('#code-source-study-value');
+  if (!visual || !medianEl || !medianValueEl || !radarMarker || !radarValueEl || !oursMarker || !oursValueEl) return;
+
+  const median = Number(payload?.codeIndex);
+  const sources = Array.isArray(payload?.sourceValues) ? payload.sourceValues : [];
+  const radar = sources.find((source) => source?.id === 'ai-code-radar');
+  const ours = sources.find((source) => source?.id === 'ai-countdown-repository-analyses');
+  // A developer survey that also sees AI used without public markers.
+  const survey = sources.find((source) => source?.id === 'sonar-state-of-code-2026');
+  const radarValue = Number(radar?.value);
+  const oursValue = Number(ours?.value);
+  const surveyValue = Number(survey?.value);
+  // A detector study of AI-written functions on GitHub.
+  const study = sources.find((source) => source?.id === 'daniotti-2026-ai-python-functions');
+  const studyValue = Number(study?.value);
+  const usableSources = [radarValue, oursValue].filter(Number.isFinite);
+  if (!Number.isFinite(median) || !usableSources.length) {
+    visual.hidden = true;
+    return;
+  }
+
+  const clampPercent = (value) => Math.max(0, Math.min(100, value));
+  const formatPercent = (value) => `${Number(value).toLocaleString(currentLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+  const setMarker = (marker, value, valueEl) => {
+    const available = Number.isFinite(value);
+    marker.hidden = !available;
+    valueEl.textContent = available ? formatPercent(value) : '—';
+    if (available) marker.style.left = `${clampPercent(value)}%`;
+  };
+
+  medianEl.style.width = `${clampPercent(median)}%`;
+  medianValueEl.textContent = formatPercent(median);
+  setMarker(radarMarker, radarValue, radarValueEl);
+  setMarker(oursMarker, oursValue, oursValueEl);
+  if (surveyMarker && surveyKey && surveyValueEl) {
+    setMarker(surveyMarker, surveyValue, surveyValueEl);
+    surveyKey.hidden = !Number.isFinite(surveyValue);
+  }
+  if (studyMarker && studyKey && studyValueEl) {
+    setMarker(studyMarker, studyValue, studyValueEl);
+    studyKey.hidden = !Number.isFinite(studyValue);
+  }
+  visual.hidden = false;
+  const visualParts = [
+    `${getTranslation('data.barMedian')} ${formatPercent(median)}`,
+    Number.isFinite(radarValue) ? `${getTranslation('data.barRadar')} ${formatPercent(radarValue)}` : '',
+    Number.isFinite(oursValue) ? `${getTranslation('data.barOurs')} ${formatPercent(oursValue)}` : '',
+    Number.isFinite(surveyValue) ? `${getTranslation('data.barSurvey')} ${formatPercent(surveyValue)}` : '',
+    Number.isFinite(studyValue) ? `${getTranslation('data.barStudy')} ${formatPercent(studyValue)}` : ''
+  ].filter(Boolean);
+  visual.setAttribute('aria-label', visualParts.join('; '));
 }
 
 function updateDataStatus(payload) {
@@ -1133,6 +1293,7 @@ function updateDataStatus(payload) {
   const sourceLabel = payload?.sourceLabel ? ` · ${payload.sourceLabel}` : '';
   const sourceSentence = formatCodeSourceSentence(payload);
   element.textContent = sourceSentence || `${getTranslation(statusKey)}${sourceLabel}${coverage}`;
+  updateCodeSourceVisual(payload);
   // The median itself is current; only an unavailable or illustrative value is a warning.
   element.classList.toggle('stale', sourceSentence ? false : payload?.status !== 'live');
   const sourceValues = Array.isArray(payload?.sourceValues) ? payload.sourceValues : [];
@@ -1143,6 +1304,40 @@ function updateDataStatus(payload) {
   if (payload?.fetchedAt || payload?.cachedAt || sourceBreakdown) {
     element.title = [payload?.updatedAt || payload?.fetchedAt || payload?.cachedAt, sourceBreakdown].filter(Boolean).join(' · ');
   }
+}
+
+function updateSelfBuildMetric(payload) {
+  const metric = payload?.methodology?.selfBuilding;
+  const value = Number(metric?.value);
+  if (!Number.isFinite(value)) return;
+  const formatted = `${value.toLocaleString(currentLocale, { minimumFractionDigits: value % 1 ? 1 : 0, maximumFractionDigits: 1 })}%`;
+  const status = document.querySelector('#self-build-status');
+  const valueElement = document.querySelector('#self-build-value');
+  const fill = document.querySelector('#self-build-bar-fill');
+  const sources = document.querySelector('#self-build-sources');
+  const meta = document.querySelector('#self-build-meta');
+  if (status) status.textContent = getTranslation('selfBuild.statusTemplate').replace('{value}', formatted);
+  if (valueElement) valueElement.textContent = formatted;
+  if (fill) fill.style.width = `${Math.max(0, Math.min(100, value))}%`;
+  const sourceValues = Array.isArray(metric.sourceValues) ? metric.sourceValues : [];
+  if (sources && sourceValues.length) {
+    sources.textContent = sourceValues
+      .map((source) => `${source.label || source.id} ${Number(source.value).toLocaleString(currentLocale, { maximumFractionDigits: 1 })}%${source.lowerBound ? '+' : ''}`)
+      .join(' · ');
+  }
+  const coverage = metric.coverage?.included;
+  const computedAt = Date.parse(metric.computedAt || '');
+  const date = Number.isFinite(computedAt)
+    ? new Date(computedAt).toLocaleDateString(currentLocale === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '';
+  if (meta) {
+    meta.textContent = [
+      Number.isFinite(Number(coverage)) ? `${currentLocale === 'ru' ? 'в медиане' : 'median of'} ${coverage} ${currentLocale === 'ru' ? 'материалов' : 'materials'}` : '',
+      date ? `${currentLocale === 'ru' ? 'замер' : 'measured'} ${date}` : ''
+    ].filter(Boolean).join(' · ');
+  }
+  const bar = document.querySelector('.self-build-bar');
+  if (bar) bar.setAttribute('aria-label', `${getTranslation('selfBuild.aria').replace(/\d+(?:[.,]\d+)?/, formatted.replace('%', ''))} (${formatted})`);
 }
 
 function getFeedStatusLabel(status) {
@@ -1212,7 +1407,7 @@ function getChartMetrics() {
   };
   const code = readValue('#code-value', INITIAL_RING_VALUES.code);
   const work = readValue('.signal[data-signal="work"] > strong', currentWorkValue);
-  const life = readValue('.signal[data-signal="life"] > strong', INITIAL_RING_VALUES.life);
+  const life = readValue('.signal[data-signal="life"] > strong', currentLifeValue);
   return { code, work, life, overall: (code * .4) + (work * .35) + (life * .25) };
 }
 
@@ -1251,9 +1446,14 @@ async function createShareCanvas() {
   const metrics = getChartMetrics();
   const logo = await loadShareLogo();
   const colors = { code: '#b59cff', work: '#6dfff4', life: '#d8ff70' };
+  const gradientStops = {
+    code: ['#8965ff', '#c5b3ff', '#8d68ed'],
+    work: ['#39ddd2', '#79fff1', '#1fc9c2'],
+    life: ['#b9ff46', '#eaff79', '#a7f52e']
+  };
   const labels = currentLocale === 'ru'
-    ? { title: 'СКОЛЬКО РАБОТЫ УЖЕ ДЕЛАЕТ AI', overall: 'ИТОГО', code: 'КОД', work: 'РАБОТА', life: 'ЖИЗНЬ' }
-    : { title: 'HOW MUCH WORK DOES AI ALREADY DO?', overall: 'TOTAL', code: 'CODE', work: 'WORK', life: 'LIFE' };
+    ? { title: 'КАКУЮ ЧАСТЬ ЖИЗНИ УЖЕ ЗАНИМАЕТ AI?', overall: 'ИТОГО', code: 'КОД', work: 'РАБОТА', life: 'ЖИЗНЬ' }
+    : { title: 'HOW MUCH OF LIFE DOES AI ALREADY OCCUPY?', overall: 'TOTAL', code: 'CODE', work: 'WORK', life: 'LIFE' };
 
   context.fillStyle = '#08090b';
   context.fillRect(0, 0, canvas.width, canvas.height);
@@ -1282,6 +1482,9 @@ async function createShareCanvas() {
     { radius: 118, value: metrics.code, color: colors.code }
   ];
   rings.forEach(({ radius, value, color }) => {
+    const ringKey = radius === 220 ? 'life' : radius === 169 ? 'work' : 'code';
+    const gradient = context.createLinearGradient(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+    gradientStops[ringKey].forEach((stop, index, stops) => gradient.addColorStop(index / (stops.length - 1), stop));
     context.save();
     context.translate(centerX, centerY);
     context.rotate(-Math.PI / 2);
@@ -1291,7 +1494,7 @@ async function createShareCanvas() {
     context.arc(0, 0, radius, 0, Math.PI * 2);
     context.stroke();
     context.beginPath();
-    context.strokeStyle = color;
+    context.strokeStyle = gradient;
     context.lineCap = 'round';
     context.shadowColor = color;
     context.shadowBlur = 22;
@@ -1360,17 +1563,18 @@ async function createShareCanvas() {
       'Оценка использования AI в коде, работе и повседневной жизни.',
       `Снимок отчёта: ${getShareDate()} · учтено 10 источников.`,
       `Code: ${codeIndex.toFixed(1)}% по ${formatCount(included)} из ${formatCount(total)} репозиториев; данные источника — на ${snapshotDate}.`,
-      'Work и Life — предварительные модельные оценки.'
+      'Work и Life — собственные модельные оценки.'
     ]
     : [
       'An estimate of AI use in code, work, and everyday life.',
       `Report snapshot: ${getShareDate()} · 10 sources included.`,
       `Code: ${codeIndex.toFixed(1)}% across ${formatCount(included)} of ${formatCount(total)} repositories; source data as of ${snapshotDate}.`,
-      'Work and Life are preliminary model estimates.'
+      'Work and Life are our own model estimates.'
     ];
   context.fillStyle = '#789494';
   context.font = '500 15px ui-sans-serif, system-ui, sans-serif';
   footerLines.forEach((line, index) => context.fillText(line, 72, 790 + (index * 20)));
+  drawDomainWatermark(context, { right: 1128, baseline: 850 });
   return canvas;
 }
 
@@ -1546,8 +1750,11 @@ async function loadCombinedSnapshot() {
     });
     if (!response.ok) throw new Error(`Combined snapshot API returned ${response.status}`);
     const payload = await response.json();
+    lastCombinedSnapshot = payload;
     updateSourceFeedStatus(payload.inputs?.sourceFeeds || { feeds: {} });
     updateGithubContributorStatus(payload.inputs?.githubContributors || { status: 'unavailable' });
+    if (payload.methodology?.life) updateLifeMetric(payload.methodology.life);
+    updateSelfBuildMetric(payload);
     return payload;
   } catch (error) {
     console.warn('Combined snapshot unavailable; loading individual cached feeds.', error);
@@ -2671,6 +2878,22 @@ async function loadWorkIndex() {
   }
 }
 
+async function loadLifeIndex() {
+  try {
+    const response = await fetch(apiUrl('/api/life-index'), {
+      headers: { Accept: 'application/json' },
+      cache: 'no-store'
+    });
+    if (!response.ok) throw new Error(`Life index API returned ${response.status}`);
+    const payload = await response.json();
+    updateLifeMetric(payload);
+    return payload;
+  } catch (error) {
+    console.warn('Life index unavailable; keeping the prototype Life value.', error);
+    return null;
+  }
+}
+
 async function loadCodeIndex() {
   try {
     const response = await fetch(apiUrl('/api/code-index'), {
@@ -2729,8 +2952,19 @@ function updateSiteWatermarks() {
   });
 }
 
-const ANALYSIS_CARD_WATERMARK = getSiteWatermark();
+const CHART_WATERMARK = 'ai.ffnwz.lat';
+const ANALYSIS_CARD_WATERMARK = CHART_WATERMARK;
 const ANALYSIS_CARD_SIZE = { width: 1200, height: 630 };
+
+function drawDomainWatermark(context, { right, baseline, domain = CHART_WATERMARK, color = 'rgba(150, 166, 168, .72)', font = '600 15px ui-sans-serif, system-ui, sans-serif' }) {
+  context.save();
+  context.font = font;
+  context.fillStyle = color;
+  context.textAlign = 'right';
+  context.textBaseline = 'alphabetic';
+  context.fillText(domain, right, baseline);
+  context.restore();
+}
 
 function loadAnalysisCardImage(url) {
   return new Promise((resolve) => {
@@ -2870,11 +3104,7 @@ function drawAnalysisCard(context, spec, images = {}) {
   setAnalysisCardFont(context, 18, 600);
   context.fillStyle = '#6f7882';
   context.fillText(spec.footer || '', pad, height - 50);
-  setAnalysisCardFont(context, 20, 800);
-  context.fillStyle = '#6dfff4';
-  context.textAlign = 'right';
-  context.fillText(ANALYSIS_CARD_WATERMARK, width - 48, height - 50);
-  context.textAlign = 'left';
+  drawDomainWatermark(context, { right: width - 48, baseline: height - 50, domain: ANALYSIS_CARD_WATERMARK, font: '800 20px ui-sans-serif, system-ui, sans-serif' });
 }
 
 function analysisCardColor(entry) {
@@ -3004,16 +3234,21 @@ document.querySelectorAll('[data-download-card]').forEach((button) => {
 
 document.querySelector('#repo-analysis-form')?.addEventListener('submit', submitRepositoryAnalysis);
 
-let savedLocale = 'ru';
-try { savedLocale = localStorage.getItem('ai-countdown-locale') || 'ru'; } catch (error) { /* use Russian fallback */ }
+let savedLocale = ROUTE_IS_RUSSIAN ? 'ru' : 'en';
+try {
+  if (!ROUTE_IS_RUSSIAN) savedLocale = localStorage.getItem('ai-countdown-locale') || 'en';
+} catch (error) { /* use the route default */ }
 
 async function initializeApp() {
   configureStaticFrontendLinks();
   updateSiteWatermarks();
   applyLocale(savedLocale);
-  await Promise.all([loadCodeIndex(), loadWorkIndex(), loadRepositoryAnalysisLeaderboard()]);
-  document.body.classList.remove('app-pending');
+  await Promise.all([loadCodeIndex(), loadWorkIndex(), loadLifeIndex(), loadRepositoryAnalysisLeaderboard()]);
   animateInitialRings();
+  // Prepare the empty rings and intro state before revealing the page. This
+  // prevents a stale baseline, source bar, or lower copy from flashing between
+  // the API response and the first animation frame.
+  requestAnimationFrame(() => document.body.classList.remove('app-pending'));
   loadCombinedSnapshot();
 }
 

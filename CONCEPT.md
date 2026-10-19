@@ -4,7 +4,7 @@ Revision: 19 October 2026.
 
 ## Core question
 
-AI Countdown asks: **How much work does AI already do for us?**
+AI Countdown asks: **How much of life does AI already occupy?**
 
 The project observes work that AI performs in software development, companies, and everyday life. Every observation should describe the amount of work, the remaining human involvement, the accepted result, the period, and the source.
 
@@ -41,16 +41,16 @@ Code generation, tool usage, expected adoption, automation potential, and workfo
 ## Current prototype status
 
 - **Code** is a public repository signal. It includes AI assistance and does not measure the share of engineers replaced.
-- **Work (31%)** and **Life (24%)** are prototype display values until comparable observed datasets are available.
+- **Work** is the median of its prototype vote and occupation capability ratings. **Life** is the median of its prototype vote and a frequency-and-time-weighted household-task rating; both remain capability estimates, not observed adoption.
 - **Overall** is a demonstration model: `Code × 0.40 + Work × 0.35 + Life × 0.25`.
-- **AI building AI** is a separate evidence track without a current percentage.
+- **AI building AI** is a separate evidence track. Its materials live in `data/self-building-observations.json`, separately from general editorial observations. The bar is the median of comparable company statements about AI-written code: Anthropic 80%+, Google 75%, and Microsoft 20–30% represented by the midpoint 25%; the current median is 75%. OpenAI's 99% AI-output-token figure is excluded because it measures token usage, not code share. The value does not claim autonomous self-improvement: human task setting, review, fixes, and release remain outside the number.
 - **AGI / ASI** are discussion contexts, not values derived from the dashboard percentage.
 
 Missing data should be shown as unavailable rather than silently replaced by a confident estimate.
 
 ## Repository evidence
 
-The backend stores each repository measurement and its history. It analyzes public commit statistics, classifies public AI markers, and distinguishes recognized agents from other contributors. A `Co-Authored-By` agent receives the whole commit because GitHub does not expose a line-level co-author split.
+The backend stores each repository measurement and its history. It analyzes public commit statistics, classifies public AI markers, and distinguishes recognized agents from other contributors. A `Co-Authored-By` agent receives the whole commit because GitHub does not expose a line-level co-author split. For a human author, that recognized agent commit starts a temporal sequence: agent-free commits remain attributed to the active agent until agent-free commits appear on three different dates; the following commit returns to the human. A commit with another recognized agent switches the sequence immediately. Contributor profiling checks up to 30 owned public repositories and queues those repositories for one bounded background analysis hop.
 
 The repository Top 3 uses a size-adjusted score:
 

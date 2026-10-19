@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "metric": "ai-authored-code-inside-ai-development",
+  "unit": "percent",
+  "title": {
+    "ru": "AI создаёт AI",
+    "en": "AI building AI"
+  },
+  "updatedAt": "2026-10-19T00:00:00.000Z",
+  "methodology": {
+    "version": "self-building-v1",
+    "aggregation": "median",
+    "includedRule": "В медиану входят только публичные заявления о доле кода, написанного или сгенерированного AI внутри разработки самой компании.",
+    "rangeRule": "Диапазон превращается в его середину: 20–30% становится 25%.",
+    "exclusionRule": "Не смешиваем долю AI-токенов, число запросов, использование продукта и общую автоматизацию с долей кода.",
+    "interpretation": "Это не измерение самостоятельного саморазвития моделей: инженеры могут ставить задачи, проверять, исправлять и принимать результат.",
+    "limitations": [
+      "Заявления компаний могут быть выборочными и не полностью сопоставимыми.",
+      "Значение 80%+ Anthropic внесено как консервативная нижняя граница 80%.",
+      "В каждом новом замере сохраняются дата, материалы, выборка и версия методологии."
+    ]
+  },
+  "observations": [
+    {
+      "id": "company-anthropic-code",
+      "company": "Anthropic",
+      "label": "Anthropic",
+      "value": 80,
+      "unit": "percent-of-merged-code",
+      "range": { "min": 80, "max": null },
+      "lowerBound": true,
+      "comparable": true,
+      "status": "reported",
+      "source": "https://www.anthropic.com/institute/recursive-self-improvement",
+      "observedAt": "2026-05",
+      "note": "Anthropic reports that Claude authored over 80% of code merged into its codebase; engineers direct and review the work."
+    },
+    {
+      "id": "company-google-code",
+      "company": "Google",
+      "label": "Google",
+      "value": 75,
+      "unit": "percent-of-new-code",
+      "range": { "min": 75, "max": 75 },
+      "comparable": true,
+      "status": "reported",
+      "source": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/cloud-next-2026-sundar-pichai/",
+      "observedAt": "2026-04-22",
+      "note": "Reported share of new code generated with AI and reviewed by engineers."
+    },
+    {
+      "id": "company-microsoft-code",
+      "company": "Microsoft",
+      "label": "Microsoft",
+      "value": 25,
+      "unit": "percent-of-code-in-selected-projects",
+      "range": { "min": 20, "max": 30 },
+      "comparable": true,
+      "status": "reported",
+      "source": "https://techcrunch.com/2025/04/29/microsoft-ceo-says-up-to-30-of-the-companys-code-was-written-by-ai/",
+      "observedAt": "2025-04-29",
+      "note": "Approximate range for selected Microsoft projects; the midpoint 25% is used for the median."
+    }
+  ],
+  "excludedObservations": [
+    {
+      "id": "company-openai-codex",
+      "company": "OpenAI",
+      "label": "OpenAI",
+      "value": 99,
+      "unit": "percent-of-ai-output-tokens",
+      "comparable": false,
+      "status": "reported",
+      "source": "https://openai.com/index/how-agents-are-transforming-work/",
+      "observedAt": "2026-06-25",
+      "exclusionReason": "Это доля AI-выходных токенов инженера, а не доля всего кода компании, написанного AI."
+    },
+    {
+      "id": "company-xai-code",
+      "company": "xAI",
+      "label": "xAI",
+      "value": null,
+      "unit": "undisclosed",
+      "comparable": false,
+      "status": "reported",
+      "source": "https://data.x.ai/2025-12-31-xai-frontier-artificial-intelligence-framework.pdf",
+      "observedAt": "2025-12-31",
+      "exclusionReason": "Публичного сопоставимого процента внутреннего AI-кода не найдено."
+    }
+  ],
+  "history": [
+    {
+      "date": "2026-10-19",
+      "value": 75,
+      "model": null,
+      "methodologyVersion": "self-building-v1",
+      "materials": ["company-anthropic-code", "company-google-code", "company-microsoft-code"],
+      "note": "Медиана совместимых значений: median(80, 75, 25) = 75."
+    }
+  ]
+}

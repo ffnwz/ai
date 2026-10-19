@@ -1,12 +1,32 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Countdown — сколько работы уже делает AI?</title>
-  <meta name="description" content="Какую человеческую работу AI уже берёт на себя: код, рабочие процессы и повседневные задачи. Данные, заявления компаний и границы каждой оценки." />
+  <title>AI Countdown — How much of life does AI already occupy?</title>
+  <meta name="description" content="An evidence-based estimate of how much of life AI already occupies across code, company workflows, and everyday life, with open sources and methodology." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://ai.ffnwz.lat/" />
+  <link rel="alternate" hreflang="en" href="https://ai.ffnwz.lat/" />
+  <link rel="alternate" hreflang="ru" href="https://ai.ffnwz.lat/ru" />
+  <link rel="alternate" hreflang="x-default" href="https://ai.ffnwz.lat/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AI Countdown" />
+  <meta property="og:title" content="AI Countdown — How much of life does AI already occupy?" />
+  <meta property="og:description" content="An evidence-based estimate of how much of life AI already occupies across code, company workflows, and everyday life." />
+  <meta property="og:url" content="https://ai.ffnwz.lat/" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="ru_RU" />
+  <meta property="og:image" content="https://ai.ffnwz.lat/og-en.png?v=20261019-html-v4" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="AI Countdown — How much of life does AI already occupy?" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="AI Countdown — How much of life does AI already occupy?" />
+  <meta name="twitter:description" content="An evidence-based estimate of how much of life AI already occupies across code, company workflows, and everyday life." />
+  <meta name="twitter:image" content="https://ai.ffnwz.lat/og-en.png?v=20261019-html-v4" />
   <link rel="icon" type="image/png" href="robot-apple.png" />
-  <link rel="stylesheet" href="styles.css?v=20261019-rate-limit-time" />
+  <link rel="stylesheet" href="styles.css?v=20261020-code-sources-2" />
 </head>
 <body class="app-pending">
   <header class="topbar shell">
@@ -29,6 +49,11 @@
       <div class="hero-meter">
         <div class="ring-stage intro-sequence">
           <svg viewBox="0 0 380 380" role="img" aria-label="Участие AI в коде и работе и условный показатель жизни">
+            <defs>
+              <linearGradient id="life-gradient" x1="70" y1="320" x2="300" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#b9ff46" /><stop offset=".52" stop-color="#eaff79" /><stop offset="1" stop-color="#a7f52e" /></linearGradient>
+              <linearGradient id="work-gradient" x1="70" y1="320" x2="300" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#39ddd2" /><stop offset=".52" stop-color="#79fff1" /><stop offset="1" stop-color="#1fc9c2" /></linearGradient>
+              <linearGradient id="code-gradient" x1="70" y1="320" x2="300" y2="60" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#8965ff" /><stop offset=".52" stop-color="#c5b3ff" /><stop offset="1" stop-color="#8d68ed" /></linearGradient>
+            </defs>
             <circle class="track outer" cx="190" cy="190" r="156"></circle>
             <circle class="track middle" cx="190" cy="190" r="124"></circle>
             <circle class="track inner" cx="190" cy="190" r="92"></circle>
@@ -61,7 +86,7 @@
             <span class="tooltip" role="tooltip" data-i18n="legend.life.tip">Личные дела, которые человек поручает AI. Число пока условное.</span>
           </div>
         </div>
-        <p class="meter-note intro-pending" data-i18n="meter.note">Код — сигнал участия AI в выборке. Работа — медиана оценки прототипа и AI-оценки профессий; Жизнь — условное значение. Общий процент показывает итоговую оценку.</p>
+        <p class="meter-note intro-pending" data-i18n="meter.note">Код — сигнал участия AI в выборке. Работа и Жизнь считаются медианой совместимых источников; для бытовых дел учитывается годовая нагрузка.</p>
         <div class="chart-actions">
           <button id="copy-chart" class="chart-action intro-pending" type="button">
             <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"></path></svg>
@@ -81,24 +106,24 @@
     </section>
 
     <section id="signals" class="shell signals intro-pending" aria-label="AI Countdown signals">
-      <button class="signal active" data-signal="code" type="button">
+      <a class="signal active" data-signal="code" href="code" data-github-pages-href="code.html" aria-label="Код — все просканированные репозитории">
         <span class="signal-top"><span data-i18n="code.title">01 / КОД</span><small data-i18n="code.confidence">пример · до загрузки данных</small></span>
       <strong><span id="code-value">42</span><span class="signal-unit">%</span></strong>
         <b data-i18n="code.label">AI пишет и меняет код</b>
         <small data-i18n="code.note">написание, исправления, тесты; человек проверяет результат</small>
-      </button>
-      <button class="signal" data-signal="work" type="button">
-        <span class="signal-top"><span data-i18n="work.title">02 / РАБОТА</span><small data-i18n="work.confidence">условное значение</small></span>
+      </a>
+      <a class="signal" data-signal="work" href="work" data-github-pages-href="occupations.html" aria-label="Работа — оценки профессий">
+        <span class="signal-top"><span data-i18n="work.title">02 / РАБОТА</span><small data-i18n="work.confidence">медиана источников</small></span>
         <strong>31<span>%</span></strong>
         <b data-i18n="work.label">AI выполняет рабочие задачи</b>
         <small data-i18n="work.note">обращения клиентов, документы, отчёты</small>
-      </button>
-      <button class="signal" data-signal="life" type="button">
-        <span class="signal-top"><span data-i18n="life.title">03 / ЖИЗНЬ</span><small data-i18n="life.confidence">условное значение</small></span>
+      </a>
+      <a class="signal" data-signal="life" href="life" data-github-pages-href="life.html" aria-label="Жизнь — повседневные задачи">
+        <span class="signal-top"><span data-i18n="life.title">03 / ЖИЗНЬ</span><small data-i18n="life.confidence">медиана источников</small></span>
         <strong>24<span>%</span></strong>
         <b data-i18n="life.label">AI берёт на себя повседневные дела</b>
         <small data-i18n="life.note">письма, поиск информации, планирование</small>
-      </button>
+      </a>
     </section>
 
     <section class="section shell repository-analysis-section" id="repo-analysis" aria-labelledby="repo-analysis-title">
@@ -189,90 +214,34 @@
     <section class="hero-intro shell">
       <div class="hero-copy">
         <p class="eyebrow" data-i18n="hero.eyebrow">ЗАМЕЩЕНИЕ ЧЕЛОВЕЧЕСКОЙ РАБОТЫ</p>
-        <h1 data-i18n-html="hero.title">Сколько работы<br /><em>AI уже делает за нас?</em></h1>
+        <h1 data-i18n-html="hero.title">Какую часть жизни<br /><em>уже занимает AI?</em></h1>
         <p class="lede" data-i18n="hero.lede">Код, рабочие процессы, повседневные задачи. Следим за тем, какую работу AI берёт на себя и сколько участия человека остаётся.</p>
         <div class="hero-meta">
           <span data-i18n="hero.date">Версия 0.2 · 18 окт. 2026</span>
-          <span id="data-status" class="data-status" data-i18n="data.loading">КОД: ЗАГРУЖАЕМ ДАННЫЕ…</span>
+          <div class="data-status-wrap">
+            <span id="data-status" class="data-status" data-i18n="data.loading">КОД: ЗАГРУЖАЕМ ДАННЫЕ…</span>
+            <div id="code-source-visual" class="code-source-visual" role="img" aria-label="Сравнение источников кода" hidden>
+              <div class="code-source-track" aria-hidden="true">
+                <span class="code-source-median" id="code-source-median"></span>
+                <span class="code-source-marker radar" id="code-source-radar-marker"></span>
+                <span class="code-source-marker ours" id="code-source-ours-marker"></span>
+                <span class="code-source-marker survey" id="code-source-survey-marker" hidden></span>
+                <span class="code-source-marker study" id="code-source-study-marker" hidden></span>
+              </div>
+              <div class="code-source-legend">
+                <span class="code-source-key"><i class="radar"></i><span data-i18n="data.barRadar">AI Code Radar</span> <b id="code-source-radar-value">—</b></span>
+                <span class="code-source-key"><i class="ours"></i><span data-i18n="data.barOurs">AI Countdown</span> <b id="code-source-ours-value">—</b></span>
+                <span class="code-source-key" id="code-source-survey-key" hidden><i class="survey"></i><span data-i18n="data.barSurvey">Sonar</span> <b id="code-source-survey-value">—</b></span>
+                <span class="code-source-key" id="code-source-study-key" hidden><i class="study"></i><span data-i18n="data.barStudy">Daniotti et al.</span> <b id="code-source-study-value">—</b></span>
+                <span class="code-source-key median"><i></i><span data-i18n="data.barMedian">медиана</span> <b id="code-source-median-value">—</b></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-<section class="section shell split" id="model">
-      <div>
-        <p class="eyebrow" data-i18n="model.eyebrow">ЧТО СЧИТАЕМ ЗАМЕЩЕНИЕМ</p>
-        <h2 data-i18n-html="model.title">Отдельная задача.<br />Или уже целый процесс?</h2>
-        <p class="section-copy" data-i18n="model.copy">Важно понять, какой ручной этап AI выполнил и что осталось человеку: поставить задачу, проверить результат, исправить ошибки или принять решение.</p>
-        <div class="definition">
-          <div class="definition-label" data-i18n="model.definitionLabel">Полное замещение задачи</div>
-          <p data-i18n="model.definition">AI доводит конкретную задачу до принятого результата. Для оценки нужны данные о качестве, проверке и случаях, когда работу пришлось вернуть человеку.</p>
-        </div>
-      </div>
-      <div class="detail-panel">
-        <div class="panel-kicker" data-i18n="detail.kicker">ЧТО ПРОИСХОДИТ В ЭТОМ НАПРАВЛЕНИИ</div>
-        <h3 id="detail-title">AI создаёт код. Кто доводит его до выпуска?</h3>
-        <p id="detail-copy">Сигнал из репозиториев показывает участие AI в создании изменений. Чтобы понять объём замещённой работы, нужны также данные о проверке, исправлениях и выпуске. Текущий процент относится к выборке источника.</p>
-        <div class="detail-rule"></div>
-        <div class="self-build">
-          <div><span data-i18n-html="selfBuild.label">Особый случай: <b>AI создаёт AI</b></span><strong data-i18n="selfBuild.status">ПОКА БЕЗ ОЦЕНКИ</strong></div>
-          <small data-i18n="selfBuild.note">Код, тесты и эксперименты для новых моделей. Для оценки самостоятельности нужны отдельные данные.</small>
-        </div>
-      </div>
-    </section>
-
-    <section class="section shell evidence-section">
-      <div class="section-head">
-        <div><p class="eyebrow" data-i18n="reading.eyebrow">СТЕПЕНЬ ЗАМЕЩЕНИЯ</p><h2 data-i18n="reading.title">Что именно осталось человеку?</h2></div>
-        <p class="section-copy" data-i18n="reading.copy">Один сгенерированный ответ и самостоятельно выполненный процесс означают разный объём замещённой работы. Для каждого случая смотрим на весь путь до результата.</p>
-      </div>
-      <div class="evidence-grid">
-        <article class="evidence-main">
-          <span class="quote-mark">“</span>
-          <h3 data-i18n="reading.quoteTitle">Важен весь путь: от задачи до принятого результата.</h3>
-          <p data-i18n="reading.quoteCopy">AI может написать ответ, а человек — проверить каждый факт. Может закрыть обращение целиком и передать оператору только исключения. Объём участия человека определяет, сколько работы удалось передать.</p>
-        </article>
-        <div class="evidence-list">
-          <div class="evidence-row"><span>01</span><div><b data-i18n="reading.output">Помощь</b><p data-i18n="reading.outputCopy">AI предлагает вариант. Человек выполняет задачу.</p></div><strong aria-hidden="true"><svg class="evidence-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
-          <div class="evidence-row"><span>02</span><div><b data-i18n="reading.adoption">Выполнение задачи</b><p data-i18n="reading.adoptionCopy">AI готовит результат. Человек проверяет и принимает.</p></div><strong aria-hidden="true"><svg class="evidence-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
-          <div class="evidence-row"><span>03</span><div><b data-i18n="reading.autonomy">Выполнение процесса</b><p data-i18n="reading.autonomyCopy">AI проходит этапы сам. Человек разбирает исключения.</p></div><strong aria-hidden="true"><svg class="evidence-icon check" viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section shell" id="sources">
-      <div class="section-head">
-        <div><p class="eyebrow" data-i18n="sources.eyebrow">ИСТОЧНИКИ И НАБЛЮДЕНИЯ</p><h2 data-i18n="sources.title">Что стоит за числами</h2></div>
-        <p class="section-copy" data-i18n="sources.copy">Измерения репозиториев, опросы и заявления компаний описывают разные стороны замещения. У каждого источника — своя выборка, дата и единица измерения.</p>
-      </div>
-      <div class="source-grid">
-        <a href="https://slopscore.ava.pet/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.repoLabel">СИГНАЛ РЕПОЗИТОРИЕВ</span><b>Slop Score</b><small>slopscore.ava.pet</small></a>
-        <a href="https://codeberg.org/polyphony/slopscore" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.methodLabel">ОТКРЫТАЯ МЕТОДОЛОГИЯ</span><b>Polyphony / slopscore</b><small>codeberg.org/polyphony/slopscore</small></a>
-        <a href="https://assets.aboutamazon.com/bb/2e/9077b9f44a2898c01fcc7f35440d/aws-ai-europe.pdf" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.companyLabel">СИГНАЛ КОМПАНИИ</span><b>Amazon / AWS Survey</b><small>assets.aboutamazon.com</small></a>
-        <article class="source-card project-card"><span data-i18n="source.projectLabel">ЭТОТ ПРОЕКТ</span><b>AI Countdown</b><p data-i18n="source.projectCopy">Следим за тем, какую работу AI выполняет вместо человека — в коде, компаниях и повседневных делах.</p><small data-i18n="source.projectStatus">прототип · данные собраны частично</small></article>
-        <a href="https://github.com/Korext/ai-code-radar" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.feedLabel">ДАННЫЕ ИСТОЧНИКА</span><b>AI Code Radar</b><p data-i18n="source.radarCopy">Декларации об участии AI в коде с размером выборки и датой снимка.</p><small>oss.korext.com/api/radar/current</small><small id="radar-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
-        <a href="https://www.qmmit.dev/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>qmmit</b><p data-i18n="source.qmmitCopy">Коммиты с помощью AI и автономные изменения учитываются отдельно.</p><small>qmmit.dev</small></a>
-        <a href="https://causari.dev/reports/survival/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.reportLabel">ИССЛЕДОВАТЕЛЬСКИЙ ОТЧЁТ</span><b>Causari Survival</b><p data-i18n="source.causariCopy">AI-помеченные строки, которые пережили дальнейшие изменения.</p><small>causari.dev/reports/survival</small></a>
-        <a href="https://alteredcraft.github.io/dashboards/ai-agent-adoption/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>AI Agent Adoption</b><p data-i18n="source.agentCopy">Распространённость конфигураций агентов в публичных репозиториях.</p><small>alteredcraft.github.io</small></a>
-        <a href="https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>Anthropic Economic Index</b><p data-i18n="source.anthropicCopy">Использование AI в задачах: помощь человеку и автоматическое выполнение.</p><small>huggingface.co/datasets</small></a>
-        <a href="https://stackoverflow.blog/2026/10/06/the-results-of-the-2026-developer-survey-are-here/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.surveyLabel">ОПРОС РАЗРАБОТЧИКОВ</span><b>Stack Overflow Survey 2026</b><p data-i18n="source.stackCopy">Опрос разработчиков об использовании AI, доверии и рабочих привычках.</p><small>stackoverflow.blog</small></a>
-        <a href="https://meoadvisors.com/datasets/" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>Meo Workforce Data</b><p data-i18n="source.meoCopy">Потенциал автоматизации профессий и наблюдения о рынке труда.</p><small>data.meoadvisors.com</small><small id="meo-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
-        <a href="https://grafana.com/grafana/dashboards/25803-git-ai-code-attribution/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>Git AI / Grafana</b><p data-i18n="source.gitAiCopy">Учёт строк, созданных с участием AI, в отдельных командах.</p><small>grafana.com/dashboards</small></a>
-        <a href="https://github.com/Korext/ai-attestation" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.standardLabel">ОТКРЫТЫЙ СТАНДАРТ</span><b>AI Attestation</b><p data-i18n="source.attestationCopy">Машиночитаемый формат декларации происхождения кода.</p><small>github.com/Korext/ai-attestation</small></a>
-        <a href="https://botcommits.dev/" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.botcommitsLabel">ПУБЛИЧНЫЕ AI-КОММИТЫ</span><b>Bot Commits</b><p data-i18n="source.botcommitsCopy">Помесячная оценка публичных коммитов, атрибутированных AI-инструментам.</p><small>botcommits.dev</small><small id="botcommits-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
-        <a href="https://ossinsight.io/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>OSSInsight</b><p data-i18n="source.ossInsightCopy">Независимая статистика GitHub: репозитории, коммиты, PR и контрибьюторы для проверки масштаба.</p><small>ossinsight.io</small></a>
-        <a href="https://github.com/edgardomunoznajar/github_explosion" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.methodLabel">ОТКРЫТАЯ МЕТОДОЛОГИЯ</span><b>github_explosion</b><p data-i18n="source.explosionCopy">Сборщик и анализатор рядов AI-атрибутированных коммитов через GH Archive и GitHub Search.</p><small>github.com/edgardomunoznajar</small></a>
-        <a href="https://github.com/claude" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.contributorsLabel">GITHUB-КОНТРИБЬЮТОРЫ</span><b>AI Contributors</b><p data-i18n="source.contributorsCopy">Публичные репозитории и коммиты AI-связанных GitHub-аккаунтов, например Claude.</p><small>api.github.com</small><small id="github-contributors-value" class="source-data" data-i18n="source.contributorsLoading">Загружаем данные контрибьюторов…</small></a>
-      </div>
-      <p class="methodology-cta"><a class="external-link" href="methodology.html" data-i18n="sources.methodologyLink">Как считаются показатели</a> · <a class="external-link" href="/work" data-github-pages-href="occupations.html" data-i18n="sources.occupationsLink">Доля AI и человека по профессиям</a></p>
-      <aside class="contribution-cta">
-        <div>
-          <p class="eyebrow" data-i18n="contribute.eyebrow">ОТКРЫТЫЙ ПРОЕКТ</p>
-          <h3 data-i18n="contribute.title">Помогите сделать индекс точнее</h3>
-          <p data-i18n="contribute.copy">Предлагайте изменения в методологию, новые источники и исправления данных в открытом репозитории.</p>
-        </div>
-        <a class="external-link contribution-link" href="https://github.com/ffnwz/ai" target="_blank" rel="noreferrer" data-i18n="contribute.link">Открыть репозиторий на GitHub</a>
-      </aside>
-
+    <section class="section shell companies-work-section" aria-label="Компании и рабочие места">
       <div class="companies-block">
         <div class="section-head company-head">
           <div><p class="eyebrow" data-i18n="companies.eyebrow">РАБОТА ВНУТРИ КОМПАНИЙ</p><h3 data-i18n="companies.title">Какую работу компании поручают AI</h3></div>
@@ -354,9 +323,126 @@
           </article>
         </div>
       </div>
+    </section>
+
+<section class="section shell split" id="model">
+      <div>
+        <p class="eyebrow" data-i18n="model.eyebrow">ЧТО СЧИТАЕМ ЗАМЕЩЕНИЕМ</p>
+        <h2 data-i18n-html="model.title">Отдельная задача.<br />Или уже целый процесс?</h2>
+        <p class="section-copy" data-i18n="model.copy">Важно понять, какой ручной этап AI выполнил и что осталось человеку: поставить задачу, проверить результат, исправить ошибки или принять решение.</p>
+        <div class="definition">
+          <div class="definition-label" data-i18n="model.definitionLabel">Полное замещение задачи</div>
+          <p data-i18n="model.definition">AI доводит конкретную задачу до принятого результата. Для оценки нужны данные о качестве, проверке и случаях, когда работу пришлось вернуть человеку.</p>
+        </div>
+      </div>
+      <div class="detail-panel">
+        <div class="panel-kicker" data-i18n="detail.kicker">ЧТО ПРОИСХОДИТ В ЭТОМ НАПРАВЛЕНИИ</div>
+        <h3 id="detail-title">AI создаёт код. Кто доводит его до выпуска?</h3>
+        <p id="detail-copy">Сигнал из репозиториев показывает участие AI в создании изменений. Чтобы понять объём замещённой работы, нужны также данные о проверке, исправлениях и выпуске. Текущий процент относится к выборке источника.</p>
+        <div class="detail-rule"></div>
+        <div class="self-build">
+          <div class="self-build-summary"><span data-i18n-html="selfBuild.label">Особый случай: <b>AI создаёт AI</b></span><strong id="self-build-status" data-i18n="selfBuild.status">МЕДИАНА: 75% AI-КОДА</strong></div>
+          <div class="bar self-build-bar" role="img" data-i18n-aria="selfBuild.aria" aria-label="По заявлениям AI-компаний, AI пишет 75 процентов кода внутри их разработки"><i id="self-build-bar-fill" style="width: 75%"></i></div>
+          <div class="self-build-scale" aria-hidden="true"><span>0%</span><b id="self-build-value" data-i18n="selfBuild.value">75%</b><span>100%</span></div>
+          <small data-i18n="selfBuild.note">AI-компании и крупные разработчики сообщают, какую долю кода AI пишет внутри их инженерной работы. Бар показывает медиану сопоставимых заявлений о доле кода, а не самостоятельное саморазвитие.</small>
+          <small id="self-build-sources" class="self-build-sources" data-i18n="selfBuild.sources">Anthropic 80%+ · Google 75% · Microsoft 20–30%</small>
+          <small id="self-build-meta" class="self-build-meta"></small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell evidence-section">
+      <div class="section-head">
+        <div><p class="eyebrow" data-i18n="reading.eyebrow">СТЕПЕНЬ ЗАМЕЩЕНИЯ</p><h2 data-i18n="reading.title">Что именно осталось человеку?</h2></div>
+        <p class="section-copy" data-i18n="reading.copy">Один сгенерированный ответ и самостоятельно выполненный процесс означают разный объём замещённой работы. Для каждого случая смотрим на весь путь до результата.</p>
+      </div>
+      <div class="evidence-grid">
+        <article class="evidence-main">
+          <span class="quote-mark">“</span>
+          <h3 data-i18n="reading.quoteTitle">Важен весь путь: от задачи до принятого результата.</h3>
+          <p data-i18n="reading.quoteCopy">AI может написать ответ, а человек — проверить каждый факт. Может закрыть обращение целиком и передать оператору только исключения. Объём участия человека определяет, сколько работы удалось передать.</p>
+        </article>
+        <div class="evidence-list">
+          <div class="evidence-row"><span>01</span><div><b data-i18n="reading.output">Помощь</b><p data-i18n="reading.outputCopy">AI предлагает вариант. Человек выполняет задачу.</p></div><strong aria-hidden="true"><svg class="evidence-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
+          <div class="evidence-row"><span>02</span><div><b data-i18n="reading.adoption">Выполнение задачи</b><p data-i18n="reading.adoptionCopy">AI готовит результат. Человек проверяет и принимает.</p></div><strong aria-hidden="true"><svg class="evidence-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
+          <div class="evidence-row"><span>03</span><div><b data-i18n="reading.autonomy">Выполнение процесса</b><p data-i18n="reading.autonomyCopy">AI проходит этапы сам. Человек разбирает исключения.</p></div><strong aria-hidden="true"><svg class="evidence-icon check" viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell" id="sources">
+      <div class="section-head">
+        <div><p class="eyebrow" data-i18n="sources.eyebrow">ИСТОЧНИКИ И НАБЛЮДЕНИЯ</p><h2 data-i18n="sources.title">Что стоит за числами</h2></div>
+        <p class="section-copy" data-i18n="sources.copy">Измерения репозиториев, опросы и заявления компаний описывают разные стороны замещения. У каждого источника — своя выборка, дата и единица измерения.</p>
+      </div>
+      <div class="source-grid">
+        <a href="https://slopscore.ava.pet/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.repoLabel">СИГНАЛ РЕПОЗИТОРИЕВ</span><b>Slop Score</b><small>slopscore.ava.pet</small></a>
+        <a href="https://codeberg.org/polyphony/slopscore" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.methodLabel">ОТКРЫТАЯ МЕТОДОЛОГИЯ</span><b>Polyphony / slopscore</b><small>codeberg.org/polyphony/slopscore</small></a>
+        <a href="https://assets.aboutamazon.com/bb/2e/9077b9f44a2898c01fcc7f35440d/aws-ai-europe.pdf" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.companyLabel">СИГНАЛ КОМПАНИИ</span><b>Amazon / AWS Survey</b><small>assets.aboutamazon.com</small></a>
+        <article class="source-card project-card"><span data-i18n="source.projectLabel">ЭТОТ ПРОЕКТ</span><b>AI Countdown</b><p data-i18n="source.projectCopy">Следим за тем, какую работу AI выполняет вместо человека — в коде, компаниях и повседневных делах.</p><small data-i18n="source.projectStatus">прототип · данные собраны частично</small></article>
+        <a href="https://github.com/Korext/ai-code-radar" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.feedLabel">ДАННЫЕ ИСТОЧНИКА</span><b>AI Code Radar</b><p data-i18n="source.radarCopy">Декларации об участии AI в коде с размером выборки и датой снимка.</p><small>oss.korext.com/api/radar/current</small><small id="radar-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
+        <a href="https://www.qmmit.dev/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>qmmit</b><p data-i18n="source.qmmitCopy">Коммиты с помощью AI и автономные изменения учитываются отдельно.</p><small>qmmit.dev</small></a>
+        <a href="https://causari.dev/reports/survival/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.reportLabel">ИССЛЕДОВАТЕЛЬСКИЙ ОТЧЁТ</span><b>Causari Survival</b><p data-i18n="source.causariCopy">AI-помеченные строки, которые пережили дальнейшие изменения.</p><small>causari.dev/reports/survival</small></a>
+        <a href="https://alteredcraft.github.io/dashboards/ai-agent-adoption/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>AI Agent Adoption</b><p data-i18n="source.agentCopy">Распространённость конфигураций агентов в публичных репозиториях.</p><small>alteredcraft.github.io</small></a>
+        <a href="https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>Anthropic Economic Index</b><p data-i18n="source.anthropicCopy">Использование AI в задачах: помощь человеку и автоматическое выполнение.</p><small>huggingface.co/datasets</small></a>
+        <a href="https://stackoverflow.blog/2026/10/06/the-results-of-the-2026-developer-survey-are-here/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.surveyLabel">ОПРОС РАЗРАБОТЧИКОВ</span><b>Stack Overflow Survey 2026</b><p data-i18n="source.stackCopy">Опрос разработчиков об использовании AI, доверии и рабочих привычках.</p><small>stackoverflow.blog</small></a>
+        <a href="https://meoadvisors.com/datasets/" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>Meo Workforce Data</b><p data-i18n="source.meoCopy">Потенциал автоматизации профессий и наблюдения о рынке труда.</p><small>data.meoadvisors.com</small><small id="meo-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
+        <a href="https://grafana.com/grafana/dashboards/25803-git-ai-code-attribution/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>Git AI / Grafana</b><p data-i18n="source.gitAiCopy">Учёт строк, созданных с участием AI, в отдельных командах.</p><small>grafana.com/dashboards</small></a>
+        <a href="https://github.com/Korext/ai-attestation" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.standardLabel">ОТКРЫТЫЙ СТАНДАРТ</span><b>AI Attestation</b><p data-i18n="source.attestationCopy">Машиночитаемый формат декларации происхождения кода.</p><small>github.com/Korext/ai-attestation</small></a>
+        <a href="https://botcommits.dev/" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.botcommitsLabel">ПУБЛИЧНЫЕ AI-КОММИТЫ</span><b>Bot Commits</b><p data-i18n="source.botcommitsCopy">Помесячная оценка публичных коммитов, атрибутированных AI-инструментам.</p><small>botcommits.dev</small><small id="botcommits-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
+        <a href="https://ossinsight.io/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>OSSInsight</b><p data-i18n="source.ossInsightCopy">Независимая статистика GitHub: репозитории, коммиты, PR и контрибьюторы для проверки масштаба.</p><small>ossinsight.io</small></a>
+        <a href="https://github.com/edgardomunoznajar/github_explosion" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.methodLabel">ОТКРЫТАЯ МЕТОДОЛОГИЯ</span><b>github_explosion</b><p data-i18n="source.explosionCopy">Сборщик и анализатор рядов AI-атрибутированных коммитов через GH Archive и GitHub Search.</p><small>github.com/edgardomunoznajar</small></a>
+        <a href="https://github.com/claude" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.contributorsLabel">GITHUB-КОНТРИБЬЮТОРЫ</span><b>AI Contributors</b><p data-i18n="source.contributorsCopy">Публичные репозитории и коммиты AI-связанных GitHub-аккаунтов, например Claude.</p><small>api.github.com</small><small id="github-contributors-value" class="source-data" data-i18n="source.contributorsLoading">Загружаем данные контрибьюторов…</small></a>
+      </div>
+      <div class="source-registry">
+        <div class="source-registry-head">
+          <p class="eyebrow" data-i18n="sources.registryEyebrow">РЕЕСТР ИСТОЧНИКОВ</p>
+          <h3 data-i18n="sources.registryTitle">Все источники проекта</h3>
+          <p data-i18n="sources.registryCopy">В реестре собраны live feeds, открытые датасеты, публичные дашборды, заявления компаний и источники для перепроверки. У каждой ссылки сохранены исходный охват и единица измерения.</p>
+          <a class="external-link source-registry-link" href="https://github.com/ffnwz/ai/blob/main/data/sources.json" target="_blank" rel="noreferrer">data/sources.json</a>
+        </div>
+        <div class="source-registry-list">
+          <a href="https://slopscore.ava.pet/" target="_blank" rel="noreferrer"><b>Slop Score</b><small>slopscore.ava.pet</small></a>
+          <a href="https://codeberg.org/polyphony/slopscore" target="_blank" rel="noreferrer"><b>Polyphony / slopscore</b><small>codeberg.org</small></a>
+          <a href="https://github.com/Korext/ai-code-radar" target="_blank" rel="noreferrer"><b>AI Code Radar</b><small>oss.korext.com/api/radar/current</small></a>
+          <a href="https://github.com/Korext/ai-attestation" target="_blank" rel="noreferrer"><b>AI Attestation</b><small>github.com/Korext</small></a>
+          <a href="https://www.qmmit.dev/" target="_blank" rel="noreferrer"><b>qmmit</b><small>qmmit.dev</small></a>
+          <a href="https://causari.dev/reports/survival/" target="_blank" rel="noreferrer"><b>Causari Survival</b><small>causari.dev</small></a>
+          <a href="https://alteredcraft.github.io/dashboards/ai-agent-adoption/" target="_blank" rel="noreferrer"><b>AI Agent Adoption</b><small>alteredcraft.github.io</small></a>
+          <a href="https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main" target="_blank" rel="noreferrer"><b>Anthropic Economic Index</b><small>huggingface.co</small></a>
+          <a href="https://stackoverflow.blog/2026/10/06/the-results-of-the-2026-developer-survey-are-here/" target="_blank" rel="noreferrer"><b>Stack Overflow Survey 2026</b><small>stackoverflow.blog</small></a>
+          <a href="https://meoadvisors.com/datasets/" target="_blank" rel="noreferrer"><b>Meo Workforce Data</b><small>meoadvisors.com</small></a>
+          <a href="https://grafana.com/grafana/dashboards/25803-git-ai-code-attribution/" target="_blank" rel="noreferrer"><b>Git AI / Grafana</b><small>grafana.com</small></a>
+          <a href="https://botcommits.dev/" target="_blank" rel="noreferrer"><b>Bot Commits</b><small>botcommits.dev</small></a>
+          <a href="https://ossinsight.io/" target="_blank" rel="noreferrer"><b>OSSInsight</b><small>ossinsight.io</small></a>
+          <a href="https://github.com/claude" target="_blank" rel="noreferrer"><b>GitHub AI Contributors</b><small>api.github.com</small></a>
+          <a href="https://github.com/edgardomunoznajar/github_explosion" target="_blank" rel="noreferrer"><b>github_explosion</b><small>github.com/edgardomunoznajar</small></a>
+          <a href="https://docs.github.com/en/graphql/reference/users" target="_blank" rel="noreferrer"><b>GitHub Contributions API</b><small>docs.github.com</small></a>
+          <a href="https://openai.com/index/how-agents-are-transforming-work/" target="_blank" rel="noreferrer"><b>OpenAI report</b><small>openai.com</small></a>
+          <a href="https://www.anthropic.com/institute/recursive-self-improvement" target="_blank" rel="noreferrer"><b>Anthropic report</b><small>anthropic.com</small></a>
+          <a href="https://data.x.ai/2025-12-31-xai-frontier-artificial-intelligence-framework.pdf" target="_blank" rel="noreferrer"><b>xAI framework</b><small>data.x.ai</small></a>
+          <a href="https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/cloud-next-2026-sundar-pichai/" target="_blank" rel="noreferrer"><b>Google statement</b><small>blog.google</small></a>
+          <a href="https://techcrunch.com/2025/04/29/microsoft-ceo-says-up-to-30-of-the-companys-code-was-written-by-ai/" target="_blank" rel="noreferrer"><b>Microsoft statement</b><small>techcrunch.com</small></a>
+          <a href="https://assets.aboutamazon.com/bb/2e/9077b9f44a2898c01fcc7f35440d/aws-ai-europe.pdf" target="_blank" rel="noreferrer"><b>AWS / Amazon survey</b><small>assets.aboutamazon.com</small></a>
+          <a href="https://www.latimes.com/business/story/2025-09-02/salesforce-ceo-marc-benioff-says-he-cut-4-000-support-roles-because-of-ai" target="_blank" rel="noreferrer"><b>Salesforce workforce</b><small>latimes.com</small></a>
+          <a href="https://www.sec.gov/Archives/edgar/data/2003292/000200329226000007/klar-20251231.htm" target="_blank" rel="noreferrer"><b>Klarna report</b><small>sec.gov</small></a>
+          <a href="https://apnews.com/article/cb64af47ebb794541fbdfa8fd264932c" target="_blank" rel="noreferrer"><b>Amazon workforce</b><small>apnews.com</small></a>
+          <a href="https://github.com/ffnwz/ai" target="_blank" rel="noreferrer"><b>AI Countdown</b><small>github.com/ffnwz/ai</small></a>
+        </div>
+      </div>
+      <p class="methodology-cta"><a class="external-link" href="methodology" data-github-pages-href="methodology.html" data-i18n="sources.methodologyLink">Как считаются показатели</a> · <a class="external-link" href="/work" data-github-pages-href="occupations.html" data-i18n="sources.occupationsLink">Доля AI и человека по профессиям</a> · <a class="external-link" href="/life" data-github-pages-href="life.html" data-i18n="sources.lifeTasksLink">Повседневные задачи и устройства</a></p>
+      <aside class="contribution-cta">
+        <div>
+          <p class="eyebrow" data-i18n="contribute.eyebrow">ОТКРЫТЫЙ ПРОЕКТ</p>
+          <h3 data-i18n="contribute.title">Помогите сделать индекс точнее</h3>
+          <p data-i18n="contribute.copy">Предлагайте изменения в методологию, новые источники и исправления данных в открытом репозитории.</p>
+        </div>
+        <a class="external-link contribution-link" href="https://github.com/ffnwz/ai" target="_blank" rel="noreferrer" data-i18n="contribute.link">Открыть репозиторий на GitHub</a>
+      </aside>
+
       <div class="questions">
         <details open><summary data-i18n="questions.ownershipTitle">AI написал код. Какую работу он заменил?</summary><p data-i18n="questions.ownershipCopy">Создание кода — один этап разработки. Постановка задачи, проверка, тестирование и выпуск могут оставаться за человеком. Для оценки замещения процесса нужны данные об этих этапах.</p></details>
-        <details><summary data-i18n="questions.selfTitle">Что означают проценты в кольцах?</summary><p data-i18n="questions.selfCopy">Код показывает сигнал участия AI в доступной выборке репозиториев. Работа — медиана условных 31% прототипа и медианной AI-оценки профессий ISCO-08. 24% для Жизни — условное значение. Общее число объединяет их по выбранным весам и подписано «Модель». Измеренной общей доли замещения пока нет.</p></details>
+        <details><summary data-i18n="questions.selfTitle">Что означают проценты в кольцах?</summary><p data-i18n="questions.selfCopy">Код показывает сигнал участия AI в доступной выборке репозиториев. Работа и Жизнь — медианы совместимых источников; для Жизни оцениваются повторяющиеся бытовые задачи с весом годовой нагрузки. Общее число объединяет их по выбранным весам и подписано «Модель». Измеренной общей доли замещения пока нет.</p></details>
         <details><summary data-i18n="questions.claimTitle">Когда можно сказать, что AI заменил сотрудника?</summary><p data-i18n="questions.claimCopy">Для такого вывода нужны данные о должностях, численности команды, периоде и причинах изменений. Объём работы в эквиваленте сотрудников и процент сгенерированного кода сами по себе такого вывода не дают.</p></details>
       </div>
     </section>
@@ -397,7 +483,7 @@
     </section>
   </main>
 
-  <footer class="shell footer"><span><b>AI Countdown</b> · <span data-i18n="footer.left">наблюдаем за замещением человеческой работы</span></span><span data-i18n="footer.right">Прототип: Код — сигнал в выборке; Работа — медиана источников; Жизнь — условное значение. Методология и источники открыты.</span><span><a class="external-link" href="https://github.com/ffnwz/ai" target="_blank" rel="noreferrer" data-i18n="footer.github">Исходный код и предложения на GitHub</a></span></footer>
-  <script src="app.js?v=20261019-domain-watermark"></script>
+  <footer class="shell footer"><span><b>AI Countdown</b> · <span data-i18n="footer.left">наблюдаем за замещением человеческой работы</span></span><span data-i18n="footer.right">Прототип: Код — сигнал в выборке; Работа и Жизнь — медианы источников. Для Жизни есть отдельный реестр бытовых задач. Методология и источники открыты.</span><span><a class="external-link" href="https://github.com/ffnwz/ai" target="_blank" rel="noreferrer" data-i18n="footer.github">Исходный код и предложения на GitHub</a></span></footer>
+    <script src="app.js?v=20261020-code-sources-3"></script>
 </body>
 </html>

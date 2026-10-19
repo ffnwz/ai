@@ -29,7 +29,9 @@ const OCCUPATION_TEXT = {
     weighted: 'взвешено по занятости',
     countries: (count) => `${count} ${count === 1 ? 'страна' : count < 5 ? 'страны' : 'стран'}`,
     count: (shown, total) => shown === total ? `${total} профессий` : `${shown} из ${total} профессий`,
-    employed: 'занятых ≈',
+    employed: 'в группе ≈',
+    employedUs: 'в США ≈',
+    passes: 'оценки проходов',
     ai: 'AI',
     human: 'человек',
     unrated: 'нет оценки',
@@ -68,7 +70,9 @@ const OCCUPATION_TEXT = {
     weighted: 'employment-weighted',
     countries: (count) => `${count} ${count === 1 ? 'country' : 'countries'}`,
     count: (shown, total) => shown === total ? `${total} occupations` : `${shown} of ${total} occupations`,
-    employed: 'employed ≈',
+    employed: 'group ≈',
+    employedUs: 'US ≈',
+    passes: 'pass scores',
     ai: 'AI',
     human: 'human',
     unrated: 'not rated',
@@ -188,7 +192,7 @@ function renderList() {
         <small>ISCO ${escapeHtml(occupation.code)} · ${escapeHtml(secondary)}</small>
         ${occupation.rationale ? `<p>${escapeHtml(occupation.rationale)}</p>` : ''}
       </div>
-      <span class="occupations-employment">${text('employed')} ${formatPeople(occupation.employmentEstimate)}</span>
+      <span class="occupations-employment">${text('employed')} ${formatPeople(occupation.groupEmployment ?? occupation.employmentEstimate)}${Number.isFinite(occupation.usEmployment) ? `<br />${text('employedUs')} ${formatPeople(occupation.usEmployment)}` : ''}${Array.isArray(occupation.scores) ? `<br /><small title="${escapeHtml(text('passes'))}">${occupation.scores.join(' / ')}</small>` : ''}</span>
       <div class="occupations-share">${bar}</div>
     </li>`;
   }).join('');

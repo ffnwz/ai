@@ -8,16 +8,18 @@ The values below describe the prototype state at the time of the snapshot. The l
 
 | Direction | Value | Interpretation |
 | --- | ---: | --- |
-| **Code** | **34.2%** | median of compatible sources; the saved AI Code Radar snapshot is stale |
-| **Work** | **31%** | prototype display value |
-| **Life** | **24%** | prototype display value |
-| **Overall** | **about 30.5%** | demonstration model: `Code × 0.40 + Work × 0.35 + Life × 0.25` |
+| **Code** | **23.1%** | median of AI Code Radar (34.2%, stale snapshot) and AI Countdown repository analyses (11.9%, AI share of AI + human changed lines; automation bots excluded) |
+| **Work** | **38%** | median of the 31% prototype value and the ISCO-08 occupation ratings (45%, median of 3 model passes, AI with a humanoid robot or drone) |
+| **Life** | **31%** | median of the 24% prototype value and the everyday-task ratings (37.9%, share of household time weighted by annual minutes and household share) |
+| **Overall** | **about 30.3%** | demonstration model: `Code × 0.40 + Work × 0.35 + Life × 0.25` |
 
 ```text
-34.2 × 0.40 + 31 × 0.35 + 24 × 0.25 = 30.5%
+23.1 × 0.40 + 38 × 0.35 + 31 × 0.25 = 30.3%
 ```
 
-Overall is not a measured global share of replaced human work. Work and Life still need comparable observed datasets.
+Snapshot of 19 October 2026, after classification v12 (automation bots separated from human work) and the three-pass Work and Life ratings.
+
+Overall is not a measured global share of replaced human work. Work and Life use transparent model capability observations; household adoption and observed replacement still need separate datasets.
 
 ## Code
 
@@ -35,7 +37,7 @@ AI Countdown's own repository analyses are stored separately. Each repository co
 
 ## Work and Life
 
-Work and Life are still prototype values. Company statements, developer surveys, occupational exposure, and workforce observations are retained with their original denominators and are not averaged directly.
+Work combines its prototype vote with occupation ratings by the median rule. Life combines its prototype vote with a frequency-and-time-weighted median of recurring household-task ratings. Company statements, developer surveys, occupational exposure, and workforce observations retain their original denominators and are not averaged directly.
 
 Examples of supporting observations include AI output-token usage, reported AI-generated code, developer usage surveys, and occupation-level automation exposure. They measure different things and do not automatically become a delegation percentage.
 
@@ -45,13 +47,14 @@ Examples of supporting observations include AI output-token usage, reported AI-g
 - **Bot Commits** and `github_explosion` describe public AI-attributed commit activity, not the exact number of unique projects.
 - **GitHub AI Contributors** are a lower-bound monitor because public search and attribution are incomplete.
 - **OSSInsight** is a reference layer for public GitHub activity, not a global AI attribution source.
+- Repository commit attribution uses a temporal sequence: a recognized agent commit activates the agent for the human author, three agent-free commit days exhaust the sequence, and a different recognized agent switches it immediately.
 
 ## Limitations
 
 - Code measures public AI markers and can miss AI used under ordinary human accounts.
 - `Co-Authored-By` attribution is commit-level; GitHub does not provide a line-level author split.
-- Work and Life are not yet measured with one comparable denominator.
+- Work and Life are capability estimates with explicit model runs and frequency assumptions; they do not measure household or company adoption.
 - Company reports, surveys, layoffs, and occupational exposure cannot be combined without an explicit common methodology.
 
-The raw local snapshot is stored in `data/combined-snapshot-cache.json`. The API endpoint is `GET /api/combined-snapshot`.
+The combined snapshot is stored in MongoDB (`ai_countdown_state`, key `combined-snapshot`; `data/combined-snapshot-cache.json` only without Mongo). The API endpoint is `GET /api/combined-snapshot`.
 

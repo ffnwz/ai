@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /last.json
+
+Sitemap: https://ai.ffnwz.lat/sitemap.xml

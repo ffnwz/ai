@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "note": "Reference set for the Code source: widely used public repositories across ecosystems, so the sample does not depend only on what visitors submit. The server analyzes them in the background (the last 12 months for histories over 5,000 commits, no recursive profile crawl) and refreshes each one weekly. One analysis keeps at most the newest 8,000 commits so its document stays under the database limit; the busiest projects (linux, llvm-project, chromium) are left out. Propose additions with a pull request.",
+  "repositories": [
+    {
+      "repository": "facebook/react",
+      "category": "frontend"
+    },
+    {
+      "repository": "vercel/next.js",
+      "category": "frontend"
+    },
+    {
+      "repository": "vuejs/core",
+      "category": "frontend"
+    },
+    {
+      "repository": "sveltejs/svelte",
+      "category": "frontend"
+    },
+    {
+      "repository": "vitejs/vite",
+      "category": "frontend"
+    },
+    {
+      "repository": "tailwindlabs/tailwindcss",
+      "category": "frontend"
+    },
+    {
+      "repository": "withastro/astro",
+      "category": "frontend"
+    },
+    {
+      "repository": "microsoft/TypeScript",
+      "category": "languages"
+    },
+    {
+      "repository": "nodejs/node",
+      "category": "languages"
+    },
+    {
+      "repository": "denoland/deno",
+      "category": "languages"
+    },
+    {
+      "repository": "oven-sh/bun",
+      "category": "languages"
+    },
+    {
+      "repository": "python/cpython",
+      "category": "languages"
+    },
+    {
+      "repository": "golang/go",
+      "category": "languages"
+    },
+    {
+      "repository": "rust-lang/rust",
+      "category": "languages"
+    },
+    {
+      "repository": "django/django",
+      "category": "backend"
+    },
+    {
+      "repository": "fastapi/fastapi",
+      "category": "backend"
+    },
+    {
+      "repository": "pallets/flask",
+      "category": "backend"
+    },
+    {
+      "repository": "rails/rails",
+      "category": "backend"
+    },
+    {
+      "repository": "laravel/framework",
+      "category": "backend"
+    },
+    {
+      "repository": "spring-projects/spring-boot",
+      "category": "backend"
+    },
+    {
+      "repository": "supabase/supabase",
+      "category": "backend"
+    },
+    {
+      "repository": "kubernetes/kubernetes",
+      "category": "infrastructure"
+    },
+    {
+      "repository": "prometheus/prometheus",
+      "category": "infrastructure"
+    },
+    {
+      "repository": "grafana/grafana",
+      "category": "infrastructure"
+    },
+    {
+      "repository": "ansible/ansible",
+      "category": "infrastructure"
+    },
+    {
+      "repository": "curl/curl",
+      "category": "infrastructure"
+    },
+    {
+      "repository": "neovim/neovim",
+      "category": "developer-tools"
+    },
+    {
+      "repository": "microsoft/vscode",
+      "category": "developer-tools"
+    },
+    {
+      "repository": "zed-industries/zed",
+      "category": "developer-tools"
+    },
+    {
+      "repository": "astral-sh/uv",
+      "category": "developer-tools"
+    },
+    {
+      "repository": "astral-sh/ruff",
+      "category": "developer-tools"
+    },
+    {
+      "repository": "numpy/numpy",
+      "category": "data-ml"
+    },
+    {
+      "repository": "pandas-dev/pandas",
+      "category": "data-ml"
+    },
+    {
+      "repository": "scikit-learn/scikit-learn",
+      "category": "data-ml"
+    },
+    {
+      "repository": "pytorch/pytorch",
+      "category": "data-ml"
+    },
+    {
+      "repository": "huggingface/transformers",
+      "category": "data-ml"
+    },
+    {
+      "repository": "ollama/ollama",
+      "category": "ai-tools"
+    },
+    {
+      "repository": "langchain-ai/langchain",
+      "category": "ai-tools"
+    },
+    {
+      "repository": "openai/codex",
+      "category": "ai-tools"
+    },
+    {
+      "repository": "cline/cline",
+      "category": "ai-tools"
+    },
+    {
+      "repository": "n8n-io/n8n",
+      "category": "applications"
+    },
+    {
+      "repository": "home-assistant/core",
+      "category": "applications"
+    },
+    {
+      "repository": "mastodon/mastodon",
+      "category": "applications"
+    },
+    {
+      "repository": "godotengine/godot",
+      "category": "applications"
+    },
+    {
+      "repository": "bitcoin/bitcoin",
+      "category": "applications"
+    },
+    {
+      "repository": "excalidraw/excalidraw",
+      "category": "applications"
+    }
+  ]
+}

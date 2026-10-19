@@ -8,6 +8,8 @@
 //                             hash, classifier hash, and a 0-100 score per occupation code
 //
 // Commands:
+//   node refresh-work-occupations.js shares   rebuild the within-group employment shares
+//                                              (BLS employment via SOC 2018 -> SOC 2010 -> ISCO-08)
 //   node refresh-work-occupations.js inputs   rebuild the classifier (ESCO API) and the employment
 //                                              snapshot (ILOSTAT); adds Russian titles when a key is set
 //   node refresh-work-occupations.js rate     rate every occupation with WORK_MODEL into a new run
@@ -17,18 +19,29 @@
 //   node refresh-work-occupations.js verify [files...]
 //                                              check run files (all by default) against the classifier
 //
-// Rating uses OpenRouter: OPENROUTER_KEY and WORK_MODEL in .env or the environment.
+// Rating uses OpenRouter: OPENROUTER_KEY and AI_MODEL (or WORK_MODEL) in .env or the environment.
 // Scale: 0 = AI cannot help, 50 = AI does the job with a person, 100 = AI does it without a person.
 
 const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
+const { passSeeds, mergePasses, checkMergedRatings } = require('./rating-passes');
 
 const ROOT = __dirname;
 const WORK_DIR = path.join(ROOT, 'data', 'work');
 const CLASSIFIER_FILE = path.join(WORK_DIR, 'isco08-occupations.json');
 const EMPLOYMENT_FILE = path.join(WORK_DIR, 'employment-ilostat.json');
+const UNIT_SHARES_FILE = path.join(WORK_DIR, 'isco08-unit-shares.json');
+// ILOSTAT counts people per ISCO-08 sub-major group (2 digits) only. Within a group,
+// unit groups are split by the US occupational structure: BLS OEWS employment (SOC 2018,
+// via Meo) -> SOC 2010 (O*NET 2010-to-2019 taxonomy crosswalk) -> ISCO-08 (IBS crosswalk,
+// Hardy, Keister and Lewandowski 2018).
+const SHARE_SOURCES = Object.freeze({
+  employment: 'https://data.meoadvisors.com/datasets/occupations-latest.json',
+  soc2018To2010: 'https://www.onetcenter.org/taxonomy/2019/walk/2010_to_2019_Crosswalk.csv?fmt=csv',
+  soc2010ToIsco08: 'https://raw.githubusercontent.com/eworx-org/iscoCrosswalks/master/data-raw/stata_dset/onetsoc_to_isco_cws_ibs/soc10_isco08.dta'
+});
 const RATINGS_DIR = path.join(WORK_DIR, 'ratings');
 const ESCO_API_URL = 'https://ec.europa.eu/esco/api/resource';
 const ESCO_ISCO_SCHEME = 'http://data.europa.eu/esco/concept-scheme/isco';
@@ -38,7 +51,9 @@ const ILOSTAT_MIN_YEAR = 2019;
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 // v1: software-only AI. v2: AI that also acts through a humanoid robot or a quadcopter drone.
 const PROMPT_VERSION = 2;
-const REQUEST_SETTINGS = Object.freeze({ temperature: 0, seed: 42, batchSize: 25, reasoningEffort: 'medium', maxTokens: 32000 });
+// Every occupation is rated in `passes` passes with seeds seed, seed + 1, ...; the stored
+// score is the median (see rating-passes.js).
+const REQUEST_SETTINGS = Object.freeze({ temperature: 0, seed: 42, passes: 3, batchSize: 25, reasoningEffort: 'medium', maxTokens: 32000 });
 const RATING_CONCURRENCY = 4;
 const FETCH_CONCURRENCY = 6;
 const REQUEST_TIMEOUT_MS = 120_000;
@@ -264,7 +279,7 @@ function parseArgs(argv) {
 
 // ---------------------------------------------------------------- OpenRouter
 
-async function openRouterJson({ model, system, user, schemaName, schema, reasoning }) {
+async function openRouterJson({ model, system, user, schemaName, schema, reasoning, seed = REQUEST_SETTINGS.seed }) {
   const text = await fetchWithRetry(OPENROUTER_URL, {
     method: 'POST',
     headers: {
@@ -276,7 +291,7 @@ async function openRouterJson({ model, system, user, schemaName, schema, reasoni
     body: JSON.stringify({
       model,
       temperature: REQUEST_SETTINGS.temperature,
-      seed: REQUEST_SETTINGS.seed,
+      seed,
       max_tokens: REQUEST_SETTINGS.maxTokens,
       reasoning,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
@@ -309,7 +324,7 @@ async function openRouterJson({ model, system, user, schemaName, schema, reasoni
 
 function requireOpenRouter(model) {
   if (!process.env.OPENROUTER_KEY) throw new Error('Set OPENROUTER_KEY in .env');
-  if (!model) throw new Error('Set WORK_MODEL in .env or pass --model');
+  if (!model) throw new Error('Set AI_MODEL or WORK_MODEL in .env or pass --model');
 }
 
 // -------------------------------------------------------------------- inputs
@@ -455,10 +470,142 @@ async function buildEmploymentSnapshot() {
   };
 }
 
+// Minimal reader for the Stata 115 file of the IBS crosswalk: numeric variables only.
+function readStataNumericTable(buffer) {
+  if (buffer[0] !== 115) throw new Error(`Unsupported Stata format ${buffer[0]}`);
+  const littleEndian = buffer[1] === 2;
+  const nvar = littleEndian ? buffer.readUInt16LE(4) : buffer.readUInt16BE(4);
+  const nobs = littleEndian ? buffer.readUInt32LE(6) : buffer.readUInt32BE(6);
+  const types = [...buffer.subarray(109, 109 + nvar)];
+  const names = types.map((_, index) => buffer.subarray(109 + nvar + index * 33, 109 + nvar + (index + 1) * 33).toString('latin1').replace(/\0.*$/s, ''));
+  const sizes = { 251: 1, 252: 2, 253: 4, 254: 4, 255: 8 };
+  if (types.some((type) => !sizes[type])) throw new Error('The crosswalk has non-numeric columns');
+  const rowSize = types.reduce((sum, type) => sum + sizes[type], 0);
+  // The file has no value labels, so the data block ends the file.
+  const start = buffer.length - nobs * rowSize;
+  const read = (type, offset) => ({
+    251: () => buffer.readInt8(offset),
+    252: () => (littleEndian ? buffer.readInt16LE(offset) : buffer.readInt16BE(offset)),
+    253: () => (littleEndian ? buffer.readInt32LE(offset) : buffer.readInt32BE(offset)),
+    254: () => (littleEndian ? buffer.readFloatLE(offset) : buffer.readFloatBE(offset)),
+    255: () => (littleEndian ? buffer.readDoubleLE(offset) : buffer.readDoubleBE(offset))
+  })[type]();
+  return Array.from({ length: nobs }, (_, row) => {
+    let offset = start + row * rowSize;
+    const record = {};
+    types.forEach((type, index) => {
+      record[names[index]] = read(type, offset);
+      offset += sizes[type];
+    });
+    return record;
+  });
+}
+
+async function fetchBuffer(url) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`${url} returned HTTP ${response.status}`);
+    return Buffer.from(await response.arrayBuffer());
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function buildUnitShares(classifier) {
+  console.log('Downloading BLS employment and the SOC/ISCO crosswalks');
+  const [employmentText, socText, iscoBuffer] = await Promise.all([
+    fetchWithRetry(SHARE_SOURCES.employment, { headers: { accept: 'application/json' } }),
+    fetchWithRetry(SHARE_SOURCES.soc2018To2010, { headers: { accept: 'text/csv' } }),
+    fetchBuffer(SHARE_SOURCES.soc2010ToIsco08)
+  ]);
+
+  const toIsco = new Map();
+  for (const row of readStataNumericTable(iscoBuffer)) {
+    const soc = String(row.soc10).padStart(6, '0').replace(/^(\d\d)(\d{4})$/, '$1-$2');
+    const isco = String(row.isco08).padStart(4, '0');
+    if (!classifier.occupations[isco]) continue;
+    if (!toIsco.has(soc)) toIsco.set(soc, new Set());
+    toIsco.get(soc).add(isco);
+  }
+  const to2010 = new Map();
+  for (const line of socText.replace(/^\uFEFF/, '').split(/\r?\n/).slice(1)) {
+    const cells = parseCsvLine(line);
+    const from = /^(\d\d-\d{4})/.exec(cells[0] || '')?.[1];
+    const to = /^(\d\d-\d{4})/.exec(cells[2] || '')?.[1];
+    if (!from || !to) continue;
+    if (!to2010.has(to)) to2010.set(to, new Set());
+    to2010.get(to).add(from);
+  }
+
+  // One row per SOC 2018 code, preferring the O*NET ".00" row that names it.
+  const employment = new Map();
+  for (const row of JSON.parse(employmentText).rows || []) {
+    const soc = row.bls_soc_code;
+    const value = Number(row.employment_current) || 0;
+    if (!soc || !value) continue;
+    if (!employment.has(soc) || String(row.onet_soc_code || '').endsWith('.00')) employment.set(soc, value);
+  }
+
+  const units = new Map();
+  let matched = 0;
+  let total = 0;
+  const unmatched = [];
+  for (const [soc, value] of employment) {
+    total += value;
+    let targets = toIsco.get(soc);
+    if (!targets) targets = new Set([...(to2010.get(soc) || [])].flatMap((old) => [...(toIsco.get(old) || [])]));
+    if (!targets.size) {
+      unmatched.push(soc);
+      continue;
+    }
+    matched += value;
+    // A SOC code that maps to several unit groups is split evenly between them.
+    for (const isco of targets) units.set(isco, (units.get(isco) || 0) + value / targets.size);
+  }
+
+  const groups = {};
+  for (const code of Object.keys(classifier.occupations)) {
+    const group = classifier.occupations[code].subMajor?.code || code.slice(0, 2);
+    groups[group] ||= {};
+    groups[group][code] = units.get(code) || 0;
+  }
+  const subMajorShares = {};
+  for (const [group, members] of Object.entries(groups)) {
+    const sum = Object.values(members).reduce((total, value) => total + value, 0);
+    const codes = Object.keys(members);
+    // Groups with no US employment (subsistence work, for example) are split evenly.
+    subMajorShares[group] = Object.fromEntries(codes.sort().map((code) => [code, sum ? Math.round((members[code] / sum) * 1e6) / 1e6 : Math.round((1 / codes.length) * 1e6) / 1e6]));
+  }
+  return {
+    version: 1,
+    method: 'Within each ISCO-08 sub-major group, unit groups are weighted by US employment: BLS OEWS (SOC 2018) -> SOC 2010 (O*NET taxonomy crosswalk) -> ISCO-08 (IBS crosswalk). SOC codes mapping to several unit groups are split evenly; groups without US employment are split evenly.',
+    citation: 'Hardy, W., Keister, R. and Lewandowski, P. (2018). Educational upgrading, structural change and the task composition of jobs in Europe. Economics of Transition 26.',
+    sources: SHARE_SOURCES,
+    fetchedAt: new Date().toISOString(),
+    coverage: {
+      usEmployment: total,
+      matchedShare: total ? Math.round((matched / total) * 1000) / 10 : null,
+      unmatchedSocCodes: unmatched.sort()
+    },
+    usEmploymentByUnit: sortedObject(Object.fromEntries([...units].map(([code, value]) => [code, Math.round(value)]))),
+    subMajorShares: sortedObject(subMajorShares)
+  };
+}
+
+async function commandShares() {
+  const classifier = await readJsonFile(CLASSIFIER_FILE, null);
+  if (!classifier) throw new Error('No classifier yet: run `node refresh-work-occupations.js inputs` first');
+  const shares = await buildUnitShares(classifier);
+  await writeJsonFile(UNIT_SHARES_FILE, shares);
+  console.log(`Saved within-group shares: ${shares.coverage.matchedShare}% of US employment matched; unmatched SOC codes: ${shares.coverage.unmatchedSocCodes.join(', ') || 'none'}`);
+}
+
 async function commandInputs() {
   const previous = await readJsonFile(CLASSIFIER_FILE, null);
   const [classifier, employment] = await Promise.all([buildClassifier(previous), buildEmploymentSnapshot()]);
-  const model = process.env.WORK_MODEL;
+  const model = process.env.WORK_MODEL || process.env.AI_MODEL;
   if (process.env.OPENROUTER_KEY && model) await addRussianTitles(classifier, model);
   else console.log('OPENROUTER_KEY or WORK_MODEL is not set; Russian titles are left empty.');
 
@@ -467,6 +614,7 @@ async function commandInputs() {
   }
   await writeJsonFile(CLASSIFIER_FILE, classifier);
   await writeJsonFile(EMPLOYMENT_FILE, employment);
+  await writeJsonFile(UNIT_SHARES_FILE, await buildUnitShares(classifier));
   console.log(`Saved ${Object.keys(classifier.occupations).length} occupations (classifier ${classifierHash(classifier).slice(0, 12)})`);
   for (const [id, region] of Object.entries(employment.regions)) {
     console.log(`${id}: ${region.countries.length} countries, ${Math.round(region.employment / 1e6)}M employed${region.missingCountries.length ? `; no data: ${region.missingCountries.join(', ')}` : ''}`);
@@ -476,7 +624,7 @@ async function commandInputs() {
 // ---------------------------------------------------------------------- rate
 
 async function commandRate(args) {
-  const model = args.model || process.env.WORK_MODEL;
+  const model = args.model || process.env.WORK_MODEL || process.env.AI_MODEL;
   requireOpenRouter(model);
   const classifier = await readJsonFile(CLASSIFIER_FILE, null);
   if (!classifier) throw new Error('No classifier yet: run `node refresh-work-occupations.js inputs` first');
@@ -491,14 +639,15 @@ async function commandRate(args) {
     && existing.inputs?.classifier?.sha256 === currentClassifierHash;
   if (existing && !resumable) throw new Error(`${path.relative(ROOT, runFile)} was made with another prompt or classifier; move it away first`);
 
+  const seeds = passSeeds(REQUEST_SETTINGS.seed, REQUEST_SETTINGS.passes);
   const run = resumable ? existing : {
-    version: 1,
+    version: 2,
     checkedAt: now.toISOString(),
     checkedDate,
     provider: 'openrouter',
     model,
     servedBy: [],
-    request: { ...REQUEST_SETTINGS, responseFormat: 'json_schema (strict)' },
+    request: { ...REQUEST_SETTINGS, seeds, responseFormat: 'json_schema (strict)', merge: 'median of pass scores per occupation' },
     scale: SCALE,
     assumptions: { embodiment: EMBODIMENT },
     prompt: { version: PROMPT_VERSION, sha256: promptHash(), system: SYSTEM_PROMPT },
@@ -508,34 +657,44 @@ async function commandRate(args) {
     status: 'partial',
     coverage: { rated: 0, total: Object.keys(classifier.occupations).length },
     usage: { inputTokens: 0, outputTokens: 0, costUsd: 0 },
+    passes: {},
     ratings: {}
   };
+  // A one-pass file from the same day becomes the first pass.
+  if (!run.passes) {
+    run.passes = { [seeds[0]]: run.ratings || {} };
+    run.version = 2;
+    run.request = { ...REQUEST_SETTINGS, seeds, responseFormat: 'json_schema (strict)', merge: 'median of pass scores per occupation' };
+  }
+  for (const seed of seeds) run.passes[seed] ||= {};
+  const codes = Object.keys(classifier.occupations);
 
-  const pending = Object.keys(classifier.occupations)
-    .filter((code) => !run.ratings[code])
-    .slice(0, args.limit)
-    .map((code) => ({ code, ...classifier.occupations[code] }));
-  if (!pending.length) {
+  const work = seeds.flatMap((seed) => chunk(
+    codes.filter((code) => !run.passes[seed][code]).slice(0, args.limit).map((code) => ({ code, ...classifier.occupations[code] })),
+    REQUEST_SETTINGS.batchSize
+  ).map((batch) => ({ seed, batch })));
+  if (!work.length) {
     console.log(`${path.relative(ROOT, runFile)} is already complete.`);
     return;
   }
 
   const save = async () => {
-    run.ratings = sortedObject(run.ratings);
+    for (const seed of seeds) run.passes[seed] = sortedObject(run.passes[seed]);
+    run.ratings = sortedObject(mergePasses(run.passes, codes));
     run.coverage.rated = Object.keys(run.ratings).length;
     run.status = run.coverage.rated === run.coverage.total ? 'complete' : 'partial';
     run.updatedAt = new Date().toISOString();
     await writeJsonFile(runFile, run);
   };
 
-  const batches = chunk(pending, REQUEST_SETTINGS.batchSize);
   let failedBatches = 0;
   let writeQueue = Promise.resolve();
-  console.log(`Rating ${pending.length} occupations with ${model} into ${path.relative(ROOT, runFile)}`);
-  await mapWithConcurrency(batches, async (batch, index) => {
+  console.log(`Rating ${codes.length} occupations x ${seeds.length} passes with ${model} into ${path.relative(ROOT, runFile)} (${work.length} batches)`);
+  await mapWithConcurrency(work, async ({ seed, batch }, index) => {
     try {
       const { parsed, provider, usage } = await openRouterJson({
         model,
+        seed,
         system: SYSTEM_PROMPT,
         user: `Rate these ${batch.length} occupations (ISCO-08 code | unit group | minor group):\n\n${batch.map((item) => `${item.code} | ${item.title} | ${item.minor.title}`).join('\n')}`,
         schemaName: 'occupation_ratings',
@@ -543,12 +702,13 @@ async function commandRate(args) {
         reasoning: { effort: REQUEST_SETTINGS.reasoningEffort }
       });
       const wanted = new Set(batch.map((item) => item.code));
+      const pass = run.passes[seed];
       let rated = 0;
       for (const rating of parsed.ratings || []) {
         const code = String(rating.code).trim();
         const score = Number(rating.score);
-        if (!wanted.has(code) || run.ratings[code] || !Number.isFinite(score)) continue;
-        run.ratings[code] = { score: Math.min(100, Math.max(0, Math.round(score))), rationale: String(rating.rationale || '').trim() };
+        if (!wanted.has(code) || pass[code] || !Number.isFinite(score)) continue;
+        pass[code] = { score: Math.min(100, Math.max(0, Math.round(score))), rationale: String(rating.rationale || '').trim() };
         rated += 1;
       }
       if (provider && !run.servedBy.includes(provider)) run.servedBy.push(provider);
@@ -556,15 +716,20 @@ async function commandRate(args) {
       run.usage.outputTokens += usage.outputTokens;
       run.usage.costUsd = Math.round((run.usage.costUsd + usage.costUsd) * 1e6) / 1e6;
       const missing = batch.length - rated;
-      console.log(`Batch ${index + 1}/${batches.length}: ${rated} rated${missing ? `, ${missing} missing (the next call retries them)` : ''}`);
+      console.log(`Batch ${index + 1}/${work.length} (seed ${seed}): ${rated} rated${missing ? `, ${missing} missing (the next call retries them)` : ''}`);
     } catch (error) {
       failedBatches += 1;
-      console.error(`Batch ${index + 1}/${batches.length} failed: ${error.message}`);
+      console.error(`Batch ${index + 1}/${work.length} (seed ${seed}) failed: ${error.message}`);
     }
     writeQueue = writeQueue.then(save);
     await writeQueue;
   }, RATING_CONCURRENCY);
 
+  const spreads = Object.values(run.ratings).map((rating) => rating.spread).filter(Number.isFinite);
+  if (spreads.length) {
+    const wide = spreads.filter((spread) => spread >= 15).length;
+    console.log(`Pass agreement: median spread ${spreads.sort((left, right) => left - right)[Math.floor(spreads.length / 2)]} points; ${wide} occupations differ by 15+ points between passes.`);
+  }
   console.log(`${run.status}: ${run.coverage.rated}/${run.coverage.total} rated, ${failedBatches} failed batches, $${run.usage.costUsd} spent.`);
   if (run.status !== 'complete') console.log('Run the same command again to fill the gaps.');
   if (failedBatches) process.exitCode = 1;
@@ -596,6 +761,7 @@ async function commandVerify(args) {
       if (unknown.length) issues.push(`unknown codes: ${unknown.slice(0, 10).join(', ')}`);
       if (invalid.length) issues.push(`scores outside 0-100: ${invalid.slice(0, 10).join(', ')}`);
       if (run.coverage?.rated !== ratings.length) issues.push('coverage.rated does not match the ratings');
+      issues.push(...checkMergedRatings(run));
       const expected = runFileName(run.checkedDate, run.model || '', run.prompt?.version);
       if (path.basename(file) !== expected) issues.push(`file should be named ${expected}`);
     }
@@ -611,9 +777,10 @@ async function main() {
   loadDotEnv(path.join(ROOT, '.env'));
   const args = parseArgs(process.argv.slice(2));
   if (args.command === 'inputs') return commandInputs();
+  if (args.command === 'shares') return commandShares();
   if (args.command === 'rate') return commandRate(args);
   if (args.command === 'verify') return commandVerify(args);
-  console.log('Usage: node refresh-work-occupations.js <inputs|rate|verify> [--model id] [--limit n] [files...]');
+  console.log('Usage: node refresh-work-occupations.js <inputs|shares|rate|verify> [--model id] [--limit n] [files...]');
   process.exitCode = args.command === 'help' ? 0 : 1;
 }
 

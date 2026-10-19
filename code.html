@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Countdown — просканированные репозитории</title>
+  <meta name="description" content="Все публичные GitHub-репозитории, которые AI Countdown уже просканировал по истории коммитов." />
+  <link rel="icon" type="image/png" href="../robot-apple.png" />
+  <link rel="stylesheet" href="../styles.css?v=20261020-code-sources" />
+</head>
+<body class="methodology-page code-page">
+  <header class="topbar shell methodology-topbar">
+    <a class="brand" href="../" aria-label="AI Countdown"><span class="brand-mark" aria-hidden="true"><img src="../robot-apple.png" alt="" /></span><span>AI COUNTDOWN</span></a>
+    <a class="methodology-back" href="../" data-i18n="back">На главную</a>
+  </header>
+  <main class="methodology-shell code-shell">
+    <div class="methodology-toolbar">
+      <span class="methodology-version" id="code-page-version">КОД · РЕПОЗИТОРИИ</span>
+      <span class="methodology-locale" role="group" aria-label="Язык"><button type="button" data-locale="ru" class="active" aria-pressed="true">RU</button><span>/</span><button type="button" data-locale="en" aria-pressed="false">EN</button></span>
+    </div>
+
+    <section class="methodology-hero occupations-hero">
+      <p class="eyebrow" data-i18n="eyebrow">КОД · ПУБЛИЧНЫЕ РЕПОЗИТОРИИ</p>
+      <h1 data-i18n="title">Все репозитории, которые мы просканировали</h1>
+      <p class="methodology-lede" data-i18n="lede">История публичных коммитов, статистика изменений и найденные AI-агенты. Каждый новый анализ сохраняется, чтобы сравнивать результат во времени.</p>
+    </section>
+
+    <section class="code-summary" aria-live="polite">
+      <div class="code-summary-card">
+        <strong id="code-repository-count">—</strong>
+        <span data-i18n="repositoryCount">просканированных репозитория</span>
+        <small id="code-page-updated"></small>
+      </div>
+      <div class="code-method-note" data-i18n="methodNote">Доля AI — это доля изменённых строк в обработанной публичной истории. Коммит с агентом относится агенту целиком; после него до трёх безагентных коммитов в разные дни действует временная атрибуция, затем следующий коммит снова считается собственным.</div>
+    </section>
+
+    <section class="code-controls">
+      <div class="occupations-filters">
+        <input id="code-search" type="search" autocomplete="off" data-i18n-placeholder="search" placeholder="Поиск репозитория или языка" />
+        <select id="code-sort" aria-label="Сортировка">
+          <option value="ai" data-i18n="sortAi">Больше всего AI-кода</option>
+          <option value="lines" data-i18n="sortLines">Больше всего изменённых строк</option>
+          <option value="recent" data-i18n="sortRecent">Последний анализ</option>
+        </select>
+      </div>
+    </section>
+
+    <p class="occupations-count" id="code-count"></p>
+    <section id="code-repository-list" class="code-repository-list" aria-live="polite"></section>
+    <p class="occupations-empty" id="code-empty" hidden></p>
+    <section id="code-meta" class="occupations-meta"></section>
+    <footer class="methodology-footer"><a class="external-link" href="../methodology" data-i18n="methodology">Методология</a></footer>
+  </main>
+  <script src="../code.js?v=20261020-code-sources"></script>
+</body>
+</html>

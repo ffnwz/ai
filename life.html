@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Countdown — повседневные задачи</title>
+  <meta name="description" content="Реестр повседневных домашних и личных организационных задач: как часто они выполняются, что уже могут делать AI и умные устройства, и сколько работы остаётся человеку." />
+  <link rel="icon" type="image/png" href="robot-apple.png" />
+  <link rel="stylesheet" href="styles.css?v=20261020-code-sources" />
+</head>
+<body class="methodology-page life-page">
+  <header class="topbar shell methodology-topbar">
+    <a class="brand" href="./" aria-label="AI Countdown"><span class="brand-mark" aria-hidden="true"><img src="robot-apple.png" alt="" /></span><span>AI COUNTDOWN</span></a>
+    <a class="methodology-back" href="./" data-i18n="back">На главную</a>
+  </header>
+  <main class="methodology-shell occupations-shell life-shell">
+    <div class="methodology-toolbar">
+      <span class="methodology-version" id="life-version">ЖИЗНЬ · ЗАДАЧИ</span>
+      <span class="methodology-locale" role="group" aria-label="Язык"><button type="button" data-locale="ru" class="active" aria-pressed="true">RU</button><span>/</span><button type="button" data-locale="en" aria-pressed="false">EN</button></span>
+    </div>
+
+    <section class="methodology-hero occupations-hero">
+      <p class="eyebrow" data-i18n="eyebrow">ЖИЗНЬ · ПОВСЕДНЕВНЫЕ ЗАДАЧИ</p>
+      <h1 data-i18n="title">Какие бытовые дела уже могут выполнять AI и устройства</h1>
+      <p class="methodology-lede" data-i18n="lede">Собираем повторяющиеся домашние и личные организационные задачи, их частотность, типичную длительность и доступные механизмы автоматизации. Оценка показывает способность выполнить всю задачу, включая подготовку и проверку.</p>
+    </section>
+
+    <section class="occupations-summary" aria-live="polite">
+      <div class="occupations-median">
+        <strong id="life-median">—</strong>
+        <span data-i18n="medianLabel">медиана задач, взвешенная по годовым минутам · источник кольца «Жизнь»</span>
+        <small id="life-assumption"></small>
+      </div>
+      <div class="life-method-note" data-i18n="methodNote">Частотность переводится в ориентировочную годовую нагрузку: повторения в год × типичные минуты. Это прозрачная редакционная предпосылка, которую можно заменить данными опросов.</div>
+    </section>
+
+    <section class="occupations-controls">
+      <div class="occupations-legend">
+        <span><i class="occupations-swatch ai"></i><span data-i18n="legendAi">AI или устройство</span></span>
+        <span><i class="occupations-swatch human"></i><span data-i18n="legendHuman">человек</span></span>
+        <small data-i18n="scale">0% — не может выполнить · 50% — помогает, но человек участвует · 100% — доводит задачу без человека</small>
+      </div>
+      <div class="occupations-filters">
+        <input id="life-search" type="search" autocomplete="off" data-i18n-placeholder="search" placeholder="Поиск задачи или устройства" />
+        <select id="life-frequency" aria-label="Частотность"></select>
+        <select id="life-sort" aria-label="Сортировка">
+          <option value="frequency" data-i18n="sortFrequency">По годовой нагрузке</option>
+          <option value="ai-desc" data-i18n="sortAiDesc">Больше всего AI</option>
+          <option value="ai-asc" data-i18n="sortAiAsc">Больше всего человека</option>
+        </select>
+      </div>
+    </section>
+
+    <p class="occupations-count" id="life-count"></p>
+    <ol class="occupations-list life-list" id="life-list"></ol>
+    <p class="occupations-empty" id="life-empty" hidden></p>
+    <section class="occupations-meta" id="life-meta"></section>
+    <section class="contribution-cta life-contribution-cta" aria-labelledby="life-contribution-title">
+      <div>
+        <p class="eyebrow" data-i18n="contributeEyebrow">ОТКРЫТЫЙ ДАТАСЕТ</p>
+        <h3 id="life-contribution-title" data-i18n="contributeTitle">Нашли ещё одну повседневную задачу?</h3>
+        <p data-i18n="contributeCopy">Опишите её вместе с частотностью, типичным временем и устройствами или механизмами в готовой Issue на GitHub.</p>
+      </div>
+      <a class="chart-action contribution-link" href="https://github.com/ffnwz/ai/issues/new?template=metric-proposal.md" target="_blank" rel="noreferrer" data-i18n="contributeLink"><img class="github-favicon" src="https://github.com/favicon.ico" alt="" aria-hidden="true" />Предложить метрику</a>
+    </section>
+    <footer class="methodology-footer"><a class="external-link" href="methodology" data-i18n="methodology">Методология</a></footer>
+  </main>
+  <script src="life.js?v=20261020-code-sources"></script>
+</body>
+</html>

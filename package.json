@@ -6,6 +6,16 @@
     "start": "node server.js",
     "work:inputs": "node refresh-work-occupations.js inputs",
     "work:rate": "node refresh-work-occupations.js rate",
-    "work:verify": "node refresh-work-occupations.js verify"
+    "work:verify": "node refresh-work-occupations.js verify",
+    "life:rate": "node refresh-life-tasks.js rate",
+    "life:verify": "node refresh-life-tasks.js verify",
+    "ops:update": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update.ps1",
+    "ops:update:all": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/update.ps1 -All -StartServer",
+    "ops:recalculate": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/recalculate.ps1",
+    "ops:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check.ps1",
+    "ops:check:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check.ps1 -SkipApi -SkipGitHub",
+    "ops:deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy.ps1",
+    "ops:deploy:dry": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/deploy.ps1 -DryRun",
+    "ops:github": "node scripts/github-review.js"
   }
 }

@@ -1,13 +1,13 @@
-const fs = require('node:fs/promises');
 const path = require('node:path');
+const { createStorage, createCodeIndexStores } = require('./storage');
 
 const ROOT = __dirname;
 const CACHE_DIR = path.join(ROOT, 'data');
-const CACHE_FILE = path.join(CACHE_DIR, 'slopscore-cache.json');
-const CODE_INDEX_CACHE_FILE = path.join(CACHE_DIR, 'code-index-cache.json');
-const CODE_INDEX_PROGRESS_FILE = path.join(CACHE_DIR, 'code-index-progress.json');
-const CODE_INDEX_CATALOG_FILE = path.join(CACHE_DIR, 'code-index-catalog.json');
-const WORKER_LOCK_FILE = path.join(CACHE_DIR, 'code-index-worker.lock');
+// The crawl state (Slop Score records, catalog, progress, worker lock) lives in
+// Mongo next to the server's state; data/ files are only a local fallback.
+const storage = createStorage({ dataDir: CACHE_DIR, label: 'Code-index worker' });
+const stores = createCodeIndexStores(storage);
+const WORKER_LOCK_NAME = 'code-index-worker';
 const CATALOG_URL = 'https://slopscore.ava.pet/';
 const REQUEST_TIMEOUT_MS = 12_000;
 const RECORD_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -22,28 +22,8 @@ function cacheKey(repo, branch) {
   return `${repo}#${branch}`;
 }
 
-async function readJsonFile(filePath, fallback) {
-  try {
-    return JSON.parse(await fs.readFile(filePath, 'utf8'));
-  } catch (error) {
-    if (error.code !== 'ENOENT') console.warn(`Could not read ${path.basename(filePath)}:`, error.message);
-    return fallback;
-  }
-}
-
-async function writeJsonFile(filePath, value) {
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-  const temporaryFile = `${filePath}.tmp`;
-  await fs.writeFile(temporaryFile, JSON.stringify(value, null, 2), 'utf8');
-  await fs.rename(temporaryFile, filePath);
-}
-
 async function readCache() {
-  return readJsonFile(CACHE_FILE, { version: 1, entries: {} });
-}
-
-async function writeCache(cache) {
-  await writeJsonFile(CACHE_FILE, cache);
+  return { version: 1, entries: await stores.slopscore.list() };
 }
 
 function createSlopPayload(raw, repo, branch) {
@@ -161,38 +141,26 @@ function round(value) {
   return value === null ? null : Math.round(value * 10) / 10;
 }
 
-function isProcessAlive(pid) {
-  if (!Number.isInteger(pid) || pid <= 0) return false;
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-}
+// The lock is refreshed after every batch; a worker that died leaves a lock that
+// goes stale after 30 minutes and is then taken over.
+let workerLock = null;
 
 async function acquireLock() {
-  const lock = JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() });
-  try {
-    await fs.writeFile(WORKER_LOCK_FILE, lock, { encoding: 'utf8', flag: 'wx' });
-    return true;
-  } catch (error) {
-    if (error.code !== 'EEXIST') throw error;
-    const previous = await readJsonFile(WORKER_LOCK_FILE, null);
-    if (previous && isProcessAlive(Number(previous.pid))) return false;
-    await fs.rm(WORKER_LOCK_FILE, { force: true });
-    await fs.writeFile(WORKER_LOCK_FILE, lock, { encoding: 'utf8', flag: 'wx' });
-    return true;
-  }
+  workerLock = await stores.workerLocks.acquire(WORKER_LOCK_NAME, 'running');
+  return Boolean(workerLock);
+}
+
+async function refreshLock() {
+  if (workerLock && !(await stores.workerLocks.refresh(workerLock))) throw new Error('The code-index worker lock was taken over by another worker');
 }
 
 async function releaseLock() {
-  const current = await readJsonFile(WORKER_LOCK_FILE, null);
-  if (Number(current?.pid) === process.pid) await fs.rm(WORKER_LOCK_FILE, { force: true });
+  if (workerLock) await stores.workerLocks.release(workerLock);
+  workerLock = null;
 }
 
 async function writeProgress(progress) {
-  await writeJsonFile(CODE_INDEX_PROGRESS_FILE, {
+  await stores.progress.write({
     ...progress,
     updatedAt: new Date().toISOString()
   });
@@ -230,8 +198,8 @@ async function processEntry(entry, cache, now) {
 }
 
 async function createNewRun(force) {
-  const previous = await readJsonFile(CODE_INDEX_PROGRESS_FILE, null);
-  const previousCatalog = await readJsonFile(CODE_INDEX_CATALOG_FILE, null);
+  const previous = await stores.progress.read(null);
+  const previousCatalog = await stores.catalog.read(null);
   if (!force && previousCatalog?.entries?.length && previous?.status !== 'complete') {
     return {
       catalog: previousCatalog,
@@ -242,7 +210,7 @@ async function createNewRun(force) {
   console.log('Fetching the current Slop Score repository catalog…');
   const catalog = parseRepositoryCatalog(await fetchText(CATALOG_URL));
   if (!catalog.entries.length) throw new Error('The public repository catalog returned no repository links');
-  await writeJsonFile(CODE_INDEX_CATALOG_FILE, {
+  await stores.catalog.write({
     version: 1,
     source: CATALOG_URL,
     fetchedAt: new Date().toISOString(),
@@ -288,9 +256,13 @@ async function run() {
       const now = Date.now();
       const results = await mapBatch(batch, (entry) => processEntry(entry, cache, now));
 
-      results.forEach(({ record }, index) => {
+      const changed = [];
+      results.forEach(({ record, action }, index) => {
         const entry = batch[index];
-        if (record) cache.entries[cacheKey(entry.repo, entry.branch)] = record;
+        if (!record) return;
+        const key = cacheKey(entry.repo, entry.branch);
+        cache.entries[key] = record;
+        if (action !== 'reused') changed.push([key, record]);
       });
 
       results.forEach(({ action }) => { progress[action] = (progress[action] || 0) + 1; });
@@ -304,8 +276,9 @@ async function run() {
 
       // The cache is written before the cursor advances, so a crash can only
       // repeat a small batch and never forces a full catalog restart.
-      await writeCache(cache);
+      await stores.slopscore.putMany(changed);
       await writeProgress(progress);
+      await refreshLock();
       console.log(`Processed ${progress.processed}/${entries.length}; median ${progress.median ?? '—'}%`);
     }
 
@@ -329,12 +302,12 @@ async function run() {
         included: summary.included,
         percent: catalog.catalogTotal ? round((summary.included / catalog.catalogTotal) * 100) : null
       },
-      catalogFetchedAt: (await readJsonFile(CODE_INDEX_CATALOG_FILE, {})).fetchedAt,
+      catalogFetchedAt: (await stores.catalog.read({})).fetchedAt,
       updatedAt: new Date().toISOString(),
       note: 'Median AI-code participation across scanned repositories. The value describes a typical repository, not a line-weighted share of all code.',
       errors: failedCount
     };
-    await writeJsonFile(CODE_INDEX_CACHE_FILE, snapshot);
+    await stores.codeIndex.write(snapshot);
     await writeProgress({
       ...progress,
       status: 'complete',
@@ -348,12 +321,13 @@ async function run() {
     });
     console.log(`Code index complete: median ${snapshot.codeIndex}% from ${summary.included} repositories.`);
   } catch (error) {
-    const previous = await readJsonFile(CODE_INDEX_PROGRESS_FILE, {});
+    const previous = await stores.progress.read({});
     await writeProgress({ ...previous, status: 'failed', error: error.message });
     console.error('Code index worker failed:', error);
     process.exitCode = 1;
   } finally {
-    await releaseLock();
+    await releaseLock().catch((error) => console.error('Could not release the code-index worker lock:', error.message));
+    await storage.close().catch(() => {});
   }
 }
 

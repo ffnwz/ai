@@ -31,8 +31,19 @@ jobs:
 
       - name: Assemble static frontend
         run: |
-          mkdir -p site
-          cp index.html app.js occupations.html occupations.js methodology.html styles.css robot-apple.png site/
+          mkdir -p site/methodology site/work site/life site/code site/ru
+          cp index.html ru.html app.js occupations.html occupations.js life.html life.js code.html code.js styles.css robot-apple.png og-en.png og-ru.png robots.txt sitemap.xml README.md README.ru.md site/
+          cp ru.html site/ru/index.html
+          sed -i 's|href="styles.css|href="../styles.css|g; s|href="robot-apple.png"|href="../robot-apple.png"|g; s|src="app.js|src="../app.js|g; s|href="code"|href="../code.html"|g; s|href="work"|href="../occupations.html"|g; s|href="life"|href="../life.html"|g; s|href="methodology"|href="../methodology.html"|g; s|href="/work"|href="../work"|g; s|href="/life"|href="../life"|g; s|data-github-pages-href="code.html"|data-github-pages-href="../code.html"|g; s|data-github-pages-href="occupations.html"|data-github-pages-href="../occupations.html"|g; s|data-github-pages-href="life.html"|data-github-pages-href="../life.html"|g; s|data-github-pages-href="methodology.html"|data-github-pages-href="../methodology.html"|g' site/ru/index.html
+          cp occupations.html site/work/index.html
+          cp life.html site/life/index.html
+          sed -i 's|href="styles.css|href="../styles.css|g; s|href="robot-apple.png"|href="../robot-apple.png"|g; s|src="occupations.js"|src="../occupations.js"|g; s|href="./"|href="../"|g' site/work/index.html
+          sed -i 's|href="styles.css|href="../styles.css|g; s|href="robot-apple.png"|href="../robot-apple.png"|g; s|src="life.js"|src="../life.js"|g; s|href="./"|href="../"|g' site/life/index.html
+          cp code.html site/code/index.html
+          sed -i 's|href="styles.css|href="../styles.css|g; s|href="robot-apple.png"|href="../robot-apple.png"|g; s|src="code.js"|src="../code.js"|g; s|href="./"|href="../"|g' site/code/index.html
+          cp methodology.html site/methodology/index.html
+          cp styles.css robot-apple.png og-en.png og-ru.png site/methodology/
+          cp og-en.png og-ru.png site/ru/
           cp -R data site/data
 
       - name: Upload Pages artifact

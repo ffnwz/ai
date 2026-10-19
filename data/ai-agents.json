@@ -1,117 +1,524 @@
 {
-  "version": 2,
+  "version": 3,
   "agents": [
     {
       "id": "claude",
       "label": "Claude Code",
-      "githubProfiles": ["https://github.com/claude"],
-      "loginPatterns": ["claude", "claude[bot]"],
-      "emailPatterns": ["anthropic", "claude"]
+      "githubProfiles": [
+        "https://github.com/claude"
+      ],
+      "loginPatterns": [
+        "claude",
+        "claude[bot]"
+      ],
+      "emailPatterns": [
+        "anthropic",
+        "claude"
+      ],
+      "emails": [
+        "noreply@anthropic.com"
+      ],
+      "messagePatterns": [
+        "Generated with \\[?Claude Code"
+      ]
     },
     {
       "id": "copilot",
       "label": "GitHub Copilot",
-      "githubProfiles": ["https://github.com/copilot"],
-      "loginPatterns": ["copilot", "copilot[bot]"],
-      "emailPatterns": ["copilot"]
+      "githubProfiles": [
+        "https://github.com/copilot"
+      ],
+      "loginPatterns": [
+        "copilot",
+        "copilot[bot]",
+        "copilot-swe-agent",
+        "copilot-swe-agent[bot]"
+      ],
+      "emailPatterns": [
+        "copilot"
+      ],
+      "emails": [
+        "198982749+copilot@users.noreply.github.com"
+      ]
     },
     {
       "id": "codex",
       "label": "OpenAI Codex",
-      "githubProfiles": ["https://github.com/openai", "https://github.com/openai/codex"],
-      "loginPatterns": ["codex", "codex[bot]"],
-      "emailPatterns": ["codex", "openai"]
+      "githubProfiles": [
+        "https://github.com/openai",
+        "https://github.com/openai/codex"
+      ],
+      "loginPatterns": [
+        "codex",
+        "codex[bot]",
+        "chatgpt-codex-connector",
+        "chatgpt-codex-connector[bot]"
+      ],
+      "emailPatterns": [
+        "codex",
+        "openai"
+      ]
     },
     {
       "id": "gpt",
       "label": "GPT / OpenAI",
-      "githubProfiles": ["https://github.com/openai"],
-      "loginPatterns": ["gpt", "gpt[bot]"],
-      "emailPatterns": ["gpt"]
+      "githubProfiles": [
+        "https://github.com/openai"
+      ],
+      "loginPatterns": [
+        "gpt",
+        "gpt[bot]"
+      ],
+      "emailPatterns": [
+        "gpt"
+      ]
     },
     {
       "id": "gemini",
       "label": "Gemini Code Assist",
-      "githubProfiles": ["https://github.com/google-gemini"],
-      "loginPatterns": ["gemini", "gemini[bot]"],
-      "emailPatterns": ["gemini"]
+      "githubProfiles": [
+        "https://github.com/google-gemini"
+      ],
+      "loginPatterns": [
+        "gemini",
+        "gemini[bot]",
+        "gemini-code-assist",
+        "gemini-code-assist[bot]",
+        "gemini-cli[bot]"
+      ],
+      "emailPatterns": [
+        "gemini"
+      ]
     },
     {
       "id": "jules",
       "label": "Jules",
-      "githubProfiles": ["https://github.com/google-labs-code", "https://github.com/google-labs-code/jules-action"],
-      "loginPatterns": ["jules", "jules[bot]"],
-      "emailPatterns": ["jules"]
+      "githubProfiles": [
+        "https://github.com/google-labs-code",
+        "https://github.com/google-labs-code/jules-action"
+      ],
+      "loginPatterns": [
+        "jules",
+        "jules[bot]",
+        "google-labs-jules",
+        "google-labs-jules[bot]"
+      ],
+      "emailPatterns": [
+        "jules"
+      ]
     },
     {
       "id": "aider",
       "label": "Aider",
-      "githubProfiles": ["https://github.com/Aider-AI"],
-      "loginPatterns": ["aider", "aider[bot]"],
-      "emailPatterns": ["aider"]
+      "githubProfiles": [
+        "https://github.com/Aider-AI"
+      ],
+      "loginPatterns": [
+        "aider",
+        "aider[bot]"
+      ],
+      "emailPatterns": [
+        "aider"
+      ],
+      "messagePatterns": [
+        "^aider: "
+      ]
     },
     {
       "id": "devin",
       "label": "Devin",
-      "githubProfiles": ["https://github.com/CognitionAI"],
-      "loginPatterns": ["devin", "devin[bot]"],
-      "emailPatterns": ["devin"]
+      "githubProfiles": [
+        "https://github.com/CognitionAI"
+      ],
+      "loginPatterns": [
+        "devin",
+        "devin[bot]",
+        "devin-ai-integration",
+        "devin-ai-integration[bot]"
+      ],
+      "emailPatterns": [
+        "devin"
+      ]
     },
     {
       "id": "cursor",
       "label": "Cursor",
-      "githubProfiles": ["https://github.com/getcursor"],
-      "loginPatterns": ["cursor", "cursor[bot]"],
-      "emailPatterns": ["cursor"]
+      "githubProfiles": [
+        "https://github.com/getcursor"
+      ],
+      "loginPatterns": [
+        "cursor",
+        "cursor[bot]",
+        "cursor-agent",
+        "cursoragent"
+      ],
+      "emailPatterns": [
+        "cursor"
+      ],
+      "emails": [
+        "cursoragent@cursor.com"
+      ]
     },
     {
       "id": "windsurf",
       "label": "Windsurf",
-      "githubProfiles": ["https://github.com/Codeium"],
-      "loginPatterns": ["windsurf", "windsurf[bot]"],
-      "emailPatterns": ["windsurf", "codeium"]
+      "githubProfiles": [
+        "https://github.com/Codeium"
+      ],
+      "loginPatterns": [
+        "windsurf",
+        "windsurf[bot]"
+      ],
+      "emailPatterns": [
+        "windsurf",
+        "codeium"
+      ]
     },
     {
       "id": "cline",
       "label": "Cline",
-      "githubProfiles": ["https://github.com/cline"],
-      "loginPatterns": ["cline", "cline[bot]"],
-      "emailPatterns": ["cline"]
+      "githubProfiles": [
+        "https://github.com/cline"
+      ],
+      "loginPatterns": [
+        "cline",
+        "cline[bot]"
+      ],
+      "emailPatterns": [
+        "cline"
+      ]
     },
     {
       "id": "qodo",
       "label": "Qodo",
-      "githubProfiles": ["https://github.com/qodo-ai"],
-      "loginPatterns": ["qodo", "qodo[bot]"],
-      "emailPatterns": ["qodo"]
+      "githubProfiles": [
+        "https://github.com/qodo-ai"
+      ],
+      "loginPatterns": [
+        "qodo",
+        "qodo[bot]"
+      ],
+      "emailPatterns": [
+        "qodo"
+      ]
     },
     {
       "id": "amazon-q",
       "label": "Amazon Q Developer",
-      "githubProfiles": ["https://github.com/Amazon-Q-Developer"],
-      "loginPatterns": ["amazon-q-developer", "amazon-q", "amazonq", "q-developer", "qdeveloper"],
-      "emailPatterns": ["amazon-q", "amazonq", "q-developer"]
+      "githubProfiles": [
+        "https://github.com/Amazon-Q-Developer"
+      ],
+      "loginPatterns": [
+        "amazon-q-developer",
+        "amazon-q",
+        "amazonq",
+        "q-developer",
+        "qdeveloper"
+      ],
+      "emailPatterns": [
+        "amazon-q",
+        "amazonq",
+        "q-developer"
+      ]
     },
     {
       "id": "junie",
       "label": "JetBrains Junie",
-      "githubProfiles": ["https://github.com/jetbrains-junie"],
-      "loginPatterns": ["junie", "junie[bot]"],
-      "emailPatterns": ["junie"]
+      "githubProfiles": [
+        "https://github.com/jetbrains-junie"
+      ],
+      "loginPatterns": [
+        "junie",
+        "junie[bot]"
+      ],
+      "emailPatterns": [
+        "junie"
+      ]
     },
     {
       "id": "cody",
       "label": "Sourcegraph Cody",
-      "githubProfiles": ["https://github.com/sourcegraph"],
-      "loginPatterns": ["cody[bot]", "sourcegraph[bot]"],
-      "emailPatterns": ["cody@", "sourcegraph.com"]
+      "githubProfiles": [
+        "https://github.com/sourcegraph"
+      ],
+      "loginPatterns": [
+        "cody[bot]",
+        "sourcegraph[bot]"
+      ],
+      "emailPatterns": [
+        "cody@",
+        "sourcegraph.com"
+      ]
     },
     {
       "id": "replit",
       "label": "Replit Agent",
-      "githubProfiles": ["https://github.com/replit"],
-      "loginPatterns": ["replit-agent", "replit[bot]"],
-      "emailPatterns": ["replit-agent", "replit.com"]
+      "githubProfiles": [
+        "https://github.com/replit"
+      ],
+      "loginPatterns": [
+        "replit-agent",
+        "replit[bot]"
+      ],
+      "emailPatterns": [
+        "replit-agent",
+        "replit.com"
+      ]
+    },
+    {
+      "id": "opencode",
+      "label": "OpenCode",
+      "githubProfiles": [
+        "https://github.com/sst/opencode"
+      ],
+      "loginPatterns": [
+        "opencode-agent",
+        "opencode-agent[bot]",
+        "opencode[bot]"
+      ],
+      "emailPatterns": [
+        "opencode.ai"
+      ],
+      "emails": [
+        "noreply@opencode.ai"
+      ],
+      "messagePatterns": [
+        "Generated with \\[?opencode"
+      ]
+    },
+    {
+      "id": "openhands",
+      "label": "OpenHands",
+      "githubProfiles": [
+        "https://github.com/All-Hands-AI"
+      ],
+      "loginPatterns": [
+        "openhands-agent",
+        "openhands-agent[bot]",
+        "openhands-ai[bot]",
+        "openhands[bot]"
+      ],
+      "emailPatterns": [
+        "all-hands.dev"
+      ],
+      "emails": [
+        "openhands@all-hands.dev"
+      ]
+    },
+    {
+      "id": "amp",
+      "label": "Amp",
+      "githubProfiles": [
+        "https://github.com/sourcegraph/amp"
+      ],
+      "loginPatterns": [
+        "amp[bot]",
+        "ampcode[bot]"
+      ],
+      "emailPatterns": [
+        "ampcode.com"
+      ],
+      "emails": [
+        "amp@ampcode.com"
+      ],
+      "messagePatterns": [
+        "^Amp-Thread(-ID)?:\\s*https://ampcode\\.com/"
+      ]
+    },
+    {
+      "id": "warp",
+      "label": "Warp Agent",
+      "githubProfiles": [
+        "https://github.com/warpdotdev"
+      ],
+      "loginPatterns": [
+        "warp-agent",
+        "warp-agent[bot]"
+      ],
+      "emailPatterns": [
+        "warp.dev"
+      ],
+      "emails": [
+        "agent@warp.dev"
+      ]
+    },
+    {
+      "id": "crush",
+      "label": "Crush",
+      "githubProfiles": [
+        "https://github.com/charmbracelet/crush"
+      ],
+      "loginPatterns": [
+        "crush[bot]"
+      ],
+      "emailPatterns": [
+        "charm.land"
+      ],
+      "emails": [
+        "crush@charm.land"
+      ],
+      "messagePatterns": [
+        "Generated with \\[?Crush"
+      ]
+    },
+    {
+      "id": "factory",
+      "label": "Factory Droid",
+      "githubProfiles": [
+        "https://github.com/Factory-AI"
+      ],
+      "loginPatterns": [
+        "factory-droid",
+        "factory-droid[bot]"
+      ],
+      "emailPatterns": [
+        "factory.ai"
+      ],
+      "emails": [
+        "droid@factory.ai"
+      ]
+    },
+    {
+      "id": "sweep",
+      "label": "Sweep",
+      "githubProfiles": [
+        "https://github.com/sweepai"
+      ],
+      "loginPatterns": [
+        "sweep-ai[bot]"
+      ],
+      "emailPatterns": [
+        "sweep.dev"
+      ]
+    },
+    {
+      "id": "coderabbit",
+      "label": "CodeRabbit",
+      "githubProfiles": [
+        "https://github.com/coderabbitai"
+      ],
+      "loginPatterns": [
+        "coderabbitai",
+        "coderabbitai[bot]"
+      ],
+      "emailPatterns": [
+        "coderabbit"
+      ]
+    },
+    {
+      "id": "lovable",
+      "label": "Lovable",
+      "githubProfiles": [
+        "https://github.com/lovable-dev"
+      ],
+      "loginPatterns": [
+        "lovable-dev[bot]",
+        "gpt-engineer-app[bot]"
+      ],
+      "emailPatterns": [
+        "lovable.dev"
+      ]
+    },
+    {
+      "id": "v0",
+      "label": "v0 by Vercel",
+      "githubProfiles": [
+        "https://github.com/vercel"
+      ],
+      "loginPatterns": [
+        "v0[bot]",
+        "v0-dev[bot]"
+      ],
+      "emailPatterns": [
+        "v0.dev"
+      ]
+    },
+    {
+      "id": "codegen",
+      "label": "Codegen",
+      "githubProfiles": [
+        "https://github.com/codegen-sh"
+      ],
+      "loginPatterns": [
+        "codegen-sh[bot]",
+        "codegen-sh"
+      ],
+      "emailPatterns": [
+        "codegen.sh",
+        "codegen.com"
+      ]
+    },
+    {
+      "id": "sourcery",
+      "label": "Sourcery",
+      "githubProfiles": [
+        "https://github.com/sourcery-ai"
+      ],
+      "loginPatterns": [
+        "sourcery-ai[bot]"
+      ],
+      "emailPatterns": [
+        "sourcery.ai"
+      ]
+    },
+    {
+      "id": "ellipsis",
+      "label": "Ellipsis",
+      "githubProfiles": [
+        "https://github.com/ellipsis-dev"
+      ],
+      "loginPatterns": [
+        "ellipsis-dev[bot]"
+      ],
+      "emailPatterns": [
+        "ellipsis.dev"
+      ]
     }
-  ]
+  ],
+  "automation": {
+    "note": "Dependency, release, translation, and CI bots. Their commits are neither human work nor AI-written code: they are counted separately and left out of the AI share. Any other [bot] account that is not a known AI agent is treated the same way.",
+    "loginPatterns": [
+      "dependabot",
+      "dependabot-preview",
+      "renovate",
+      "renovate-bot",
+      "renovatebot",
+      "github-actions",
+      "actions-user",
+      "weblate",
+      "greenkeeper",
+      "snyk-bot",
+      "imgbot",
+      "imgbotapp",
+      "allcontributors",
+      "all-contributors",
+      "mergify",
+      "pre-commit-ci",
+      "semantic-release-bot",
+      "release-please",
+      "transifex-integration",
+      "crowdin-bot",
+      "codecov",
+      "deepsource-autofix",
+      "restyled-io",
+      "stale",
+      "github-merge-queue",
+      "pyup-bot",
+      "depfu",
+      "whitesource-bolt-for-github",
+      "mend-bolt-for-github",
+      "netlify",
+      "vercel",
+      "changeset-bot",
+      "autofix-ci"
+    ],
+    "namePatterns": [
+      "github action",
+      "github actions",
+      "github-actions",
+      "weblate",
+      "renovate bot",
+      "dependabot"
+    ]
+  }
 }

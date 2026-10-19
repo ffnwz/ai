@@ -6,7 +6,9 @@
       "name": "Slop Score",
       "url": "https://slopscore.ava.pet/",
       "kind": "repository-scan",
-      "rings": ["code"],
+      "rings": [
+        "code"
+      ],
       "integration": "backend-live",
       "description": {
         "ru": "Широкий каталог репозиториев и эвристический сигнал AI-участия.",
@@ -19,7 +21,9 @@
       "url": "https://github.com/Korext/ai-code-radar",
       "api": "https://oss.korext.com/api/radar/current",
       "kind": "public-api",
-      "rings": ["code"],
+      "rings": [
+        "code"
+      ],
       "integration": "backend-live",
       "license": "data CC BY 4.0 · code Apache-2.0",
       "description": {
@@ -33,7 +37,10 @@
       "url": "https://www.qmmit.dev/",
       "repository": "https://github.com/pandey019/qmmit-cli",
       "kind": "commit-dataset",
-      "rings": ["code", "self-building"],
+      "rings": [
+        "code",
+        "self-building"
+      ],
       "integration": "dataset-reference",
       "license": "MIT",
       "description": {
@@ -46,7 +53,9 @@
       "name": "Causari Survival Report",
       "url": "https://causari.dev/reports/survival/",
       "kind": "line-survival-report",
-      "rings": ["code"],
+      "rings": [
+        "code"
+      ],
       "integration": "weekly-report",
       "description": {
         "ru": "Сколько строк пришло из AI-помеченных коммитов и сколько пережило изменения.",
@@ -58,7 +67,9 @@
       "name": "AI Agent Adoption",
       "url": "https://alteredcraft.github.io/dashboards/ai-agent-adoption/",
       "kind": "repository-dashboard",
-      "rings": ["code"],
+      "rings": [
+        "code"
+      ],
       "integration": "dashboard-reference",
       "description": {
         "ru": "Конфигурации Claude, Cursor, Copilot и других агентов в публичных репозиториях.",
@@ -70,7 +81,10 @@
       "name": "Anthropic Economic Index",
       "url": "https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main",
       "kind": "open-dataset",
-      "rings": ["work", "life"],
+      "rings": [
+        "work",
+        "life"
+      ],
       "integration": "dataset",
       "license": "MIT",
       "description": {
@@ -82,22 +96,29 @@
       "id": "stackoverflow-developer-survey-2026",
       "name": "Stack Overflow Developer Survey 2026",
       "url": "https://stackoverflow.blog/2026/10/06/the-results-of-the-2026-developer-survey-are-here/",
-      "dataset": "https://survey.stackoverflow.co/2026/",
+      "dataset": "https://survey.stackoverflow.co/2026/ai",
       "kind": "developer-survey",
-      "rings": ["code", "work", "life"],
+      "rings": [
+        "code",
+        "work",
+        "life"
+      ],
       "integration": "context-survey",
       "publishedAt": "2026-10-06",
       "coverage": "30,903 responses · 169 countries",
       "signals": {
-        "aiUsageDailyHourPlus": 80,
         "aiCodingUsersDaily": 73,
-        "aiAgentsForAnswers": 70,
-        "trustSomeAiOutput": 87,
-        "trustOnlyVerifiable": 48
+        "dailyUsersFourPlusHours": 31,
+        "generatingCodeInFamiliarArea": 69,
+        "debuggingOrRefactoring": 64,
+        "writingTests": 58,
+        "agentClaudeCode": 66,
+        "agentGithubCopilot": 59,
+        "trustWhenEasyToValidate": 48
       },
       "description": {
-        "ru": "Опрос разработчиков о ежедневном использовании AI, доверии к результатам и рабочих привычках.",
-        "en": "A developer survey on daily AI use, trust in outputs, and changing work habits."
+        "ru": "Опрос 30 000+ разработчиков: 73% пользователей AI-инструментов для кода работают с ними ежедневно, 31% из них — 4+ часа в день, 69% генерируют код с AI. Это доли людей, а не доля кода, поэтому в медиану Кода не входит.",
+        "en": "A survey of 30,000+ developers: 73% of AI coding tool users use them daily, 31% of them for 4+ hours a day, 69% generate code with AI. These are shares of people, not of code, so it stays out of the Code median."
       }
     },
     {
@@ -106,7 +127,9 @@
       "url": "https://github.com/meoadvisors/ai-workforce-data",
       "dataset": "https://meoadvisors.com/datasets/",
       "kind": "open-dataset",
-      "rings": ["work"],
+      "rings": [
+        "work"
+      ],
       "integration": "backend-live",
       "license": "CC BY-NC 4.0",
       "description": {
@@ -119,7 +142,9 @@
       "name": "Git AI / Grafana",
       "url": "https://grafana.com/grafana/dashboards/25803-git-ai-code-attribution/",
       "kind": "self-hosted-telemetry",
-      "rings": ["code"],
+      "rings": [
+        "code"
+      ],
       "integration": "company-telemetry",
       "description": {
         "ru": "Построчная атрибуция AI-кода из git notes для подключившихся команд.",
@@ -131,7 +156,9 @@
       "name": "AI Attestation",
       "url": "https://github.com/Korext/ai-attestation",
       "kind": "open-standard",
-      "rings": ["code"],
+      "rings": [
+        "code"
+      ],
       "integration": "standard",
       "license": "spec CC0 · tools Apache-2.0",
       "description": {
@@ -146,7 +173,10 @@
       "dataset": "https://botcommits.dev/data.json",
       "repository": "https://github.com/edgardomunoznajar/github_explosion",
       "kind": "public-commit-series",
-      "rings": ["code", "self-building"],
+      "rings": [
+        "code",
+        "self-building"
+      ],
       "integration": "backend-live",
       "description": {
         "ru": "Помесячный ряд публичных коммитов, атрибутированных Claude Code и другим AI-инструментам; считает активность, а не уникальные репозитории.",
@@ -160,7 +190,10 @@
       "api": "https://api.ossinsight.io/v1",
       "repository": "https://github.com/pingcap/ossinsight",
       "kind": "github-event-analytics",
-      "rings": ["code", "self-building"],
+      "rings": [
+        "code",
+        "self-building"
+      ],
       "integration": "cross-check",
       "description": {
         "ru": "Независимая аналитика публичной активности GitHub: репозитории, коммиты, PR и контрибьюторы. Используется как знаменатель и проверка масштаба, а не как прямая атрибуция AI-кода.",
@@ -173,28 +206,351 @@
       "url": "https://github.com/claude",
       "api": "https://api.github.com/graphql",
       "kind": "github-contribution-monitor",
-      "rings": ["code"],
+      "rings": [
+        "code"
+      ],
       "integration": "backend-live",
       "trackedProfiles": [
-        { "id": "claude", "label": "Claude Code", "url": "https://github.com/claude", "kind": "user" },
-        { "id": "copilot", "label": "GitHub Copilot", "url": "https://github.com/copilot", "kind": "product-route" },
-        { "id": "codex", "label": "OpenAI Codex", "url": "https://github.com/openai/codex", "kind": "official-repository" },
-        { "id": "gemini", "label": "Gemini Code Assist", "url": "https://github.com/google-gemini", "kind": "organization" },
-        { "id": "jules", "label": "Jules", "url": "https://github.com/google-labs-code/jules-action", "kind": "official-repository" },
-        { "id": "cursor", "label": "Cursor", "url": "https://github.com/getcursor", "kind": "organization" },
-        { "id": "devin", "label": "Devin", "url": "https://github.com/CognitionAI", "kind": "organization" },
-        { "id": "windsurf", "label": "Windsurf", "url": "https://github.com/Codeium", "kind": "organization" },
-        { "id": "cline", "label": "Cline", "url": "https://github.com/cline", "kind": "organization" },
-        { "id": "qodo", "label": "Qodo", "url": "https://github.com/qodo-ai", "kind": "organization" },
-        { "id": "aider", "label": "Aider", "url": "https://github.com/Aider-AI", "kind": "organization" },
-        { "id": "amazon-q", "label": "Amazon Q Developer", "url": "https://github.com/Amazon-Q-Developer", "kind": "organization" },
-        { "id": "junie", "label": "JetBrains Junie", "url": "https://github.com/jetbrains-junie", "kind": "organization-archived" },
-        { "id": "cody", "label": "Sourcegraph Cody", "url": "https://github.com/sourcegraph", "kind": "organization" },
-        { "id": "replit", "label": "Replit Agent", "url": "https://github.com/replit", "kind": "organization" }
+        {
+          "id": "claude",
+          "label": "Claude Code",
+          "url": "https://github.com/claude",
+          "kind": "user"
+        },
+        {
+          "id": "copilot",
+          "label": "GitHub Copilot",
+          "url": "https://github.com/copilot",
+          "kind": "product-route"
+        },
+        {
+          "id": "codex",
+          "label": "OpenAI Codex",
+          "url": "https://github.com/openai/codex",
+          "kind": "official-repository"
+        },
+        {
+          "id": "gemini",
+          "label": "Gemini Code Assist",
+          "url": "https://github.com/google-gemini",
+          "kind": "organization"
+        },
+        {
+          "id": "jules",
+          "label": "Jules",
+          "url": "https://github.com/google-labs-code/jules-action",
+          "kind": "official-repository"
+        },
+        {
+          "id": "cursor",
+          "label": "Cursor",
+          "url": "https://github.com/getcursor",
+          "kind": "organization"
+        },
+        {
+          "id": "devin",
+          "label": "Devin",
+          "url": "https://github.com/CognitionAI",
+          "kind": "organization"
+        },
+        {
+          "id": "windsurf",
+          "label": "Windsurf",
+          "url": "https://github.com/Codeium",
+          "kind": "organization"
+        },
+        {
+          "id": "cline",
+          "label": "Cline",
+          "url": "https://github.com/cline",
+          "kind": "organization"
+        },
+        {
+          "id": "qodo",
+          "label": "Qodo",
+          "url": "https://github.com/qodo-ai",
+          "kind": "organization"
+        },
+        {
+          "id": "aider",
+          "label": "Aider",
+          "url": "https://github.com/Aider-AI",
+          "kind": "organization"
+        },
+        {
+          "id": "amazon-q",
+          "label": "Amazon Q Developer",
+          "url": "https://github.com/Amazon-Q-Developer",
+          "kind": "organization"
+        },
+        {
+          "id": "junie",
+          "label": "JetBrains Junie",
+          "url": "https://github.com/jetbrains-junie",
+          "kind": "organization-archived"
+        },
+        {
+          "id": "cody",
+          "label": "Sourcegraph Cody",
+          "url": "https://github.com/sourcegraph",
+          "kind": "organization"
+        },
+        {
+          "id": "replit",
+          "label": "Replit Agent",
+          "url": "https://github.com/replit",
+          "kind": "organization"
+        }
       ],
       "description": {
         "ru": "Публичные репозитории и коммиты, где участвовали AI-связанные GitHub-аккаунты, официальные организации и bot-маркеры.",
         "en": "Public repositories and commits involving AI-linked GitHub accounts, official organizations, and bot markers."
+      }
+    },
+    {
+      "id": "slopscore-methodology",
+      "name": "Polyphony / slopscore",
+      "url": "https://codeberg.org/polyphony/slopscore",
+      "kind": "open-methodology",
+      "rings": [
+        "code"
+      ],
+      "integration": "methodology-reference",
+      "description": {
+        "ru": "Открытая методика эвристической оценки AI-участия в репозиториях.",
+        "en": "Open methodology for a heuristic estimate of AI involvement in repositories."
+      }
+    },
+    {
+      "id": "ai-countdown",
+      "name": "AI Countdown",
+      "url": "https://github.com/ffnwz/ai",
+      "kind": "project",
+      "rings": [
+        "code",
+        "work",
+        "life"
+      ],
+      "integration": "primary-project",
+      "description": {
+        "ru": "Этот проект: медианы, источники, анализ репозиториев и реестры задач.",
+        "en": "This project: medians, sources, repository analysis, and task registries."
+      }
+    },
+    {
+      "id": "github-explosion",
+      "name": "github_explosion",
+      "url": "https://github.com/edgardomunoznajar/github_explosion",
+      "kind": "open-methodology",
+      "rings": [
+        "code",
+        "self-building"
+      ],
+      "integration": "cross-check",
+      "description": {
+        "ru": "Сборщик публичных рядов AI-атрибутированных коммитов через GH Archive и GitHub Search.",
+        "en": "A collector of public AI-attributed commit series using GH Archive and GitHub Search."
+      }
+    },
+    {
+      "id": "github-contributions-api",
+      "name": "GitHub Contributions API",
+      "url": "https://docs.github.com/en/graphql/reference/users",
+      "kind": "public-api",
+      "rings": [
+        "code"
+      ],
+      "integration": "backend-live",
+      "description": {
+        "ru": "Графы contributions для подсчёта репозиториев и вкладов AI-связанных аккаунтов.",
+        "en": "Contribution graphs for counting repositories and contributions from AI-linked accounts."
+      }
+    },
+    {
+      "id": "company-openai",
+      "name": "OpenAI report",
+      "url": "https://openai.com/index/how-agents-are-transforming-work/",
+      "kind": "company-report",
+      "rings": [
+        "work",
+        "self-building"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Доля AI-ответов и токенов инженеров; не доля всего кода.",
+        "en": "AI answer and token share for engineers; not a share of all code."
+      }
+    },
+    {
+      "id": "company-anthropic",
+      "name": "Anthropic report",
+      "url": "https://www.anthropic.com/institute/recursive-self-improvement",
+      "kind": "company-report",
+      "rings": [
+        "work",
+        "self-building"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Заявление о доле кода, который Claude написал и который вошёл в кодовую базу.",
+        "en": "A statement about the share of code Claude authored and that entered the codebase."
+      }
+    },
+    {
+      "id": "company-xai",
+      "name": "xAI framework",
+      "url": "https://data.x.ai/2025-12-31-xai-frontier-artificial-intelligence-framework.pdf",
+      "kind": "company-report",
+      "rings": [
+        "self-building"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Публичный документ xAI; сопоставимый процент внутреннего AI-кода не раскрыт.",
+        "en": "Public xAI framework; no comparable internal AI-code percentage is disclosed."
+      }
+    },
+    {
+      "id": "company-google",
+      "name": "Google statement",
+      "url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/cloud-next-2026-sundar-pichai/",
+      "kind": "company-report",
+      "rings": [
+        "work",
+        "self-building"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Заявленная доля нового AI-кода с проверкой инженерами.",
+        "en": "Reported share of new AI-generated code reviewed by engineers."
+      }
+    },
+    {
+      "id": "company-microsoft",
+      "name": "Microsoft statement",
+      "url": "https://techcrunch.com/2025/04/29/microsoft-ceo-says-up-to-30-of-the-companys-code-was-written-by-ai/",
+      "kind": "company-report",
+      "rings": [
+        "work",
+        "self-building"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Диапазон AI-кода в отдельных проектах Microsoft.",
+        "en": "A range for AI-written code in selected Microsoft projects."
+      }
+    },
+    {
+      "id": "self-building-observations",
+      "name": "AI Countdown self-building dataset",
+      "url": "/data/self-building-observations.json",
+      "kind": "curated-evidence-dataset",
+      "rings": [
+        "self-building"
+      ],
+      "integration": "backend-median",
+      "description": {
+        "ru": "Отдельный датасет материалов, совместимых заявлений компаний, исключений и истории медианных замеров для показателя «AI создаёт AI».",
+        "en": "A separate dataset of source materials, comparable company statements, exclusions, and median measurement history for AI building AI."
+      }
+    },
+    {
+      "id": "company-amazon",
+      "name": "AWS / Amazon survey",
+      "url": "https://assets.aboutamazon.com/bb/2e/9077b9f44a2898c01fcc7f35440d/aws-ai-europe.pdf",
+      "kind": "company-survey",
+      "rings": [
+        "work"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Ожидания сотрудников по использованию AI на работе.",
+        "en": "Employee expectations about using AI at work."
+      }
+    },
+    {
+      "id": "workforce-salesforce",
+      "name": "Salesforce workforce",
+      "url": "https://www.latimes.com/business/story/2025-09-02/salesforce-ceo-marc-benioff-says-he-cut-4-000-support-roles-because-of-ai",
+      "kind": "workforce-report",
+      "rings": [
+        "work"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Заявленное CEO сокращение команды поддержки, связанное с AI.",
+        "en": "A CEO-attributed support-team reduction linked to AI."
+      }
+    },
+    {
+      "id": "workforce-klarna",
+      "name": "Klarna report",
+      "url": "https://www.sec.gov/Archives/edgar/data/2003292/000200329226000007/klar-20251231.htm",
+      "kind": "workforce-report",
+      "rings": [
+        "work"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Заявленный объём работы AI в эквиваленте полной занятости поддержки.",
+        "en": "Reported AI support-work capacity expressed in full-time equivalents."
+      }
+    },
+    {
+      "id": "workforce-amazon",
+      "name": "Amazon workforce",
+      "url": "https://apnews.com/article/cb64af47ebb794541fbdfa8fd264932c",
+      "kind": "workforce-report",
+      "rings": [
+        "work"
+      ],
+      "integration": "editorial-observation",
+      "description": {
+        "ru": "Наблюдение по сокращению корпоративного штата; доля, вызванная AI, не установлена.",
+        "en": "An observation about corporate headcount reduction; the AI-attributable share is not established."
+      }
+    },
+    {
+      "id": "sonar-state-of-code-2026",
+      "name": "Sonar State of Code 2026",
+      "url": "https://www.sonarsource.com/blog/state-of-code-developer-survey-report-the-current-reality-of-ai-coding/",
+      "dataset": "https://www.sonarsource.com/company/press-releases/sonar-data-reveals-critical-verification-gap-in-ai-coding/",
+      "kind": "developer-survey",
+      "rings": [
+        "code"
+      ],
+      "integration": "comparable-code-source",
+      "publishedAt": "2026-01-08",
+      "coverage": "1,100+ professional developers",
+      "signals": {
+        "aiShareOfCommittedCode": 42,
+        "expectedShareBy2027": 65,
+        "alwaysVerifyBeforeCommit": 48
+      },
+      "description": {
+        "ru": "Опрос разработчиков: AI пишет 42% закоммиченного кода (самооценка). Сопоставимый процентный источник Кода, который учитывает AI без публичных меток.",
+        "en": "Developer survey: AI writes 42% of committed code (self-report). A comparable Code percentage that includes AI used without public markers."
+      }
+    },
+    {
+      "id": "daniotti-2026-who-is-using-ai-to-code",
+      "name": "Who is using AI to code? (Science, 2026)",
+      "url": "https://arxiv.org/abs/2506.08945",
+      "kind": "detection-study",
+      "rings": [
+        "code"
+      ],
+      "integration": "comparable-code-source",
+      "publishedAt": "2026",
+      "coverage": "30M+ GitHub commits · 170,000 developers · Python",
+      "signals": {
+        "usPythonFunctionsEnd2024": 28.6,
+        "germanyFranceEnd2024": "23-24",
+        "indiaEnd2024": 20
+      },
+      "description": {
+        "ru": "Классификатор AI-кода на 30+ млн коммитов GitHub: в конце 2024 года AI писал 28,6% Python-функций разработчиков из США (Германия и Франция 23–24%, Индия около 20%). Сопоставимый процентный источник Кода, который видит AI без публичных меток.",
+        "en": "An AI-code classifier over 30M+ GitHub commits: at the end of 2024 AI wrote 28.6% of Python functions by US developers (Germany and France 23-24%, India about 20%). A comparable Code percentage that sees AI used without public markers."
       }
     }
   ]

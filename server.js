@@ -1,15 +1,11 @@
+const crypto = require('node:crypto');
 const http = require('node:http');
 const fs = require('node:fs/promises');
 const fsSync = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 
-let mongoose = null;
-try {
-  mongoose = require('mongoose');
-} catch (error) {
-  // The local standalone server can run without host-specific dependencies.
-}
+const { createStorage, createCodeIndexStores } = require('./storage');
 
 const HOST = '127.0.0.1';
 const PORT = Number(process.env.PORT || 8765);
@@ -23,6 +19,7 @@ const CODE_INDEX_PROGRESS_FILE = path.join(CACHE_DIR, 'code-index-progress.json'
 const CODE_INDEX_WORKER_FILE = path.join(ROOT, 'refresh-code-index.js');
 const SOURCES_FILE = path.join(CACHE_DIR, 'sources.json');
 const EDITORIAL_OBSERVATIONS_FILE = path.join(CACHE_DIR, 'editorial-observations.json');
+const SELF_BUILDING_OBSERVATIONS_FILE = path.join(CACHE_DIR, 'self-building-observations.json');
 const GITHUB_CONTRIBUTORS_FILE = path.join(CACHE_DIR, 'github-contributors.json');
 const GITHUB_CONTRIBUTORS_CACHE_FILE = path.join(CACHE_DIR, 'github-contributors-cache.json');
 const AI_AGENTS_FILE = path.join(CACHE_DIR, 'ai-agents.json');
@@ -32,7 +29,11 @@ const METRIC_SERIES_FILE = path.join(CACHE_DIR, 'metric-series.json');
 const WORK_DIR = path.join(CACHE_DIR, 'work');
 const WORK_CLASSIFIER_FILE = path.join(WORK_DIR, 'isco08-occupations.json');
 const WORK_EMPLOYMENT_FILE = path.join(WORK_DIR, 'employment-ilostat.json');
+const WORK_UNIT_SHARES_FILE = path.join(WORK_DIR, 'isco08-unit-shares.json');
 const WORK_RATINGS_DIR = path.join(WORK_DIR, 'ratings');
+const LIFE_DIR = path.join(CACHE_DIR, 'life');
+const LIFE_TASKS_FILE = path.join(LIFE_DIR, 'life-tasks.json');
+const LIFE_RATINGS_DIR = path.join(LIFE_DIR, 'ratings');
 const AI_COUNTDOWN_MONGO_COLLECTION = process.env.AI_COUNTDOWN_MONGO_COLLECTION || 'ai_countdown_repository_analyses';
 const AI_COUNTDOWN_CONTRIBUTOR_PROFILES_COLLECTION = process.env.AI_COUNTDOWN_CONTRIBUTOR_PROFILES_COLLECTION || 'ai_countdown_contributor_profiles';
 const AI_COUNTDOWN_METRIC_SERIES_COLLECTION = process.env.AI_COUNTDOWN_METRIC_SERIES_COLLECTION || 'ai_countdown_metric_series';
@@ -61,27 +62,46 @@ const REPOSITORY_ANALYSIS_MAX_HISTORY_PAGES = 1000;
 const REPOSITORY_ANALYSIS_CONCURRENCY = 4;
 const REPOSITORY_ANALYSIS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const REPOSITORY_ANALYSIS_HISTORY_LIMIT = 365;
-const REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION = 7;
+// v11: dependency, release, translation, and CI bots are 'automation' instead of
+// human; more AI agents, exact agent addresses, and commit-body signatures.
+// v12: only "[bot]", a separate word "bot", or a listed account is automation; a login
+// such as "agent-steven" stays human.
+const REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION = 12;
 const REPOSITORY_ANALYSIS_AUTHOR_HEURISTIC_MAX_CONTRIBUTORS = 3;
-const REPOSITORY_ANALYSIS_AUTHOR_HEURISTIC_MAX_REPOSITORIES = 3;
+const REPOSITORY_ANALYSIS_AUTHOR_HEURISTIC_MAX_REPOSITORIES = 30;
 const REPOSITORY_ANALYSIS_AUTHOR_HEURISTIC_MAX_COMMITS_PER_REPOSITORY = 30;
 const REPOSITORY_ANALYSIS_AUTHOR_HEURISTIC_MIN_COMMITS = 3;
 const REPOSITORY_ANALYSES_CODE_MIN_COMMITS = 20;
+// The Code source describes current work: each repository's AI share is taken over its
+// commits from the last CODE_INDEX_WINDOW_DAYS, not over years of pre-agent history.
+const CODE_INDEX_WINDOW_DAYS = 365;
+// Histories longer than this are analyzed for the recent window only; a capped commit
+// list also keeps one analysis document under the 16 MB database limit.
+const REPOSITORY_ANALYSIS_FULL_HISTORY_MAX_COMMITS = 5000;
+const REPOSITORY_ANALYSIS_RECENT_WINDOW_DAYS = 365;
+const REPOSITORY_ANALYSIS_MAX_STORED_COMMITS = 8000;
+const REFERENCE_REPOSITORIES_FILE = path.join(CACHE_DIR, 'reference-repositories.json');
+const REFERENCE_REANALYSIS_AFTER_MS = 7 * 24 * 60 * 60 * 1000;
+const REFERENCE_REFRESH_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const REPOSITORY_ANALYSES_CODE_CACHE_TTL_MS = 5 * 60 * 1000;
 // A small repository should not outrank a much larger one only because its
 // AI share is close to 100%. The leaderboard score reaches the raw AI-line
 // count once the analyzed history contains this many changed lines.
 const REPOSITORY_ANALYSIS_LEADERBOARD_REFERENCE_LINES = 10_000;
 const CLEAN_REPOSITORIES_MAX_AI_SHARE = 5;
-const CONTRIBUTOR_ANALYSIS_MAX_REPOSITORIES = 5;
+const CONTRIBUTOR_ANALYSIS_MAX_REPOSITORIES = 30;
 const CONTRIBUTOR_ANALYSIS_CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const CLEAN_REPOSITORIES_ACTIVE_DAYS = 90;
 let repositoryAnalysesCodeObservationCache = null;
 const REPOSITORY_ANALYSIS_AUTHOR_HEURISTIC_CONCURRENCY = 3;
 const REPOSITORY_ANALYSIS_AUTHOR_PROFILE_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Profile sampling can feed repository analysis as a bounded second hop. Keeping this
+// limit finite prevents one public profile from expanding into an unbounded crawl.
+const REPOSITORY_ANALYSIS_RECURSIVE_MAX_REPOSITORIES = 30;
+const REPOSITORY_ANALYSIS_RECURSIVE_MAX_DEPTH = 1;
+const REPOSITORY_ANALYSIS_RECURSIVE_CONCURRENCY = 2;
 const REPOSITORY_ANALYSIS_LOCK_DIR = path.join(CACHE_DIR, 'repository-analysis-locks');
 const REPOSITORY_ANALYSIS_LOCK_STALE_MS = 2 * 60 * 60 * 1000;
-const REPOSITORY_ANALYSIS_LOCK_OWNER = `${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const METRIC_SERIES_LIMIT = 3650;
 // workBaseline is the prototype Work estimate. It stays one Work source next to
 // the occupation ratings from refresh-work-occupations.js.
@@ -93,8 +113,40 @@ const DASHBOARD_METRICS = Object.freeze({
 // The occupation median joins the Work median only once most occupations are rated;
 // a partial run would otherwise speak for the most common jobs only.
 const WORK_OCCUPATIONS_MIN_COVERAGE = 0.9;
-let mongoConnectionPromise = null;
-const mongoCollectionPromises = new Map();
+const LIFE_TASKS_MIN_COVERAGE = 0.9;
+// Runtime state lives in Mongo when it is reachable and nothing is written to
+// data/; JSON files there are only a fallback for a standalone local run.
+// Committed reference data (sources, agents, Work and Life ratings) stays in data/.
+const storage = createStorage({ dataDir: CACHE_DIR, label: 'AI Countdown' });
+const repositoryAnalysesStore = storage.createRecordSet({
+  collectionName: AI_COUNTDOWN_MONGO_COLLECTION,
+  idField: 'repositoryKey',
+  valueField: 'analysis',
+  legacyFile: REPOSITORY_ANALYSES_FILE,
+  fileField: 'repositories'
+});
+// Profiles are keyed by the lowercase login; the profile keeps the login as GitHub spells it.
+const contributorProfilesStore = storage.createRecordSet({
+  collectionName: AI_COUNTDOWN_CONTRIBUTOR_PROFILES_COLLECTION,
+  idField: 'login',
+  valueField: 'profile',
+  legacyFile: CONTRIBUTOR_PROFILES_FILE,
+  fileField: 'profiles',
+  toId: (login) => String(login).toLowerCase()
+});
+const metricSeriesStore = storage.createRecordSet({
+  collectionName: AI_COUNTDOWN_METRIC_SERIES_COLLECTION,
+  idField: 'date',
+  legacyFile: METRIC_SERIES_FILE,
+  fileField: 'pointsByDate',
+  legacyEntries: (file) => (Array.isArray(file.points) ? file.points : []).filter((point) => point?.date).map((point) => [point.date, point])
+});
+const codeIndexStores = createCodeIndexStores(storage);
+const slopscoreStore = codeIndexStores.slopscore;
+const sourceFeedsDocument = storage.createDocument('source-feeds', SOURCE_FEEDS_CACHE_FILE);
+const githubContributorsDocument = storage.createDocument('github-contributors', GITHUB_CONTRIBUTORS_CACHE_FILE);
+const combinedSnapshotDocument = storage.createDocument('combined-snapshot', COMBINED_SNAPSHOT_CACHE_FILE);
+const repositoryAnalysisLocks = storage.createLocks({ lockDir: REPOSITORY_ANALYSIS_LOCK_DIR, staleMs: REPOSITORY_ANALYSIS_LOCK_STALE_MS });
 
 function loadDotEnv(filePath) {
   try {
@@ -127,6 +179,8 @@ const MIME_TYPES = {
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.txt': 'text/plain; charset=utf-8',
+  '.xml': 'application/xml; charset=utf-8',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon'
@@ -141,205 +195,68 @@ function cacheKey(repo, branch) {
 }
 
 async function readCache() {
-  try {
-    return JSON.parse(await fs.readFile(CACHE_FILE, 'utf8'));
-  } catch (error) {
-    if (error.code !== 'ENOENT') console.warn('Could not read Slop Score cache:', error.message);
-    return { version: 1, entries: {} };
-  }
+  return { version: 1, entries: await slopscoreStore.list() };
 }
 
-async function writeCache(cache) {
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-  const temporaryFile = `${CACHE_FILE}.tmp`;
-  await fs.writeFile(temporaryFile, JSON.stringify(cache, null, 2), 'utf8');
-  await fs.rename(temporaryFile, CACHE_FILE);
+function readJsonFile(filePath, fallback) {
+  return storage.readJsonFile(filePath, fallback);
 }
 
-async function readJsonFile(filePath, fallback) {
-  try {
-    return JSON.parse(await fs.readFile(filePath, 'utf8'));
-  } catch (error) {
-    if (error.code !== 'ENOENT') console.warn(`Could not read ${path.basename(filePath)}:`, error.message);
-    return fallback;
-  }
+async function readRepositoryAnalysesCache() {
+  return { version: 1, repositories: await repositoryAnalysesStore.list() };
 }
 
-async function writeJsonFile(filePath, value) {
-  await fs.mkdir(CACHE_DIR, { recursive: true });
-  const temporaryFile = `${filePath}.tmp`;
-  await fs.writeFile(temporaryFile, JSON.stringify(value, null, 2), 'utf8');
-  await fs.rename(temporaryFile, filePath);
+function getStoredRepositoryAnalysis(repositoryKey) {
+  return repositoryAnalysesStore.get(repositoryKey);
 }
 
-async function getMongoConnection() {
-  if (process.env.AI_COUNTDOWN_MONGO === 'false' || !mongoose) return null;
-  if (!mongoConnectionPromise) {
-    mongoConnectionPromise = (async () => {
-      try {
-        const connection = await mongoose.createConnection(
-          process.env.MONGO_URI || 'mongodb://127.0.0.1:3382/TDLib',
-          { serverSelectionTimeoutMS: 3000, connectTimeoutMS: 3000 }
-        ).asPromise();
-        console.log('Mongo persistence enabled: TDLib');
-        return connection;
-      } catch (error) {
-        console.warn(`Mongo persistence unavailable; using JSON cache: ${error.message}`);
-        return null;
-      }
-    })();
-  }
-  return mongoConnectionPromise;
-}
-
-async function getMongoCollection(collectionName, indexDefinition) {
-  if (process.env.AI_COUNTDOWN_MONGO === 'false' || !mongoose) return null;
-  if (!mongoCollectionPromises.has(collectionName)) {
-    mongoCollectionPromises.set(collectionName, (async () => {
-      const connection = await getMongoConnection();
-      if (!connection) return null;
-      const collection = connection.db.collection(collectionName);
-      await collection.createIndex(indexDefinition, { unique: true });
-      console.log(`Mongo collection enabled: ${collectionName}`);
-      return collection;
-    })());
-  }
-  return mongoCollectionPromises.get(collectionName);
-}
-
-async function getMongoRepositoryCollection() {
-  const collectionName = process.env.AI_COUNTDOWN_MONGO_COLLECTION || AI_COUNTDOWN_MONGO_COLLECTION;
-  return getMongoCollection(collectionName, { repositoryKey: 1 });
-}
-
-async function getMongoContributorProfilesCollection() {
-  const collectionName = process.env.AI_COUNTDOWN_CONTRIBUTOR_PROFILES_COLLECTION || AI_COUNTDOWN_CONTRIBUTOR_PROFILES_COLLECTION;
-  return getMongoCollection(collectionName, { login: 1 });
-}
-
-async function getMongoMetricSeriesCollection() {
-  const collectionName = process.env.AI_COUNTDOWN_METRIC_SERIES_COLLECTION || AI_COUNTDOWN_METRIC_SERIES_COLLECTION;
-  return getMongoCollection(collectionName, { date: 1 });
-}
-
-async function readRepositoryAnalysesCache(fallback = { version: 1, repositories: {} }) {
-  const fileCache = await readJsonFile(REPOSITORY_ANALYSES_FILE, fallback);
-  const collection = await getMongoRepositoryCollection();
-  if (!collection) return fileCache;
-
-  try {
-    const documents = await collection.find({}, { projection: { _id: 0, repositoryKey: 1, analysis: 1 } }).toArray();
-    if (documents.length) {
-      return {
-        version: 1,
-        repositories: Object.fromEntries(
-          documents
-            .filter((document) => document.repositoryKey && document.analysis)
-            .map((document) => [document.repositoryKey, document.analysis])
-        )
-      };
-    }
-
-    const entries = Object.entries(fileCache.repositories || {});
-    if (entries.length) {
-      await collection.bulkWrite(entries.map(([repositoryKey, analysis]) => ({
-        updateOne: {
-          filter: { repositoryKey },
-          update: { $set: { repositoryKey, analysis, updatedAt: new Date() } },
-          upsert: true
-        }
-      })), { ordered: false });
-    }
-  } catch (error) {
-    console.warn(`Could not read Mongo repository analyses: ${error.message}`);
-  }
-  return fileCache;
-}
-
-async function writeRepositoryAnalysesCache(cache) {
+// One repository is written at a time, so parallel analyses never overwrite
+// each other's results with an older copy.
+async function putRepositoryAnalysis(repositoryKey, analysis) {
   repositoryAnalysesCodeObservationCache = null;
-  await writeJsonFile(REPOSITORY_ANALYSES_FILE, cache);
-  const collection = await getMongoRepositoryCollection();
+  await repositoryAnalysesStore.put(repositoryKey, analysis);
+}
+
+async function deleteRepositoryAnalysis(repositoryKey) {
+  repositoryAnalysesCodeObservationCache = null;
+  await repositoryAnalysesStore.delete(repositoryKey);
+}
+
+async function readContributorProfilesCache() {
+  return { version: 1, profiles: await contributorProfilesStore.list() };
+}
+
+// Profiles were once stored with the login as GitHub spells it, which let a mixed-case
+// login collide with the lowercase key. Rewrite such documents under the lowercase key.
+async function normalizeContributorProfileKeys() {
+  const collection = await storage.collection(AI_COUNTDOWN_CONTRIBUTOR_PROFILES_COLLECTION, { login: 1 });
   if (!collection) return;
-
-  try {
-    const entries = Object.entries(cache.repositories || {});
-    if (!entries.length) return;
-    await collection.bulkWrite(entries.map(([repositoryKey, analysis]) => ({
-      updateOne: {
-        filter: { repositoryKey },
-        update: { $set: { repositoryKey, analysis, updatedAt: new Date() } },
-        upsert: true
-      }
-    })), { ordered: false });
-  } catch (error) {
-    console.warn(`Could not write Mongo repository analyses: ${error.message}`);
-  }
-}
-
-async function readContributorProfilesCache(fallback = { version: 1, profiles: {} }) {
-  const fileCache = await readJsonFile(CONTRIBUTOR_PROFILES_FILE, fallback);
-  const collection = await getMongoContributorProfilesCollection();
-  if (!collection) return fileCache;
-
-  try {
-    const documents = await collection.find({}, { projection: { _id: 0 } }).toArray();
-    if (documents.length) {
-      return {
-        version: 1,
-        profiles: Object.fromEntries(
-          documents
-            .filter((document) => document.login)
-            .map((document) => [String(document.login).toLowerCase(), document])
-        )
-      };
+  const documents = await collection.find({}, { projection: { _id: 1, login: 1, profile: 1 } }).toArray();
+  const lowercase = new Set(documents.map((document) => String(document.login)).filter((login) => login === login.toLowerCase()));
+  for (const document of documents) {
+    const login = String(document.login || '');
+    if (!login || login === login.toLowerCase()) continue;
+    if (lowercase.has(login.toLowerCase())) {
+      await collection.deleteOne({ _id: document._id });
+      continue;
     }
-
-    const entries = Object.entries(fileCache.profiles || {});
-    if (entries.length) {
-      await collection.bulkWrite(entries.map(([login, profile]) => ({
-        updateOne: {
-          filter: { login },
-          update: { $set: { login, ...profile, updatedAt: new Date() } },
-          upsert: true
-        }
-      })), { ordered: false });
-    }
-  } catch (error) {
-    console.warn(`Could not read Mongo contributor profiles: ${error.message}`);
-  }
-  return fileCache;
-}
-
-async function writeContributorProfilesCache(cache) {
-  await writeJsonFile(CONTRIBUTOR_PROFILES_FILE, cache);
-  const collection = await getMongoContributorProfilesCollection();
-  if (!collection) return;
-
-  try {
-    const entries = Object.entries(cache.profiles || {});
-    if (!entries.length) return;
-    await collection.bulkWrite(entries.map(([login, profile]) => ({
-      updateOne: {
-        filter: { login },
-        update: { $set: { login, ...profile, updatedAt: new Date() } },
-        upsert: true
-      }
-    })), { ordered: false });
-  } catch (error) {
-    console.warn(`Could not write Mongo contributor profiles: ${error.message}`);
+    const full = await collection.findOne({ _id: document._id });
+    const { _id, updatedAt, ...profile } = full;
+    await collection.replaceOne({ _id }, { login: login.toLowerCase(), profile: full.profile || profile, updatedAt: new Date() });
+    lowercase.add(login.toLowerCase());
   }
 }
 
-function createDashboardMetricSnapshot(codeValue, status = 'partial', sourceUpdatedAt = null, workValue = DASHBOARD_METRICS.workBaseline) {
+function createDashboardMetricSnapshot(codeValue, status = 'partial', sourceUpdatedAt = null, workValue = DASHBOARD_METRICS.workBaseline, lifeValue = DASHBOARD_METRICS.life, selfBuildValue = null) {
   const code = Number(codeValue);
   if (!Number.isFinite(code)) return null;
   const normalizedCode = roundMetric(clamp(code, 0, 100));
   const work = Number.isFinite(Number(workValue)) ? roundMetric(clamp(Number(workValue), 0, 100)) : DASHBOARD_METRICS.workBaseline;
+  const life = Number.isFinite(Number(lifeValue)) ? roundMetric(clamp(Number(lifeValue), 0, 100)) : DASHBOARD_METRICS.life;
   const overall = roundMetric(
     (normalizedCode * DASHBOARD_METRICS.weights.code)
       + (work * DASHBOARD_METRICS.weights.work)
-      + (DASHBOARD_METRICS.life * DASHBOARD_METRICS.weights.life)
+      + (life * DASHBOARD_METRICS.weights.life)
   );
   const observedAt = new Date().toISOString();
   return {
@@ -347,7 +264,8 @@ function createDashboardMetricSnapshot(codeValue, status = 'partial', sourceUpda
     observedAt,
     code: normalizedCode,
     work,
-    life: DASHBOARD_METRICS.life,
+    life,
+    selfBuild: Number.isFinite(Number(selfBuildValue)) ? roundMetric(clamp(Number(selfBuildValue), 0, 100)) : null,
     overall,
     status,
     sourceUpdatedAt,
@@ -356,53 +274,15 @@ function createDashboardMetricSnapshot(codeValue, status = 'partial', sourceUpda
 }
 
 async function readMetricSeriesCache() {
-  const fileCache = await readJsonFile(METRIC_SERIES_FILE, { version: 1, points: [] });
-  const collection = await getMongoMetricSeriesCollection();
-  if (!collection) return fileCache;
-
-  try {
-    const documents = await collection.find({}, { projection: { _id: 0 } }).sort({ date: 1 }).toArray();
-    if (documents.length) return { version: 1, points: documents };
-    const points = Array.isArray(fileCache.points) ? fileCache.points : [];
-    if (points.length) {
-      await collection.bulkWrite(points.map((point) => ({
-        updateOne: {
-          filter: { date: point.date },
-          update: { $set: { ...point, updatedAt: new Date() } },
-          upsert: true
-        }
-      })), { ordered: false });
-    }
-  } catch (error) {
-    console.warn(`Could not read Mongo metric series: ${error.message}`);
-  }
-  return fileCache;
+  const points = Object.values(await metricSeriesStore.list())
+    .sort((left, right) => Date.parse(left.observedAt || left.date) - Date.parse(right.observedAt || right.date));
+  return { version: 1, points: points.slice(-METRIC_SERIES_LIMIT) };
 }
 
 async function recordMetricSnapshot(point) {
   if (!point) return null;
-  const cache = await readMetricSeriesCache();
-  const points = Array.isArray(cache.points) ? [...cache.points] : [];
-  const existingIndex = points.findIndex((candidate) => candidate.date === point.date);
-  if (existingIndex >= 0) points[existingIndex] = point;
-  else points.push(point);
-  points.sort((left, right) => Date.parse(left.observedAt || left.date) - Date.parse(right.observedAt || right.date));
-  cache.version = 1;
-  cache.points = points.slice(-METRIC_SERIES_LIMIT);
-  await writeJsonFile(METRIC_SERIES_FILE, cache);
-
-  try {
-    const collection = await getMongoMetricSeriesCollection();
-    if (collection) {
-      await collection.updateOne(
-        { date: point.date },
-        { $set: { ...point, updatedAt: new Date() } },
-        { upsert: true }
-      );
-    }
-  } catch (error) {
-    console.warn(`Could not write Mongo metric series: ${error.message}`);
-  }
+  await metricSeriesStore.put(point.date, point);
+  await metricSeriesStore.trim(METRIC_SERIES_LIMIT, 'date');
   return point;
 }
 
@@ -415,7 +295,7 @@ async function getMetricSeries(days = null) {
     : null;
   return {
     version: 1,
-    metricKeys: ['code', 'work', 'life', 'overall'],
+    metricKeys: ['code', 'work', 'life', 'overall', 'selfBuild'],
     updatedAt: points.at(-1)?.observedAt || null,
     points: cutoff === null
       ? points
@@ -423,81 +303,25 @@ async function getMetricSeries(days = null) {
   };
 }
 
-function getRepositoryAnalysisLockPath(repositoryKey) {
-  const encodedKey = Buffer.from(repositoryKey, 'utf8').toString('base64url');
-  return path.join(REPOSITORY_ANALYSIS_LOCK_DIR, `${encodedKey}.lock`);
+function repositoryAnalysisLockName(repositoryKey) {
+  return `repository-analysis:${repositoryKey}`;
 }
 
-async function readRepositoryAnalysisLock(repositoryKey) {
-  const lockPath = getRepositoryAnalysisLockPath(repositoryKey);
-  try {
-    return JSON.parse(await fs.readFile(lockPath, 'utf8'));
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      try {
-        const stat = await fs.stat(lockPath);
-        return { repositoryKey, updatedAt: new Date(stat.mtimeMs).toISOString(), invalid: true };
-      } catch (statError) {
-        if (statError.code !== 'ENOENT') console.warn(`Could not inspect repository analysis lock: ${statError.message}`);
-      }
-    }
-    return null;
-  }
+function readRepositoryAnalysisLock(repositoryKey) {
+  return repositoryAnalysisLocks.read(repositoryAnalysisLockName(repositoryKey));
 }
 
 async function acquireRepositoryAnalysisLock(repositoryKey, stage) {
-  await fs.mkdir(REPOSITORY_ANALYSIS_LOCK_DIR, { recursive: true });
-  const lockPath = getRepositoryAnalysisLockPath(repositoryKey);
-  for (let attempt = 0; attempt < 2; attempt += 1) {
-    try {
-      const handle = await fs.open(lockPath, 'wx');
-      const now = new Date().toISOString();
-      const lock = { repositoryKey, owner: REPOSITORY_ANALYSIS_LOCK_OWNER, stage, startedAt: now, updatedAt: now };
-      await handle.writeFile(JSON.stringify(lock), 'utf8');
-      await handle.close();
-      return { ...lock, path: lockPath };
-    } catch (error) {
-      if (error.code !== 'EEXIST') throw error;
-      const existing = await readRepositoryAnalysisLock(repositoryKey);
-      const updatedAt = Date.parse(existing?.updatedAt || '');
-      const lockAge = Number.isFinite(updatedAt)
-        ? Date.now() - updatedAt
-        : (() => {
-          try { return Date.now() - fsSync.statSync(lockPath).mtimeMs; } catch (statError) { return 0; }
-        })();
-      if (lockAge < REPOSITORY_ANALYSIS_LOCK_STALE_MS) return null;
-      try {
-        await fs.unlink(lockPath);
-      } catch (unlinkError) {
-        if (unlinkError.code !== 'ENOENT') return null;
-      }
-    }
-  }
-  return null;
+  const lock = await repositoryAnalysisLocks.acquire(repositoryAnalysisLockName(repositoryKey), stage);
+  return lock ? { ...lock, repositoryKey } : null;
 }
 
-async function refreshRepositoryAnalysisLock(lock, stage = lock?.stage) {
-  if (!lock?.path) return true;
-  const current = await readRepositoryAnalysisLock(lock.repositoryKey);
-  if (!current || current.owner !== lock.owner) return false;
-  const refreshed = { ...current, stage, updatedAt: new Date().toISOString() };
-  try {
-    await fs.writeFile(lock.path, JSON.stringify(refreshed), 'utf8');
-    return true;
-  } catch (error) {
-    return false;
-  }
+function refreshRepositoryAnalysisLock(lock, stage = lock?.stage) {
+  return repositoryAnalysisLocks.refresh(lock, stage);
 }
 
-async function releaseRepositoryAnalysisLock(lock) {
-  if (!lock?.path) return;
-  const current = await readRepositoryAnalysisLock(lock.repositoryKey);
-  if (current && current.owner !== lock.owner) return;
-  try {
-    await fs.unlink(lock.path);
-  } catch (error) {
-    if (error.code !== 'ENOENT') console.warn(`Could not release repository analysis lock: ${error.message}`);
-  }
+function releaseRepositoryAnalysisLock(lock) {
+  return repositoryAnalysisLocks.release(lock);
 }
 
 function createSlopPayload(raw, repo, branch) {
@@ -717,7 +541,10 @@ async function fetchGitHubGraphQLData(query, variables) {
 }
 
 function isGitHubRateLimitError(error) {
-  return Boolean(error?.rateLimited) || /rate limit/i.test(String(error?.message || ''));
+  return Boolean(error?.rateLimited)
+    || error?.code === 'github-rate-limit'
+    || error?.errorCode === 'github-rate-limit'
+    || /rate limit|Лимит запросов к GitHub/i.test(String(error?.message || ''));
 }
 
 function findGitHubRateLimitError(items) {
@@ -755,14 +582,39 @@ function getGithubWindow(windowDays) {
   };
 }
 
-function getRepositoryHistoryWindow() {
+function getRepositoryHistoryWindow(days = null) {
+  const to = new Date();
+  if (Number(days) > 0) {
+    return {
+      scope: 'days',
+      days: Number(days),
+      from: new Date(to.getTime() - (Number(days) * 24 * 60 * 60 * 1000)).toISOString(),
+      to: to.toISOString(),
+      label: `public commits from the last ${days} days`
+    };
+  }
   return {
     scope: 'all',
     days: null,
     from: null,
-    to: new Date().toISOString(),
+    to: to.toISOString(),
     label: 'all public commit history'
   };
+}
+
+// Long histories (react, kubernetes, cpython) are analyzed for the recent window only.
+async function chooseRepositoryHistoryWindow(repository) {
+  const allHistory = getRepositoryHistoryWindow();
+  if (!getGithubApiToken()) return allHistory;
+  try {
+    const probe = await fetchRepositoryHistoryGraphQL(repository, allHistory, { first: 1 });
+    return Number(probe.totalCount) > REPOSITORY_ANALYSIS_FULL_HISTORY_MAX_COMMITS
+      ? getRepositoryHistoryWindow(REPOSITORY_ANALYSIS_RECENT_WINDOW_DAYS)
+      : allHistory;
+  } catch (error) {
+    if (isGitHubRateLimitError(error)) throw error;
+    return allHistory;
+  }
 }
 
 function dateOnly(value) {
@@ -953,7 +805,110 @@ async function fetchGithubContributorPullRequests(contributor, window) {
 function repositoryAnalysisError(message, statusCode = 400) {
   const error = new Error(message);
   error.statusCode = statusCode;
+  error.expose = true;
   return error;
+}
+
+// ------------------------------------------------------------- public errors
+//
+// Every error that leaves the server has a stable code and a message that is
+// safe to show. Paths, upstream responses, and stack traces stay in the log;
+// internal failures get an incident id that links the response to the log line.
+const PUBLIC_ERRORS = Object.freeze({
+  'invalid-request': { statusCode: 400, message: 'Некорректный запрос.' },
+  'not-found': { statusCode: 404, message: 'Не найдено.' },
+  'request-too-large': { statusCode: 413, message: 'Запрос слишком большой.' },
+  'github-rate-limit': { statusCode: 503, message: GITHUB_RATE_LIMIT_MESSAGE },
+  'github-unavailable': { statusCode: 502, message: 'GitHub API временно недоступен. Попробуйте позже.' },
+  'upstream-unavailable': { statusCode: 502, message: 'Внешний источник данных временно недоступен.' },
+  'storage-unavailable': { statusCode: 503, message: 'Хранилище данных временно недоступно. Попробуйте позже.' },
+  'internal-error': { statusCode: 500, message: 'Внутренняя ошибка сервера.' }
+});
+const STORAGE_ERROR_CODES = new Set(['ENOENT', 'EACCES', 'EPERM', 'ENOSPC', 'EMFILE', 'EBUSY', 'EROFS', 'EISDIR']);
+const NETWORK_ERROR_CODES = new Set(['ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT', 'ENOTFOUND', 'EAI_AGAIN', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_SOCKET']);
+
+function errorCodeForStatus(statusCode) {
+  if (statusCode === 404) return 'not-found';
+  if (statusCode === 413) return 'request-too-large';
+  if (statusCode >= 400 && statusCode < 500) return 'invalid-request';
+  return 'internal-error';
+}
+
+function classifyError(error) {
+  if (isGitHubRateLimitError(error)) return 'github-rate-limit';
+  if (error?.expose) return PUBLIC_ERRORS[error.code] ? error.code : errorCodeForStatus(Number(error.statusCode));
+  if (error instanceof URIError) return 'invalid-request';
+  const message = String(error?.message || '');
+  if (/^Mongo/.test(String(error?.name || ''))
+    || STORAGE_ERROR_CODES.has(error?.code)
+    || /^(?:ENOENT|EACCES|EPERM|ENOSPC|EMFILE|EBUSY|EROFS|EISDIR):|^Mongo|E11000/.test(message)) return 'storage-unavailable';
+  if (/^GitHub/.test(message)) return 'github-unavailable';
+  if (error?.name === 'AbortError'
+    || NETWORK_ERROR_CODES.has(error?.code)
+    || NETWORK_ERROR_CODES.has(error?.cause?.code)
+    || /fetch failed|returned HTTP|timed? ?out|aborted/i.test(message)) return 'upstream-unavailable';
+  return 'internal-error';
+}
+
+function publicError(error) {
+  const code = classifyError(error);
+  const known = PUBLIC_ERRORS[code];
+  const ownMessage = error?.expose && error.message;
+  return {
+    code,
+    statusCode: error?.expose && Number(error.statusCode) ? Number(error.statusCode) : known.statusCode,
+    message: ownMessage || known.message
+  };
+}
+
+// The fields an error leaves in a stored record or a cached snapshot.
+function storedErrorFields(error) {
+  const failure = publicError(error);
+  return { error: failure.message, errorCode: failure.code };
+}
+
+function logIncident(error, context) {
+  const incidentId = crypto.randomBytes(4).toString('hex');
+  console.error(`[incident ${incidentId}] ${context}:`, error?.stack || error);
+  return incidentId;
+}
+
+// Records saved before error codes existed may still hold raw error text
+// (paths, upstream bodies). Such text is replaced at the response boundary.
+function hasPublicErrorCode(value) {
+  return typeof value.errorCode === 'string' || (typeof value.code === 'string' && Boolean(PUBLIC_ERRORS[value.code]));
+}
+
+function sanitizePublicErrors(value, depth = 0) {
+  if (!value || typeof value !== 'object' || depth > 16) return value;
+  if (Array.isArray(value)) {
+    let changedArray = null;
+    value.forEach((item, index) => {
+      const next = sanitizePublicErrors(item, depth + 1);
+      if (next !== item) {
+        changedArray ||= value.slice();
+        changedArray[index] = next;
+      }
+    });
+    return changedArray || value;
+  }
+  let changed = null;
+  for (const [key, item] of Object.entries(value)) {
+    let next = item;
+    if (key === 'error' && typeof item === 'string' && !hasPublicErrorCode(value)) {
+      const failure = publicError({ message: item });
+      next = failure.message;
+      changed ||= { ...value };
+      changed.errorCode = failure.code;
+    } else if (item && typeof item === 'object') {
+      next = sanitizePublicErrors(item, depth + 1);
+    }
+    if (next !== item) {
+      changed ||= { ...value };
+      changed[key] = next;
+    }
+  }
+  return changed || value;
 }
 
 // https://github.com/<login> (or a bare login) selects the profile analysis instead of
@@ -1052,6 +1007,34 @@ function matchesAgentPattern(value, patterns) {
   });
 }
 
+// Rules for non-AI bots; filled from data/ai-agents.json by readAiAgents().
+let automationRules = { loginPatterns: [], namePatterns: [] };
+const agentMessagePatternCache = new Map();
+
+async function readAiAgents() {
+  const config = await readJsonFile(AI_AGENTS_FILE, { version: 1, agents: [] });
+  automationRules = {
+    loginPatterns: Array.isArray(config.automation?.loginPatterns) ? config.automation.loginPatterns : [],
+    namePatterns: Array.isArray(config.automation?.namePatterns) ? config.automation.namePatterns : []
+  };
+  return Array.isArray(config.agents) ? config.agents : [];
+}
+
+function getAgentMessagePatterns(agent) {
+  if (!agentMessagePatternCache.has(agent.id)) {
+    const patterns = (Array.isArray(agent.messagePatterns) ? agent.messagePatterns : []).flatMap((pattern) => {
+      try {
+        return [new RegExp(pattern, 'im')];
+      } catch (error) {
+        console.warn(`Ignoring invalid message pattern for ${agent.id}: ${pattern}`);
+        return [];
+      }
+    });
+    agentMessagePatternCache.set(agent.id, patterns);
+  }
+  return agentMessagePatternCache.get(agent.id);
+}
+
 function isBotLikeIdentity(value) {
   return /\[bot\]$|\(aider\)|(^|[^a-z])(bot|agent|assistant)([^a-z]|$)/.test(String(value || '').trim().toLowerCase());
 }
@@ -1077,6 +1060,8 @@ function matchesAgentEmail(value, agent) {
   const email = String(value || '').trim().toLowerCase();
   const at = email.lastIndexOf('@');
   if (at <= 0) return false;
+  // Addresses the tools themselves write, such as amp@ampcode.com or agent@warp.dev.
+  if ((Array.isArray(agent?.emails) ? agent.emails : []).some((known) => String(known).toLowerCase() === email)) return true;
   const local = email.slice(0, at);
   const domain = email.slice(at + 1);
   const emailPatterns = Array.isArray(agent?.emailPatterns) ? agent.emailPatterns : [];
@@ -1090,11 +1075,33 @@ function matchesAgentEmail(value, agent) {
     || (matchesAgentPattern(local, identityPatterns) && matchesAgentPattern(domain, identityPatterns));
 }
 
+// Dependency, release, translation, and CI bots write commits that are neither human
+// work nor AI-written code. A login decides when there is one; the git name only
+// stands in for commits without a linked GitHub account.
+function isAutomationLikeIdentity(value) {
+  return /\[bot\]$|(^|[^a-z])bots?([^a-z]|$)/.test(value);
+}
+
+function isAutomationIdentity(login, name) {
+  const normalizedLogin = String(login || '').trim().toLowerCase();
+  if (normalizedLogin) {
+    return isAutomationLikeIdentity(normalizedLogin) || matchesAgentIdentity(normalizedLogin, automationRules.loginPatterns);
+  }
+  const normalizedName = String(name || '').trim().toLowerCase();
+  return Boolean(normalizedName) && (
+    /\[bot\]$/.test(normalizedName)
+    || matchesAgentIdentity(normalizedName, [...automationRules.loginPatterns, ...automationRules.namePatterns])
+  );
+}
+
 function getRepositoryCommitContributor(commit, detail) {
-  const profile = detail?.author || commit?.author || detail?.committer || commit?.committer || {};
+  // The committer is not the author: GitHub's web-flow account commits every merge made
+  // in the web UI, so the committer only stands in when the commit names no author.
+  const authorProfile = detail?.author || commit?.author || null;
+  const authorName = detail?.commit?.author?.name || commit?.commit?.author?.name || null;
+  const profile = authorProfile || (authorName ? {} : (detail?.committer || commit?.committer || {}));
   const login = profile.login || null;
-  const name = detail?.commit?.author?.name
-    || commit?.commit?.author?.name
+  const name = authorName
     || detail?.commit?.committer?.name
     || commit?.commit?.committer?.name
     || profile.name
@@ -1137,6 +1144,7 @@ function classifyRepositoryCommit(commit, detail, agents) {
     ])
   ].filter((candidate) => candidate.value);
 
+  const message = String(detail?.commit?.message || commit?.commit?.message || '');
   for (const agent of agents) {
     const matched = candidates.find((candidate) => (
       candidate.kind === 'email' || candidate.kind === 'co-author-email'
@@ -1151,9 +1159,26 @@ function classifyRepositoryCommit(commit, detail, agents) {
         matchedBy: matched.kind.startsWith('co-author') ? 'co-author' : matched.kind
       };
     }
+    // A signature the tool writes into the commit body ("Generated with Claude Code").
+    // Product names in a title ("fix(codex): ...") are not authorship and are not matched.
+    if (getAgentMessagePatterns(agent).some((pattern) => pattern.test(message))) {
+      return { kind: 'ai', agentId: agent.id, agentLabel: agent.label, matchedBy: 'message-signature' };
+    }
   }
 
   const contributorProfile = getRepositoryCommitContributor(commit, detail);
+  if (isAutomationIdentity(contributorProfile.login, contributorProfile.login ? null : contributorProfile.name)) {
+    const identity = contributorProfile.login || contributorProfile.name;
+    return {
+      kind: 'automation',
+      agentId: null,
+      agentLabel: null,
+      matchedBy: 'automation',
+      contributor: identity,
+      contributorLogin: contributorProfile.login,
+      contributorProfile
+    };
+  }
   return {
     kind: 'human',
     agentId: null,
@@ -1165,18 +1190,89 @@ function classifyRepositoryCommit(commit, detail, agents) {
   };
 }
 
-function applyRepositoryContributorHeuristic(classification, contributorHeuristics = {}) {
-  if (classification?.kind !== 'human' || !classification.contributorLogin) return classification;
-  const heuristic = contributorHeuristics[classification.contributorLogin.toLowerCase()];
-  if (!heuristic?.inferredAgentId) return classification;
+function getRepositoryCommitDirectClassification(item, agents) {
+  const directClassification = classifyRepositoryCommit(item.commit, item.detail, agents);
+  const authorProfile = getRepositoryCommitContributor(item.commit, item.detail);
   return {
-    ...classification,
-    kind: 'ai',
-    agentId: heuristic.inferredAgentId,
-    agentLabel: heuristic.inferredAgentLabel,
-    matchedBy: 'author-repository-heuristic',
-    inferredFrom: heuristic
+    ...directClassification,
+    contributor: directClassification.contributor || authorProfile.login || authorProfile.name,
+    contributorLogin: directClassification.contributorLogin || authorProfile.login || null,
+    contributorProfile: directClassification.contributorProfile || authorProfile,
+    authorLogin: authorProfile.login || null,
+    authorProfile
   };
+}
+
+function getRepositoryCommitDay(value) {
+  if (!value || !Number.isFinite(Date.parse(value))) return null;
+  return dateOnly(value);
+}
+
+function isHumanRepositoryAuthor(login, agents) {
+  return Boolean(login)
+    && !isBotLikeIdentity(login)
+    && !isAutomationIdentity(login, null)
+    && !agents.some((agent) => matchesAgentIdentity(login, agent.loginPatterns));
+}
+
+function getRepositoryCommitSequenceClassifications(records, agents) {
+  const activeAgents = new Map();
+  const classifications = new Map();
+  const ordered = (records || [])
+    .map((record, index) => ({ record, index }))
+    .sort((left, right) => {
+      const leftDate = Date.parse(left.record?.date || '');
+      const rightDate = Date.parse(right.record?.date || '');
+      if (Number.isFinite(leftDate) && Number.isFinite(rightDate) && leftDate !== rightDate) return leftDate - rightDate;
+      if (Number.isFinite(leftDate) !== Number.isFinite(rightDate)) return Number.isFinite(leftDate) ? -1 : 1;
+      return left.index - right.index;
+    });
+
+  for (const { record } of ordered) {
+    const directClassification = record?.sourceClassification || {};
+    const sha = record?.sha;
+    if (!sha) continue;
+    const authorLogin = String(directClassification.authorLogin || directClassification.contributorLogin || '').trim().toLowerCase() || null;
+    const humanAuthor = isHumanRepositoryAuthor(authorLogin, agents);
+    let classification = directClassification;
+
+    if (directClassification.kind === 'ai') {
+      if (humanAuthor && directClassification.agentId) {
+        activeAgents.set(authorLogin, {
+          agentId: directClassification.agentId,
+          agentLabel: directClassification.agentLabel,
+          cleanDays: []
+        });
+      }
+    } else if (directClassification.kind === 'human' && humanAuthor) {
+      const active = activeAgents.get(authorLogin);
+      if (active?.agentId) {
+        const cleanDay = getRepositoryCommitDay(record.date);
+        const cleanDays = cleanDay && !active.cleanDays.includes(cleanDay)
+          ? [...active.cleanDays, cleanDay]
+          : active.cleanDays;
+        classification = {
+          ...directClassification,
+          kind: 'ai',
+          agentId: active.agentId,
+          agentLabel: active.agentLabel,
+          matchedBy: 'temporal-co-author-heuristic',
+          inferredFrom: {
+            contributorLogin: authorLogin,
+            agentId: active.agentId,
+            agentLabel: active.agentLabel,
+            cleanCommitDays: cleanDays,
+            resetsAfterThisCommit: cleanDays.length >= 3
+          }
+        };
+        if (cleanDays.length >= 3) activeAgents.delete(authorLogin);
+        else active.cleanDays = cleanDays;
+      }
+    }
+
+    classifications.set(sha, { directClassification, classification });
+  }
+  return classifications;
 }
 
 function getRepositoryContributorHeuristic(classification, contributorHeuristics = {}) {
@@ -1339,12 +1435,22 @@ async function inferRepositoryContributorAgent(login, agents, window, excludedRe
         url: sample.repository.url,
         defaultBranch: sample.repository.defaultBranch
       });
+      const sampleRecords = (sample.detailed || [])
+        .filter((item) => item?.detail && !item.error)
+        .map((item) => ({
+          sha: item.commit.sha,
+          date: item.detail.commit?.author?.date || item.commit.commit?.author?.date || null,
+          sourceClassification: getRepositoryCommitDirectClassification(item, agents)
+        }));
+      const sequenceClassifications = getRepositoryCommitSequenceClassifications(sampleRecords, agents);
       for (const item of sample.detailed || []) {
         if (!item?.detail || item.error) continue;
         const stats = item.detail.stats || {};
         const changedLines = Math.max(0, Number(stats.additions) || 0) + Math.max(0, Number(stats.deletions) || 0);
-        const classification = classifyRepositoryCommit(item.commit, item.detail, agents);
-        const authorLogin = getRepositoryCommitContributor(item.commit, item.detail).login?.toLowerCase() || null;
+        const sequence = sequenceClassifications.get(item.commit.sha);
+        const directClassification = sequence?.directClassification || getRepositoryCommitDirectClassification(item, agents);
+        const classification = sequence?.classification || directClassification;
+        const authorLogin = directClassification.authorLogin?.toLowerCase() || null;
         // Only the contributor's own work describes their habits: their human commits,
         // their commits with an agent co-author, and commits made by an agent account.
         // A collaborator's Claude commits in the same repository must not count.
@@ -1428,7 +1534,7 @@ async function inferRepositoryContributorAgent(login, agents, window, excludedRe
       matchedBy: 'author-repository-heuristic',
       note: status === 'no-agent'
         ? "No recognized AI agent was found in the contributor's own commits across the sampled repositories they own."
-        : "Shares are measured on the contributor's own commits (including agent co-authored ones) in repositories they own; attribution needs more than 50% of those commits and changed lines."
+        : `Shares are measured across up to ${maxRepositories} of the contributor's own repositories; temporal agent attribution follows the repository commit sequence, and the favorite-agent inference needs more than 50% of sampled commits and changed lines.`
     };
   } catch (error) {
     return {
@@ -1438,7 +1544,7 @@ async function inferRepositoryContributorAgent(login, agents, window, excludedRe
       classificationVersion: REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION,
       maxRepositories,
       status: 'unavailable',
-      error: error.message,
+      ...storedErrorFields(error),
       likelyAgentId: null,
       likelyAgentLabel: null,
       likelyAgentCommitShare: null,
@@ -1458,7 +1564,7 @@ async function inferRepositoryContributorAgent(login, agents, window, excludedRe
 
 async function inferRepositoryContributorAgents(detailed, agents, window, excludedRepositoryKey) {
   const candidates = getRepositoryHumanHeuristicCandidates(detailed, agents);
-  const profileCache = await readContributorProfilesCache({ version: 1, profiles: {} });
+  const profileCache = await readContributorProfilesCache();
   const profiles = { ...(profileCache.profiles || {}) };
   const inferred = await mapWithConcurrency(candidates, async (candidate) => {
     const cached = profiles[candidate.login.toLowerCase()];
@@ -1482,7 +1588,7 @@ async function inferRepositoryContributorAgents(detailed, agents, window, exclud
     );
   }, 2);
   const rateLimitedLogins = inferred
-    .filter((item) => item?.login && item.status === 'unavailable' && isGitHubRateLimitError({ message: item.error }))
+    .filter((item) => item?.login && item.status === 'unavailable' && isGitHubRateLimitError({ message: item.error, errorCode: item.errorCode }))
     .map((item) => item.login);
   const refreshed = inferred
     .filter((item) => item?.login && !rateLimitedLogins.includes(item.login))
@@ -1499,7 +1605,7 @@ async function inferRepositoryContributorAgents(detailed, agents, window, exclud
   refreshed.forEach((item) => {
     profiles[item.login.toLowerCase()] = item;
   });
-  if (refreshed.length) await writeContributorProfilesCache({ version: 1, profiles });
+  if (refreshed.length) await contributorProfilesStore.putMany(refreshed.map((item) => [item.login, item]));
   // Without these profiles the author-repository heuristic would attribute fewer commits,
   // so a rate limit fails the analysis instead of storing a weaker result.
   if (rateLimitedLogins.length) {
@@ -1914,8 +2020,31 @@ function createRepositoryAnalysisTotals() {
     humanAdditions: 0,
     humanDeletions: 0,
     humanChangedLines: 0,
-    humanFilesChanged: 0
+    humanFilesChanged: 0,
+    automationCommits: 0,
+    automationAdditions: 0,
+    automationDeletions: 0,
+    automationChangedLines: 0,
+    automationFilesChanged: 0
   };
+}
+
+function addRepositoryAutomationCommit(automationMap, totals, classification, commitRecord) {
+  const identity = classification.contributor || 'Automation';
+  const entry = automationMap.get(identity) || createRepositoryContributor(identity, 'automation', classification.contributorProfile || {});
+  updateRepositoryContributorEntry(entry, commitRecord);
+  automationMap.set(identity, entry);
+  totals.automationCommits = (totals.automationCommits || 0) + 1;
+  totals.automationAdditions = (totals.automationAdditions || 0) + commitRecord.additions;
+  totals.automationDeletions = (totals.automationDeletions || 0) + commitRecord.deletions;
+  totals.automationChangedLines = (totals.automationChangedLines || 0) + commitRecord.changedLines;
+  totals.automationFilesChanged = (totals.automationFilesChanged || 0) + commitRecord.filesChanged;
+}
+
+function listRepositoryAutomation(automationMap, totals) {
+  return [...automationMap.values()]
+    .map((entry) => ({ ...entry, changedShare: totals.changedLines ? roundMetric((entry.changedLines / totals.changedLines) * 100) : null }))
+    .sort((left, right) => right.changedLines - left.changedLines);
 }
 
 function getRepositoryAnalysisHumanKey(contributor) {
@@ -1948,6 +2077,10 @@ function createRepositoryAnalysisState(analysis = null) {
     });
   });
   const contributorMap = new Map();
+  const automationMap = new Map();
+  (Array.isArray(analysis?.automation) ? analysis.automation : []).forEach((entry) => {
+    if (entry?.identity) automationMap.set(entry.identity, { ...entry });
+  });
   const contributors = Array.isArray(analysis?.allContributors)
     ? analysis.allContributors
     : Array.isArray(analysis?.contributors) ? analysis.contributors : [];
@@ -1958,10 +2091,134 @@ function createRepositoryAnalysisState(analysis = null) {
     totals,
     agentMap,
     contributorMap,
+    automationMap,
+    agents: [],
     contributorHeuristics: { ...(analysis?.contributorHeuristics || {}) },
     commitResults: Array.isArray(analysis?.commits) ? [...analysis.commits] : [],
     errors: Array.isArray(analysis?.errors) ? [...analysis.errors] : []
   };
+}
+
+function serializeRepositoryCommitClassification(classification) {
+  return {
+    kind: classification.kind,
+    agentId: classification.agentId || null,
+    agentLabel: classification.agentLabel || null,
+    matchedBy: classification.matchedBy || null,
+    contributor: classification.contributor || null,
+    contributorLogin: classification.contributorLogin || null,
+    contributorProfile: classification.contributorProfile || null,
+    authorLogin: classification.authorLogin || null,
+    authorProfile: classification.authorProfile || null
+  };
+}
+
+function updateRepositoryAnalysisCommitState(state, commitRecord, directClassification, contributorHeuristic, classification) {
+  commitRecord.kind = classification.kind;
+  commitRecord.agent = classification.agentLabel || null;
+  commitRecord.matchedBy = classification.matchedBy || null;
+  commitRecord.inferredFrom = classification.inferredFrom?.login
+    || classification.inferredFrom?.contributorLogin
+    || null;
+  commitRecord.contributor = classification.kind === 'ai' ? classification.agentLabel : classification.contributor;
+  commitRecord.contributorLogin = directClassification.authorLogin || directClassification.contributorLogin || null;
+  state.commitResults.push(commitRecord);
+  state.totals.analyzedCommits += 1;
+  state.totals.additions += commitRecord.additions;
+  state.totals.deletions += commitRecord.deletions;
+  state.totals.changedLines += commitRecord.changedLines;
+  state.totals.filesChanged += commitRecord.filesChanged;
+
+  if (classification.kind === 'human') {
+    const key = classification.contributorLogin
+      ? `login:${classification.contributorLogin}`
+      : `name:${classification.contributor}`;
+    const entry = state.contributorMap.get(key) || createRepositoryContributor(classification.contributor, 'human', classification.contributorProfile);
+    applyRepositoryContributorProfileSignal(entry, contributorHeuristic, false);
+    if (classification.contributorProfile) {
+      entry.login ||= classification.contributorProfile.login;
+      entry.name ||= classification.contributorProfile.name;
+      entry.avatarUrl ||= classification.contributorProfile.avatarUrl;
+      entry.profileUrl ||= classification.contributorProfile.profileUrl;
+    }
+    updateRepositoryContributorEntry(entry, commitRecord);
+    state.contributorMap.set(key, entry);
+  } else if (classification.kind === 'automation') {
+    addRepositoryAutomationCommit(state.automationMap, state.totals, classification, commitRecord);
+  } else {
+    const key = classification.agentId;
+    const existing = !state.agentMap.has(key)
+      ? [...state.agentMap.entries()].find(([, entry]) => entry.identity === classification.agentLabel || entry.agentLabel === classification.agentLabel)
+      : null;
+    const resolvedKey = existing?.[0] || key;
+    const entry = state.agentMap.get(resolvedKey) || createRepositoryContributor(classification.agentLabel, 'ai');
+    entry.agentId ||= classification.agentId;
+    entry.agentLabel ||= classification.agentLabel;
+    updateRepositoryContributorEntry(entry, commitRecord);
+    state.agentMap.set(resolvedKey, entry);
+
+    if (directClassification.authorLogin && isHumanRepositoryAuthor(directClassification.authorLogin, state.agents || [])) {
+      const contributorKey = `login:${directClassification.authorLogin}`;
+      const contributorEntry = state.contributorMap.get(contributorKey)
+        || createRepositoryContributor(directClassification.contributor, 'human', directClassification.contributorProfile);
+      applyRepositoryContributorProfileSignal(contributorEntry, contributorHeuristic, true);
+      if (classification.matchedBy === 'temporal-co-author-heuristic') {
+        contributorEntry.attributedAgentId = classification.agentId;
+        contributorEntry.attributedAgentLabel = classification.agentLabel;
+        contributorEntry.attributedAgentShare = null;
+      }
+      if (directClassification.contributorProfile) {
+        contributorEntry.login ||= directClassification.contributorProfile.login;
+        contributorEntry.name ||= directClassification.contributorProfile.name;
+        contributorEntry.avatarUrl ||= directClassification.contributorProfile.avatarUrl;
+        contributorEntry.profileUrl ||= directClassification.contributorProfile.profileUrl;
+      }
+      updateRepositoryContributorEntry(contributorEntry, commitRecord);
+      state.contributorMap.set(contributorKey, contributorEntry);
+    }
+  }
+
+  if (classification.kind === 'ai') {
+    state.totals.aiCommits += 1;
+    state.totals.aiAdditions += commitRecord.additions;
+    state.totals.aiDeletions += commitRecord.deletions;
+    state.totals.aiChangedLines += commitRecord.changedLines;
+    state.totals.aiFilesChanged += commitRecord.filesChanged;
+  } else if (classification.kind !== 'automation') {
+    state.totals.humanCommits += 1;
+    state.totals.humanAdditions += commitRecord.additions;
+    state.totals.humanDeletions += commitRecord.deletions;
+    state.totals.humanChangedLines += commitRecord.changedLines;
+    state.totals.humanFilesChanged += commitRecord.filesChanged;
+  }
+}
+
+function rebuildRepositoryAnalysisState(state) {
+  const previousCommits = state.commitResults.filter((commit) => commit?.sourceClassification);
+  if (previousCommits.length !== state.commitResults.length) return;
+  const listedCommits = state.totals.commits;
+  const skippedCommits = state.totals.skippedCommits;
+  const pagesFetched = state.totals.pagesFetched;
+  state.totals = {
+    ...createRepositoryAnalysisTotals(),
+    commits: listedCommits,
+    skippedCommits,
+    pagesFetched
+  };
+  state.agentMap.clear();
+  state.contributorMap.clear();
+  state.automationMap.clear();
+  state.commitResults = [];
+  const sequenceClassifications = getRepositoryCommitSequenceClassifications(previousCommits, state.agents || []);
+  for (const previous of previousCommits) {
+    const sequence = sequenceClassifications.get(previous.sha);
+    const directClassification = sequence?.directClassification || previous.sourceClassification;
+    const contributorHeuristic = getRepositoryContributorHeuristic(directClassification, state.contributorHeuristics);
+    // The direct classification is persisted because a continuation can be resumed
+    // after a restart without fetching every earlier commit again.
+    const finalClassification = sequence?.classification || directClassification;
+    updateRepositoryAnalysisCommitState(state, previous, directClassification, contributorHeuristic, finalClassification);
+  }
 }
 
 function addRepositoryAnalysisCommit(state, item, agents, repository) {
@@ -1976,99 +2233,40 @@ function addRepositoryAnalysisCommit(state, item, agents, repository) {
   const deletions = Math.max(0, Number(stats.deletions) || 0);
   const changedLines = additions + deletions;
   const filesChanged = Array.isArray(item.detail.files) ? item.detail.files.length : 0;
-  const directClassification = classifyRepositoryCommit(item.commit, item.detail, agents);
-  const contributorHeuristic = getRepositoryContributorHeuristic(directClassification, state.contributorHeuristics);
-  const classification = applyRepositoryContributorHeuristic(directClassification, state.contributorHeuristics);
-  const identity = classification.kind === 'ai' ? classification.agentLabel : classification.contributor;
+  const directClassification = getRepositoryCommitDirectClassification(item, agents);
   const commitRecord = {
     sha: item.commit.sha,
     shortSha: item.commit.sha.slice(0, 7),
     url: item.detail.html_url || item.commit.html_url || `${repository.url}/commit/${item.commit.sha}`,
     message: String(item.detail.commit?.message || item.commit.commit?.message || '').split(/\r?\n/, 1)[0].slice(0, 180),
     date: item.detail.commit?.author?.date || item.commit.commit?.author?.date || null,
-    kind: classification.kind,
-    agent: classification.agentLabel,
-    matchedBy: classification.matchedBy,
-    inferredFrom: classification.inferredFrom?.login || null,
-    contributor: identity,
+    sourceClassification: serializeRepositoryCommitClassification(directClassification),
     additions,
     deletions,
     changedLines,
     filesChanged
   };
   state.commitResults.push(commitRecord);
-  state.totals.analyzedCommits += 1;
-  state.totals.additions += additions;
-  state.totals.deletions += deletions;
-  state.totals.changedLines += changedLines;
-  state.totals.filesChanged += filesChanged;
-
-  if (classification.kind === 'human') {
-    const key = classification.contributorLogin
-      ? `login:${classification.contributorLogin}`
-      : `name:${identity}`;
-    const entry = state.contributorMap.get(key) || createRepositoryContributor(identity, 'human', classification.contributorProfile);
-    applyRepositoryContributorProfileSignal(entry, contributorHeuristic, false);
-    if (classification.contributorProfile) {
-      entry.login ||= classification.contributorProfile.login;
-      entry.name ||= classification.contributorProfile.name;
-      entry.avatarUrl ||= classification.contributorProfile.avatarUrl;
-      entry.profileUrl ||= classification.contributorProfile.profileUrl;
-    }
-    updateRepositoryContributorEntry(entry, commitRecord);
-    state.contributorMap.set(key, entry);
-  } else {
-    const key = classification.agentId;
-    const existing = !state.agentMap.has(key)
-      ? [...state.agentMap.entries()].find(([, entry]) => entry.identity === classification.agentLabel || entry.agentLabel === classification.agentLabel)
-      : null;
-    const resolvedKey = existing?.[0] || key;
-    const entry = state.agentMap.get(resolvedKey) || createRepositoryContributor(identity, 'ai');
-    entry.agentId ||= classification.agentId;
-    entry.agentLabel ||= classification.agentLabel;
-    updateRepositoryContributorEntry(entry, commitRecord);
-    state.agentMap.set(resolvedKey, entry);
-
-    if (directClassification.kind === 'human' && directClassification.contributorLogin) {
-      const contributorKey = `login:${directClassification.contributorLogin}`;
-      const contributorEntry = state.contributorMap.get(contributorKey)
-        || createRepositoryContributor(directClassification.contributor, 'human', directClassification.contributorProfile);
-      applyRepositoryContributorProfileSignal(contributorEntry, contributorHeuristic, true);
-      if (directClassification.contributorProfile) {
-        contributorEntry.login ||= directClassification.contributorProfile.login;
-        contributorEntry.name ||= directClassification.contributorProfile.name;
-        contributorEntry.avatarUrl ||= directClassification.contributorProfile.avatarUrl;
-        contributorEntry.profileUrl ||= directClassification.contributorProfile.profileUrl;
-      }
-      updateRepositoryContributorEntry(contributorEntry, commitRecord);
-      state.contributorMap.set(contributorKey, contributorEntry);
-    }
-  }
-
-  if (classification.kind === 'ai') {
-    state.totals.aiCommits += 1;
-    state.totals.aiAdditions += additions;
-    state.totals.aiDeletions += deletions;
-    state.totals.aiChangedLines += changedLines;
-    state.totals.aiFilesChanged += filesChanged;
-  } else {
-    state.totals.humanCommits += 1;
-    state.totals.humanAdditions += additions;
-    state.totals.humanDeletions += deletions;
-    state.totals.humanChangedLines += changedLines;
-    state.totals.humanFilesChanged += filesChanged;
-  }
 }
 
+// Shares are taken over authored work (AI + human): automation commits are neither,
+// and a lockfile bump or a translation sync must not dilute the AI share.
 function finalizeRepositoryAnalysisTotals(totals) {
-  totals.aiChangedShare = totals.changedLines
-    ? roundMetric((totals.aiChangedLines / totals.changedLines) * 100)
+  const authoredChangedLines = (Number(totals.aiChangedLines) || 0) + (Number(totals.humanChangedLines) || 0);
+  const authoredAdditions = (Number(totals.aiAdditions) || 0) + (Number(totals.humanAdditions) || 0);
+  const authoredCommits = (Number(totals.aiCommits) || 0) + (Number(totals.humanCommits) || 0);
+  totals.authoredChangedLines = authoredChangedLines;
+  totals.aiChangedShare = authoredChangedLines
+    ? roundMetric((totals.aiChangedLines / authoredChangedLines) * 100)
     : null;
-  totals.aiAdditionsShare = totals.additions
-    ? roundMetric((totals.aiAdditions / totals.additions) * 100)
+  totals.aiAdditionsShare = authoredAdditions
+    ? roundMetric((totals.aiAdditions / authoredAdditions) * 100)
     : null;
-  totals.aiCommitShare = totals.analyzedCommits
-    ? roundMetric((totals.aiCommits / totals.analyzedCommits) * 100)
+  totals.aiCommitShare = authoredCommits
+    ? roundMetric((totals.aiCommits / authoredCommits) * 100)
+    : null;
+  totals.automationChangedShare = totals.changedLines
+    ? roundMetric(((Number(totals.automationChangedLines) || 0) / totals.changedLines) * 100)
     : null;
   return totals;
 }
@@ -2102,16 +2300,18 @@ function buildRepositoryAnalysisSnapshot(base, state, continuation, status) {
       statsCoverage: totals.commits ? roundMetric((totals.analyzedCommits / totals.commits) * 100) : 0
     },
     agents,
+    automation: listRepositoryAutomation(state.automationMap, totals),
     contributors: contributors.slice(0, 50),
     allContributors: contributors,
     contributorHeuristics: state.contributorHeuristics,
+    attributionMethod: 'temporal-co-author-sequence-v1',
     commits: state.commitResults,
     errors: [...new Set(state.errors)].slice(0, 20),
     continuation
   };
 }
 
-async function collectRepositoryAnalysis(repository) {
+async function collectRepositoryAnalysis(repository, { includeContributorHeuristics = true } = {}) {
   const repoPath = `${encodeURIComponent(repository.owner)}/${encodeURIComponent(repository.name)}`;
   const repoPayload = await fetchGitHubJson(`${GITHUB_API_URL}/repos/${repoPath}`);
   if (repoPayload.private) throw repositoryAnalysisError('Репозиторий приватный. Нужен публичный репозиторий GitHub.', 403);
@@ -2127,17 +2327,26 @@ async function collectRepositoryAnalysis(repository) {
     pushedAt: repoPayload.pushed_at || null,
     license: repoPayload.license?.spdx_id || null
   };
-  const window = getRepositoryHistoryWindow();
-  const agentConfig = await readJsonFile(AI_AGENTS_FILE, { version: 1, agents: [] });
-  const agents = Array.isArray(agentConfig.agents) ? agentConfig.agents : [];
+  const window = await chooseRepositoryHistoryWindow(normalizedRepository);
+  const agents = await readAiAgents();
   const listed = await fetchRepositoryCommitBatch(normalizedRepository, window);
   const detailed = listed.items;
-  const contributorHeuristics = await inferRepositoryContributorAgents(
-    detailed,
-    agents,
-    window,
-    normalizedRepository.key
-  );
+  const contributorHeuristics = includeContributorHeuristics
+    ? await inferRepositoryContributorAgents(
+      detailed,
+      agents,
+      window,
+      normalizedRepository.key
+    )
+    : {};
+  const sequenceRecords = detailed
+    .filter((item) => item?.detail && !item.error)
+    .map((item) => ({
+      sha: item.commit.sha,
+      date: item.detail.commit?.author?.date || item.commit.commit?.author?.date || null,
+      sourceClassification: getRepositoryCommitDirectClassification(item, agents)
+    }));
+  const sequenceClassifications = getRepositoryCommitSequenceClassifications(sequenceRecords, agents);
 
   const totals = {
     commits: listed.items.length,
@@ -2156,10 +2365,16 @@ async function collectRepositoryAnalysis(repository) {
     humanAdditions: 0,
     humanDeletions: 0,
     humanChangedLines: 0,
-    humanFilesChanged: 0
+    humanFilesChanged: 0,
+    automationCommits: 0,
+    automationAdditions: 0,
+    automationDeletions: 0,
+    automationChangedLines: 0,
+    automationFilesChanged: 0
   };
   const agentMap = new Map();
   const contributorMap = new Map();
+  const automationMap = new Map();
   const commitResults = [];
   const errors = [];
 
@@ -2175,9 +2390,10 @@ async function collectRepositoryAnalysis(repository) {
     const deletions = Math.max(0, Number(stats.deletions) || 0);
     const changedLines = additions + deletions;
     const filesChanged = Array.isArray(item.detail.files) ? item.detail.files.length : 0;
-    const directClassification = classifyRepositoryCommit(item.commit, item.detail, agents);
+    const sequence = sequenceClassifications.get(item.commit.sha);
+    const directClassification = sequence?.directClassification || getRepositoryCommitDirectClassification(item, agents);
     const contributorHeuristic = getRepositoryContributorHeuristic(directClassification, contributorHeuristics);
-    const classification = applyRepositoryContributorHeuristic(directClassification, contributorHeuristics);
+    const classification = sequence?.classification || directClassification;
     const identity = classification.kind === 'ai'
       ? classification.agentLabel
       : classification.contributor;
@@ -2190,8 +2406,10 @@ async function collectRepositoryAnalysis(repository) {
       kind: classification.kind,
       agent: classification.agentLabel,
       matchedBy: classification.matchedBy,
-      inferredFrom: classification.inferredFrom?.login || null,
+      inferredFrom: classification.inferredFrom?.login || classification.inferredFrom?.contributorLogin || null,
       contributor: identity,
+      contributorLogin: directClassification.authorLogin || directClassification.contributorLogin || null,
+      sourceClassification: serializeRepositoryCommitClassification(directClassification),
       additions,
       deletions,
       changedLines,
@@ -2218,6 +2436,8 @@ async function collectRepositoryAnalysis(repository) {
       }
       updateRepositoryContributorEntry(entry, commitRecord);
       contributorMap.set(key, entry);
+    } else if (classification.kind === 'automation') {
+      addRepositoryAutomationCommit(automationMap, totals, classification, commitRecord);
     } else {
       const key = classification.agentId;
       const existing = !agentMap.has(key)
@@ -2230,11 +2450,16 @@ async function collectRepositoryAnalysis(repository) {
       updateRepositoryContributorEntry(entry, commitRecord);
       agentMap.set(resolvedKey, entry);
 
-      if (directClassification.kind === 'human' && directClassification.contributorLogin) {
-        const contributorKey = `login:${directClassification.contributorLogin}`;
+      if (directClassification.authorLogin && isHumanRepositoryAuthor(directClassification.authorLogin, agents)) {
+        const contributorKey = `login:${directClassification.authorLogin}`;
         const contributorEntry = contributorMap.get(contributorKey)
           || createRepositoryContributor(directClassification.contributor, 'human', directClassification.contributorProfile);
         applyRepositoryContributorProfileSignal(contributorEntry, contributorHeuristic, true);
+        if (classification.matchedBy === 'temporal-co-author-heuristic') {
+          contributorEntry.attributedAgentId = classification.agentId;
+          contributorEntry.attributedAgentLabel = classification.agentLabel;
+          contributorEntry.attributedAgentShare = null;
+        }
         if (directClassification.contributorProfile) {
           contributorEntry.login ||= directClassification.contributorProfile.login;
           contributorEntry.name ||= directClassification.contributorProfile.name;
@@ -2252,7 +2477,7 @@ async function collectRepositoryAnalysis(repository) {
       totals.aiDeletions += deletions;
       totals.aiChangedLines += changedLines;
       totals.aiFilesChanged += filesChanged;
-    } else {
+    } else if (classification.kind !== 'automation') {
       totals.humanCommits += 1;
       totals.humanAdditions += additions;
       totals.humanDeletions += deletions;
@@ -2261,15 +2486,7 @@ async function collectRepositoryAnalysis(repository) {
     }
   }
 
-  totals.aiChangedShare = totals.changedLines
-    ? roundMetric((totals.aiChangedLines / totals.changedLines) * 100)
-    : null;
-  totals.aiAdditionsShare = totals.additions
-    ? roundMetric((totals.aiAdditions / totals.additions) * 100)
-    : null;
-  totals.aiCommitShare = totals.analyzedCommits
-    ? roundMetric((totals.aiCommits / totals.analyzedCommits) * 100)
-    : null;
+  finalizeRepositoryAnalysisTotals(totals);
 
   const initialContinuation = listed.truncated
     ? {
@@ -2312,6 +2529,7 @@ async function collectRepositoryAnalysis(repository) {
     agents: [...agentMap.values()]
       .map((agent) => ({ ...agent, changedShare: totals.changedLines ? roundMetric((agent.changedLines / totals.changedLines) * 100) : null }))
       .sort((left, right) => right.changedLines - left.changedLines),
+    automation: listRepositoryAutomation(automationMap, totals),
     allContributors: [...contributorMap.values()]
       .map((contributor) => ({ ...contributor, changedShare: totals.changedLines ? roundMetric((contributor.changedLines / totals.changedLines) * 100) : null }))
       .sort((left, right) => right.changedLines - left.changedLines),
@@ -2320,14 +2538,18 @@ async function collectRepositoryAnalysis(repository) {
       .sort((left, right) => right.changedLines - left.changedLines)
       .slice(0, 50),
     contributorHeuristics,
+    attributionMethod: 'temporal-co-author-sequence-v1',
     commits: commitResults,
     errors: [...new Set(errors)].slice(0, 20),
     notes: [
       `Analyzed the complete public commit history. The first response contains up to ${REPOSITORY_ANALYSIS_INITIAL_COMMITS} commits; remaining pages continue in the background.`,
-      'AI attribution is based on public author/committer markers, Co-Authored-By trailers, known agent accounts, and matching emails; AI used through a human account without a public marker is not visible.',
+      'AI attribution is based on public author/committer markers, Co-Authored-By trailers, known agent accounts, matching emails, and signatures agents write into the commit body; AI used through a human account without a public marker is not visible. Product names in a commit title are not treated as authorship.',
+      'Dependency, release, translation, and CI bots (Dependabot, Renovate, GitHub Actions, Weblate, and any other [bot] account that is not a known AI agent) are counted as automation: neither human work nor AI-written code. AI shares are taken over AI + human changed lines only.',
       "A Co-Authored-By match assigns the whole commit exclusively to the detected agent; the human contributor does not receive that commit. GitHub exposes commit stats, not a line-level split between co-authors.",
       'Changed lines means additions plus deletions from GitHub commit stats. It is not the same as unique surviving lines in the final repository.',
-      'Author-repository heuristic: for the largest human contributors with a public login, a bounded sample of their own public repositories is checked. If one directly identified AI agent accounts for more than 50% of sampled commits and changed lines, matching commits in this repository are attributed to that agent; the human row keeps its GitHub avatar with a small agent marker. This is an inference, not direct authorship proof.',
+      'Author-repository heuristic: for the largest human contributors with a public login, a bounded sample of their own public repositories is checked. If one directly identified AI agent accounts for more than 50% of sampled commits and changed lines, the contributor’s row shows that agent as their likely agent. This is a profile signal only: the contributor’s commits here stay human unless they carry a marker.',
+      'Temporal co-author heuristic: a recognized agent commit starts an active attribution for that human author. The next agent-free commits remain attributed to that agent until three agent-free commits occur on three different dates; subsequent commits are human-owned. A commit with another recognized agent switches the active attribution immediately. This is an inference, not direct authorship proof.',
+      `Contributor profiles sample up to ${REPOSITORY_ANALYSIS_AUTHOR_HEURISTIC_MAX_REPOSITORIES} of the user's own public repositories (latest push first); those repositories are also queued for bounded background analysis.`,
       'The first batch is returned immediately; when more pages exist, the remaining commit history is processed in the background.'
     ],
     continuation: initialContinuation
@@ -2338,29 +2560,12 @@ let repositoryAnalysisJobs = new Map();
 let repositoryAnalysisContinuationJobs = new Map();
 
 async function restoreRepositoryAnalysisCacheEntry(repositoryKey, previousEntry) {
-  const cache = await readRepositoryAnalysesCache({ version: 1, repositories: {} });
-  cache.repositories = cache.repositories || {};
-  if (previousEntry) {
-    cache.repositories[repositoryKey] = previousEntry;
-    await writeRepositoryAnalysesCache(cache);
-    return;
-  }
-  delete cache.repositories[repositoryKey];
-  await writeRepositoryAnalysesCache(cache);
-  const collection = await getMongoRepositoryCollection();
-  if (!collection) return;
-  try {
-    await collection.deleteOne({ repositoryKey });
-  } catch (error) {
-    console.warn(`Could not remove Mongo repository analysis ${repositoryKey}: ${error.message}`);
-  }
+  if (previousEntry) await putRepositoryAnalysis(repositoryKey, previousEntry);
+  else await deleteRepositoryAnalysis(repositoryKey);
 }
 
 async function saveRepositoryAnalysisSnapshot(repositoryKey, analysis) {
-  const cache = await readRepositoryAnalysesCache({ version: 1, repositories: {} });
-  cache.repositories = cache.repositories || {};
-  cache.repositories[repositoryKey] = analysis;
-  await writeRepositoryAnalysesCache(cache);
+  await putRepositoryAnalysis(repositoryKey, analysis);
 }
 
 function getRepositoryAnalysisBackgroundDurationMs(initialAnalysis) {
@@ -2375,8 +2580,8 @@ async function continueRepositoryAnalysis(repository, resumedAnalysis, lock = nu
   const initialAnalysis = { ...resumedAnalysis };
   delete initialAnalysis.error;
   const state = createRepositoryAnalysisState(initialAnalysis);
-  const agentConfig = await readJsonFile(AI_AGENTS_FILE, { version: 1, agents: [] });
-  const agents = Array.isArray(agentConfig.agents) ? agentConfig.agents : [];
+  const agents = await readAiAgents();
+  state.agents = agents;
   let page = Number(initialAnalysis.continuation?.nextPage || Number(initialAnalysis.summary?.pagesFetched || 3) + 1);
   // Analyses saved before the GraphQL source only have a REST page number and resume on REST.
   let cursor = initialAnalysis.continuation?.cursor || null;
@@ -2416,11 +2621,14 @@ async function continueRepositoryAnalysis(repository, resumedAnalysis, lock = nu
       state.totals.pagesFetched = pagesFetched;
       if (Number.isFinite(Number(result.totalCommits))) totalCommits = Number(result.totalCommits);
       result.items.forEach((item) => addRepositoryAnalysisCommit(state, item, agents, repository));
+      rebuildRepositoryAnalysisState(state);
       if (lock && !(await refreshRepositoryAnalysisLock(lock, 'background'))) {
         throw new Error('Repository analysis lock was lost during background processing.');
       }
 
-      const hasMore = result.hasMore;
+      // Past the stored-commit cap the newest commits are kept and the rest left out.
+      const capped = state.totals.commits >= REPOSITORY_ANALYSIS_MAX_STORED_COMMITS;
+      const hasMore = result.hasMore && !capped;
       cursor = result.source === 'graphql' ? result.cursor : null;
       const continuation = {
         status: hasMore ? 'running' : 'complete',
@@ -2452,7 +2660,7 @@ async function continueRepositoryAnalysis(repository, resumedAnalysis, lock = nu
       pagesFetched,
       processedCommits: state.totals.commits,
       totalCommits,
-      error: rateLimit ? rateLimit.message : error.message,
+      ...(rateLimit ? { error: rateLimit.message, errorCode: rateLimit.code } : storedErrorFields(error)),
       ...(rateLimit
         ? { code: rateLimit.code, retryAt: rateLimit.retryAt || new Date(Date.now() + GITHUB_RATE_LIMIT_DEFAULT_RETRY_MS).toISOString() }
         : {})
@@ -2463,6 +2671,7 @@ async function continueRepositoryAnalysis(repository, resumedAnalysis, lock = nu
     failed.analysisDurationMs = getRepositoryAnalysisBackgroundDurationMs(initialAnalysis);
     failed.analysisDurationSeconds = roundMetric(failed.analysisDurationMs / 1000);
     failed.error = continuation.error;
+    failed.errorCode = continuation.errorCode;
     await saveRepositoryAnalysisSnapshot(repository.key, failed);
     return failed;
   }
@@ -2533,35 +2742,206 @@ function getRepositoryAnalysisCacheInfo(analysis, hit = false) {
   };
 }
 
-async function migrateRepositoryAnalysisHistory() {
-  const cache = await readRepositoryAnalysesCache({ version: 1, repositories: {} });
-  cache.repositories = cache.repositories || {};
-  let changed = false;
-  for (const [key, analysis] of Object.entries(cache.repositories)) {
-    const normalizedHistory = getRepositoryAnalysisHistory(analysis);
-    const normalizedAnalysis = withRepositoryAnalysisDuration({ ...analysis, history: normalizedHistory });
-    const historyNeedsMigration = normalizedHistory.some((entry, index) => {
-      const current = Array.isArray(analysis?.history) ? analysis.history[index] : null;
-      return current?.analysisDurationMs !== entry.analysisDurationMs
-        || current?.analysisDurationSeconds !== entry.analysisDurationSeconds;
-    });
-    const topLevelNeedsMigration = analysis?.analysisDurationMs !== normalizedAnalysis.analysisDurationMs
-      || analysis?.analysisDurationSeconds !== normalizedAnalysis.analysisDurationSeconds;
-    if (historyNeedsMigration || topLevelNeedsMigration || (!Array.isArray(analysis?.history) && normalizedHistory.length)) {
-      cache.repositories[key] = normalizedAnalysis;
-      changed = true;
-    }
-  }
-  if (changed) await writeRepositoryAnalysesCache(cache);
+function normalizeStoredRepositoryAnalysis(analysis) {
+  const normalizedHistory = getRepositoryAnalysisHistory(analysis);
+  const normalizedAnalysis = withRepositoryAnalysisDuration({ ...analysis, history: normalizedHistory });
+  const historyNeedsMigration = normalizedHistory.some((entry, index) => {
+    const current = Array.isArray(analysis?.history) ? analysis.history[index] : null;
+    return current?.analysisDurationMs !== entry.analysisDurationMs
+      || current?.analysisDurationSeconds !== entry.analysisDurationSeconds;
+  });
+  const topLevelNeedsMigration = analysis?.analysisDurationMs !== normalizedAnalysis.analysisDurationMs
+    || analysis?.analysisDurationSeconds !== normalizedAnalysis.analysisDurationSeconds;
+  const changed = historyNeedsMigration || topLevelNeedsMigration || (!Array.isArray(analysis?.history) && normalizedHistory.length);
+  return changed ? normalizedAnalysis : null;
 }
 
-async function getRepositoryAnalysis({ input, refresh = true } = {}) {
+async function migrateRepositoryAnalysisHistory() {
+  const { repositories } = await readRepositoryAnalysesCache();
+  for (const key of Object.keys(repositories || {})) {
+    if (!normalizeStoredRepositoryAnalysis(repositories[key])) continue;
+    // Re-read right before writing so an analysis saved meanwhile is not replaced.
+    const current = await getStoredRepositoryAnalysis(key);
+    const normalized = current && normalizeStoredRepositoryAnalysis(current);
+    if (normalized) await putRepositoryAnalysis(key, normalized);
+  }
+}
+
+// Analyses saved by classification v10 keep every commit's direct classification, so
+// automation and newly listed agent accounts are applied without fetching GitHub
+// again. Commit bodies are not stored; body signatures apply from the next analysis.
+function reclassifyStoredDirectClassification(source, agents) {
+  const login = source?.authorLogin || source?.contributorLogin || null;
+  const name = login ? null : (source?.contributor || source?.authorProfile?.name || null);
+  if (source?.kind === 'automation') {
+    // An earlier rule marked this identity; it goes back to human when no rule matches now.
+    if (isAutomationIdentity(login, name)) return source;
+    return { ...source, kind: 'human', agentId: null, agentLabel: null, matchedBy: null };
+  }
+  if (source?.kind !== 'human') return source;
+  const agent = agents.find((candidate) => matchesAgentIdentity(login || name, candidate.loginPatterns));
+  if (agent) return { ...source, kind: 'ai', agentId: agent.id, agentLabel: agent.label, matchedBy: 'login' };
+  if (isAutomationIdentity(login, name)) {
+    return { ...source, kind: 'automation', agentId: null, agentLabel: null, matchedBy: 'automation', contributor: login || name };
+  }
+  return source;
+}
+
+// Analyses from before v10 store commits without their direct classification. Their
+// human commits by automation or by a known agent account are moved and the shares
+// recomputed; the stored version stays, so the next request still re-analyzes them.
+function reclassifyLegacyRepositoryAnalysis(analysis, agents) {
+  const totals = { ...createRepositoryAnalysisTotals(), ...analysis.summary };
+  // Commits an earlier run moved to automation start again as human; the rules below
+  // decide afresh. (Legacy analyses had no automation of their own.)
+  const commits = (Array.isArray(analysis.commits) ? analysis.commits : []).map((commit) => {
+    if (commit?.kind !== 'automation') return commit;
+    totals.humanCommits += 1;
+    totals.humanAdditions += Number(commit.additions) || 0;
+    totals.humanDeletions += Number(commit.deletions) || 0;
+    totals.humanChangedLines += Number(commit.changedLines) || 0;
+    totals.humanFilesChanged += Number(commit.filesChanged) || 0;
+    return { ...commit, kind: 'human', matchedBy: null };
+  });
+  for (const field of ['automationCommits', 'automationAdditions', 'automationDeletions', 'automationChangedLines', 'automationFilesChanged']) totals[field] = 0;
+  const automationMap = new Map();
+  const agentMap = new Map((Array.isArray(analysis.agents) ? analysis.agents : []).map((entry) => [entry.agentId || entry.identity, { ...entry }]));
+  const moved = new Set();
+  const nextCommits = commits.map((commit) => {
+    if (commit?.kind !== 'human') return commit;
+    const identity = String(commit.contributor || '');
+    const agent = agents.find((candidate) => matchesAgentIdentity(identity, candidate.loginPatterns));
+    const automation = !agent && isAutomationIdentity(identity, null);
+    if (!agent && !automation) return commit;
+    moved.add(identity);
+    const lines = Number(commit.changedLines) || 0;
+    const record = { additions: Number(commit.additions) || 0, deletions: Number(commit.deletions) || 0, changedLines: lines, filesChanged: Number(commit.filesChanged) || 0, sha: commit.sha, date: commit.date };
+    totals.humanCommits -= 1;
+    totals.humanAdditions -= record.additions;
+    totals.humanDeletions -= record.deletions;
+    totals.humanChangedLines -= lines;
+    totals.humanFilesChanged -= record.filesChanged;
+    if (automation) {
+      addRepositoryAutomationCommit(automationMap, totals, { contributor: identity }, record);
+      return { ...commit, kind: 'automation', matchedBy: 'automation' };
+    }
+    const entry = agentMap.get(agent.id) || createRepositoryContributor(agent.label, 'ai');
+    entry.agentId ||= agent.id;
+    entry.agentLabel ||= agent.label;
+    updateRepositoryContributorEntry(entry, record);
+    agentMap.set(agent.id, entry);
+    totals.aiCommits += 1;
+    totals.aiAdditions += record.additions;
+    totals.aiDeletions += record.deletions;
+    totals.aiChangedLines += lines;
+    totals.aiFilesChanged += record.filesChanged;
+    return { ...commit, kind: 'ai', agent: agent.label, matchedBy: 'login', contributor: agent.label };
+  });
+  finalizeRepositoryAnalysisTotals(totals);
+  // A person moved back from automation counts in the totals again; the contributor
+  // lists of a legacy analysis are only refreshed by its next full analysis.
+  const keep = (entry) => !moved.has(String(entry?.identity || entry?.login || ''));
+  const withShare = (entry) => ({ ...entry, changedShare: totals.changedLines ? roundMetric((entry.changedLines / totals.changedLines) * 100) : null });
+  return {
+    ...analysis,
+    summary: totals,
+    commits: nextCommits,
+    contributors: (analysis.contributors || []).filter(keep),
+    allContributors: Array.isArray(analysis.allContributors) ? analysis.allContributors.filter(keep) : analysis.allContributors,
+    agents: [...agentMap.values()].map(withShare).sort((left, right) => right.changedLines - left.changedLines),
+    automation: listRepositoryAutomation(automationMap, totals),
+    automationReclassified: REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION,
+    reclassifiedAt: new Date().toISOString()
+  };
+}
+
+async function reclassifyStoredRepositoryAnalyses() {
+  const agents = await readAiAgents();
+  const { repositories } = await readRepositoryAnalysesCache();
+  let updated = 0;
+  let legacy = 0;
+  let pending = 0;
+  for (const key of Object.keys(repositories || {})) {
+    const analysis = await getStoredRepositoryAnalysis(key);
+    const version = Number(analysis?.analysisVersion || 1);
+    if (!analysis?.summary || version >= REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION) continue;
+    if (Number(analysis.automationReclassified) >= REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION) continue;
+    const commits = Array.isArray(analysis.commits) ? analysis.commits : [];
+    const fullCommitList = commits.length
+      && commits.length === Number(analysis.summary.analyzedCommits)
+      && analysis.continuation?.status !== 'running';
+    if (!fullCommitList) {
+      // Re-analyzed on the next request: the stored version is below the current one.
+      pending += 1;
+      continue;
+    }
+    // v10 analyses and v11 rebuilds keep each commit's direct classification.
+    const complete = version >= 10
+      && commits.every((commit) => commit?.sourceClassification);
+    if (!complete) {
+      await putRepositoryAnalysis(key, reclassifyLegacyRepositoryAnalysis(analysis, agents));
+      legacy += 1;
+      continue;
+    }
+    const state = createRepositoryAnalysisState(analysis);
+    state.agents = agents;
+    state.commitResults = commits.map((commit) => ({
+      ...commit,
+      sourceClassification: reclassifyStoredDirectClassification(commit.sourceClassification, agents)
+    }));
+    rebuildRepositoryAnalysisState(state);
+    const snapshot = buildRepositoryAnalysisSnapshot(analysis, state, analysis.continuation || null, analysis.status);
+    await putRepositoryAnalysis(key, {
+      ...snapshot,
+      fetchedAt: analysis.fetchedAt,
+      reclassifiedAt: new Date().toISOString(),
+      history: analysis.history
+    });
+    updated += 1;
+  }
+  if (updated || legacy || pending) {
+    console.log(`Repository analyses reclassified: ${updated} rebuilt, ${legacy} adjusted from commit records, ${pending} waiting for a new analysis`);
+  }
+}
+
+function getRecursiveRepositoryTargets(analysis, excludedRepositoryKey = null) {
+  const targets = new Map();
+  for (const profile of Object.values(analysis?.contributorHeuristics || {})) {
+    if (targets.size >= REPOSITORY_ANALYSIS_RECURSIVE_MAX_REPOSITORIES) break;
+    for (const repository of Array.isArray(profile?.sampledRepositoryList) ? profile.sampledRepositoryList : []) {
+      const key = String(repository?.fullName || '').trim().toLowerCase();
+      if (!key || key === excludedRepositoryKey || targets.has(key)) continue;
+      targets.set(key, repository);
+      if (targets.size >= REPOSITORY_ANALYSIS_RECURSIVE_MAX_REPOSITORIES) break;
+    }
+  }
+  return [...targets.values()];
+}
+
+async function scheduleRecursiveRepositoryAnalyses(analysis, depth = 0, excludedRepositoryKey = null) {
+  if (depth >= REPOSITORY_ANALYSIS_RECURSIVE_MAX_DEPTH) return [];
+  const targets = getRecursiveRepositoryTargets(analysis, excludedRepositoryKey);
+  if (!targets.length) return [];
+  return mapWithConcurrency(targets, async (repository) => {
+    try {
+      return await getRepositoryAnalysis({
+        input: repository.url || repository.fullName,
+        refresh: false,
+        recursionDepth: depth + 1
+      });
+    } catch (error) {
+      console.warn(`Recursive repository analysis failed for ${repository.fullName}: ${error.message}`);
+      return null;
+    }
+  }, REPOSITORY_ANALYSIS_RECURSIVE_CONCURRENCY);
+}
+
+async function getRepositoryAnalysis({ input, refresh = true, recursionDepth = 0 } = {}) {
   const repository = normalizePublicGithubRepository(input);
   if (repositoryAnalysisJobs.has(repository.key)) return repositoryAnalysisJobs.get(repository.key);
-  const cache = await readRepositoryAnalysesCache({ version: 1, repositories: {} });
-  cache.repositories = cache.repositories || {};
-  const cached = cache.repositories[repository.key]
-    ? withRepositoryAnalysisDuration({ ...cache.repositories[repository.key], history: getRepositoryAnalysisHistory(cache.repositories[repository.key]) })
+  const stored = await getStoredRepositoryAnalysis(repository.key);
+  const cached = stored
+    ? withRepositoryAnalysisDuration({ ...stored, history: getRepositoryAnalysisHistory(stored) })
     : null;
   const cachedAttemptAt = Date.parse(cached?.lastAttemptAt || cached?.requestedAt || cached?.fetchedAt || '');
   const cacheIsCompatible = Number(cached?.analysisVersion || 1) >= REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION;
@@ -2577,9 +2957,8 @@ async function getRepositoryAnalysis({ input, refresh = true } = {}) {
     return { ...cached, status: 'background', cache: getRepositoryAnalysisCacheInfo(cached, true) };
   }
   if (cached?.summary && cacheIsCompatible && Number.isFinite(cachedAttemptAt) && Date.now() - cachedAttemptAt < REPOSITORY_ANALYSIS_CACHE_TTL_MS) {
-    if (!Array.isArray(cache.repositories[repository.key]?.history) && cached.history.length) {
-      cache.repositories[repository.key] = { ...cache.repositories[repository.key], history: cached.history };
-      await writeRepositoryAnalysesCache(cache);
+    if (!Array.isArray(stored?.history) && cached.history.length) {
+      await putRepositoryAnalysis(repository.key, { ...stored, history: cached.history });
     }
     return { ...cached, status: cached.status === 'stale-cache' ? 'stale-cache' : 'cached', cache: getRepositoryAnalysisCacheInfo(cached, true) };
   }
@@ -2589,12 +2968,9 @@ async function getRepositoryAnalysis({ input, refresh = true } = {}) {
   const analysisLock = await acquireRepositoryAnalysisLock(repository.key, 'initial');
   if (!analysisLock) {
     const activeLock = await readRepositoryAnalysisLock(repository.key);
-    const inProgressCache = await readRepositoryAnalysesCache({ version: 1, repositories: {} });
-    const inProgress = inProgressCache.repositories?.[repository.key]
-      ? withRepositoryAnalysisDuration({
-        ...inProgressCache.repositories[repository.key],
-        history: getRepositoryAnalysisHistory(inProgressCache.repositories[repository.key])
-      })
+    const inProgressStored = await getStoredRepositoryAnalysis(repository.key);
+    const inProgress = inProgressStored
+      ? withRepositoryAnalysisDuration({ ...inProgressStored, history: getRepositoryAnalysisHistory(inProgressStored) })
       : null;
     if (inProgress?.summary) {
       if (inProgress.continuation?.status === 'running') startRepositoryAnalysisContinuation(repository, inProgress);
@@ -2615,11 +2991,11 @@ async function getRepositoryAnalysis({ input, refresh = true } = {}) {
   }
 
   let analysisLockTransferred = false;
-  const previousEntry = cache.repositories[repository.key] || null;
+  const previousEntry = stored || null;
 
   const job = (async () => {
     const requestedAt = new Date().toISOString();
-    cache.repositories[repository.key] = {
+    await putRepositoryAnalysis(repository.key, {
       ...(cached || {}),
       version: 1,
       analysisVersion: REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION,
@@ -2627,21 +3003,23 @@ async function getRepositoryAnalysis({ input, refresh = true } = {}) {
       requestedAt,
       lastAttemptAt: requestedAt,
       repository
-    };
-    await writeRepositoryAnalysesCache(cache);
+    });
     const analysisStartedAt = Date.now();
     try {
-      const result = await collectRepositoryAnalysis(repository);
+      const result = await collectRepositoryAnalysis(repository, {
+        includeContributorHeuristics: recursionDepth < REPOSITORY_ANALYSIS_RECURSIVE_MAX_DEPTH
+      });
       result.analysisDurationMs = Date.now() - analysisStartedAt;
       result.analysisDurationSeconds = roundMetric(result.analysisDurationMs / 1000);
       result.requestedAt = requestedAt;
       result.lastAttemptAt = requestedAt;
       result.history = appendRepositoryAnalysisHistory(result, cached);
       result.cache = getRepositoryAnalysisCacheInfo(result);
-      const latest = await readRepositoryAnalysesCache({ version: 1, repositories: {} });
-      latest.repositories = latest.repositories || {};
-      latest.repositories[repository.key] = result;
-      await writeRepositoryAnalysesCache(latest);
+      await putRepositoryAnalysis(repository.key, result);
+      if (recursionDepth < REPOSITORY_ANALYSIS_RECURSIVE_MAX_DEPTH) {
+        void scheduleRecursiveRepositoryAnalyses(result, recursionDepth, repository.key)
+          .catch((error) => console.warn(`Recursive repository analysis scheduling failed for ${repository.key}: ${error.message}`));
+      }
       analysisLockTransferred = Boolean(startRepositoryAnalysisContinuation(repository, result, analysisLock));
       return result;
     } catch (error) {
@@ -2657,12 +3035,11 @@ async function getRepositoryAnalysis({ input, refresh = true } = {}) {
           status: 'stale-cache',
           requestedAt,
           lastAttemptAt: requestedAt,
-        error: error.message,
+        ...storedErrorFields(error),
         history: getRepositoryAnalysisHistory(cached),
         cache: getRepositoryAnalysisCacheInfo(cached, true)
         };
-        cache.repositories[repository.key] = stale;
-        await writeRepositoryAnalysesCache(cache);
+        await putRepositoryAnalysis(repository.key, stale);
         return stale;
       }
       const unavailableDurationMs = Date.now() - analysisStartedAt;
@@ -2677,7 +3054,7 @@ async function getRepositoryAnalysis({ input, refresh = true } = {}) {
         fetchedAt: null,
         repository,
         source: GITHUB_API_URL,
-        error: error.message,
+        ...storedErrorFields(error),
         summary: null,
         agents: [],
         contributors: [],
@@ -2685,8 +3062,7 @@ async function getRepositoryAnalysis({ input, refresh = true } = {}) {
         history: [],
         notes: ['The repository analysis could not be completed.']
       };
-      cache.repositories[repository.key] = unavailable;
-      await writeRepositoryAnalysesCache(cache);
+      await putRepositoryAnalysis(repository.key, unavailable);
       return unavailable;
     } finally {
       repositoryAnalysisJobs.delete(repository.key);
@@ -2713,8 +3089,7 @@ async function getContributorAnalysis({ input } = {}) {
   if (knownRateLimitReset) throw githubRateLimitHttpError(knownRateLimitReset);
   const job = (async () => {
     const startedAt = Date.now();
-    const agentConfig = await readJsonFile(AI_AGENTS_FILE, { version: 1, agents: [] });
-    const agents = Array.isArray(agentConfig.agents) ? agentConfig.agents : [];
+    const agents = await readAiAgents();
     const profile = await inferRepositoryContributorAgent(login, agents, getRepositoryHistoryWindow(), null, {
       maxRepositories: CONTRIBUTOR_ANALYSIS_MAX_REPOSITORIES
     });
@@ -2741,6 +3116,11 @@ async function getContributorAnalysis({ input } = {}) {
       ]
     };
     contributorAnalysisCache.set(key, { at: Date.now(), value });
+    void scheduleRecursiveRepositoryAnalyses(
+      { contributorHeuristics: { [String(profile?.login || login).toLowerCase()]: profile } },
+      0,
+      null
+    ).catch((error) => console.warn(`Recursive contributor repository analysis scheduling failed for ${login}: ${error.message}`));
     return value;
   })().finally(() => contributorAnalysisJobs.delete(key));
   contributorAnalysisJobs.set(key, job);
@@ -2748,7 +3128,7 @@ async function getContributorAnalysis({ input } = {}) {
 }
 
 async function getRepositoryAnalyses() {
-  const cache = await readRepositoryAnalysesCache({ version: 1, repositories: {} });
+  const cache = await readRepositoryAnalysesCache();
   const cachedAnalyses = Object.values(cache.repositories || {});
   const repositories = cachedAnalyses.map((analysis) => ({
     status: analysis.status,
@@ -2760,6 +3140,12 @@ async function getRepositoryAnalyses() {
       : null,
     repository: analysis.repository || null,
     summary: analysis.summary || null,
+    agents: (Array.isArray(analysis.agents) ? analysis.agents : []).map((agent) => ({
+      identity: agent.identity || agent.agentLabel || agent.name || 'AI agent',
+      commits: Number(agent.commits) || 0,
+      changedLines: Number(agent.changedLines) || 0,
+      changedShare: Number.isFinite(Number(agent.changedShare)) ? Number(agent.changedShare) : null
+    })),
     history: getRepositoryAnalysisHistory(analysis),
     error: analysis.error || null
   }));
@@ -2863,7 +3249,7 @@ async function getRepositoryAnalyses() {
 }
 
 async function getContributorProfiles() {
-  const cache = await readContributorProfilesCache({ version: 1, profiles: {} });
+  const cache = await readContributorProfilesCache();
   const profiles = Object.values(cache.profiles || {})
     .sort((left, right) => String(left.login || '').localeCompare(String(right.login || '')));
   return {
@@ -2886,13 +3272,13 @@ async function collectGithubContributors() {
         try {
           search = await fetchGithubContributorSearch(contributor, window);
         } catch (error) {
-          search = { error: error.message, repositories: [], totalCommits: 0, reportedCommits: null, limited: true };
+          search = { ...storedErrorFields(error), repositories: [], totalCommits: 0, reportedCommits: null, limited: true };
         }
         let pullRequestSearch = null;
         try {
           pullRequestSearch = await fetchGithubContributorPullRequests(contributor, window);
         } catch (error) {
-          pullRequestSearch = { error: error.message, repositories: [], totalPullRequests: 0, reportedPullRequests: null, limited: true };
+          pullRequestSearch = { ...storedErrorFields(error), repositories: [], totalPullRequests: 0, reportedPullRequests: null, limited: true };
         }
         const exactRepositories = graphql.repositories || [];
         const searchRepositories = new Map();
@@ -2955,7 +3341,7 @@ async function collectGithubContributors() {
         reportedCommits: 0,
         totalPullRequests: null,
         repositories: [],
-        error: error.message
+        ...storedErrorFields(error)
       });
     }
   }
@@ -2998,7 +3384,7 @@ async function collectGithubContributors() {
 }
 
 async function getGithubContributors({ refresh = false } = {}) {
-  const cached = await readJsonFile(GITHUB_CONTRIBUTORS_CACHE_FILE, null);
+  const cached = await githubContributorsDocument.read(null);
   const cachedAt = Date.parse(cached?.fetchedAt || '');
   if (!refresh && cached && Number.isFinite(cachedAt) && Date.now() - cachedAt < GITHUB_CONTRIBUTORS_CACHE_TTL_MS) {
     return cached;
@@ -3006,10 +3392,20 @@ async function getGithubContributors({ refresh = false } = {}) {
 
   try {
     const fresh = await collectGithubContributors();
-    await writeJsonFile(GITHUB_CONTRIBUTORS_CACHE_FILE, fresh);
+    await githubContributorsDocument.write(fresh);
     return fresh;
   } catch (error) {
-    if (cached) return { ...cached, status: 'stale-cache', error: error.message };
+    const fallbackSelfBuilding = buildSelfBuildingIndex(await readJsonFile(SELF_BUILDING_OBSERVATIONS_FILE, { version: 1, observations: [] }));
+    if (cached) {
+      return {
+        ...cached,
+        status: 'stale-cache',
+        ...storedErrorFields(error),
+        metrics: cached.metrics ? { ...cached.metrics, selfBuild: fallbackSelfBuilding.value } : cached.metrics,
+        methodology: { ...(cached.methodology || {}), selfBuilding: fallbackSelfBuilding },
+        inputs: { ...(cached.inputs || {}), selfBuilding: await readJsonFile(SELF_BUILDING_OBSERVATIONS_FILE, { version: 1, observations: [] }) }
+      };
+    }
     return {
       version: 1,
       status: 'unavailable',
@@ -3017,7 +3413,7 @@ async function getGithubContributors({ refresh = false } = {}) {
       fetchedAt: null,
       contributors: [],
       summary: { contributorCount: 0, projectCount: 0, commitCount: 0, limited: false, projects: [] },
-      error: error.message,
+      ...storedErrorFields(error),
       note: 'GitHub contributor data is unavailable and has not been cached yet.'
     };
   }
@@ -3157,9 +3553,10 @@ async function readWorkRatingRuns() {
 // (refresh-work-occupations.js). The newest run that covers enough occupations
 // is the current one; older runs form the history.
 async function loadWorkOccupationData() {
-  const [classifier, employment, runs] = await Promise.all([
+  const [classifier, employment, unitShares, runs] = await Promise.all([
     readJsonFile(WORK_CLASSIFIER_FILE, null),
     readJsonFile(WORK_EMPLOYMENT_FILE, null),
+    readJsonFile(WORK_UNIT_SHARES_FILE, null),
     readWorkRatingRuns()
   ]);
   const codes = Object.keys(classifier?.occupations || {});
@@ -3171,8 +3568,10 @@ async function loadWorkOccupationData() {
     .sort((left, right) => Date.parse(right.checkedAt) - Date.parse(left.checkedAt) || (right.prompt?.version || 0) - (left.prompt?.version || 0));
   const currentRun = usableRuns[0] || null;
 
-  // ILOSTAT counts people per sub-major group; ranking splits a group's count
-  // evenly across its unit groups.
+  // ILOSTAT counts people per sub-major group (2 digits) only. The list is ordered by
+  // that group count across all regions; inside a group, by the unit group's US
+  // employment (BLS via the SOC/ISCO crosswalks). No per-unit world count is invented.
+  const usEmploymentByUnit = unitShares?.usEmploymentByUnit || {};
   const regions = employment?.regions || {};
   const unitsPerGroup = new Map();
   for (const code of codes) {
@@ -3193,12 +3592,17 @@ async function loadWorkOccupationData() {
         titleRu: occupation.titleRu || null,
         majorGroup: occupation.major || null,
         subMajorGroup: occupation.subMajor || null,
-        employmentEstimate: Math.round(groupEmployment(group) / unitsPerGroup.get(group)),
+        groupEmployment: Math.round(groupEmployment(group)),
+        usEmployment: Number.isFinite(Number(usEmploymentByUnit[code])) ? Number(usEmploymentByUnit[code]) : null,
         score: Number.isInteger(rating?.score) ? rating.score : null,
+        scores: Array.isArray(rating?.scores) ? rating.scores : null,
+        spread: Number.isFinite(rating?.spread) ? rating.spread : null,
         rationale: rating?.rationale || null
       };
     })
-    .sort((left, right) => right.employmentEstimate - left.employmentEstimate || left.code.localeCompare(right.code))
+    .sort((left, right) => right.groupEmployment - left.groupEmployment
+      || (right.usEmployment || 0) - (left.usEmployment || 0)
+      || left.code.localeCompare(right.code))
     .map((occupation, index) => ({ rank: index + 1, ...occupation }));
 
   return { classifier, employment, runs, usableRuns, currentRun, occupations, unitsPerGroup, groupEmployment };
@@ -3292,7 +3696,7 @@ function createWorkBaselineObservation() {
     metric: 'prototype-work-estimate',
     value: DASHBOARD_METRICS.workBaseline,
     comparable: true,
-    source: '/methodology.html',
+    source: '/methodology',
     note: 'The prototype Work estimate, kept as one Work source.'
   };
 }
@@ -3356,6 +3760,251 @@ async function getWorkOccupations() {
   };
 }
 
+// Expected annual minutes per household: occurrences x typical minutes x the share of
+// households where the task exists (a dog walk only happens in homes with a dog).
+function lifeTaskWeight(task) {
+  const occurrences = Number(task?.occurrencesPerYear);
+  const minutes = Number(task?.typicalMinutes);
+  const share = Number.isFinite(Number(task?.householdShare)) ? clamp(Number(task.householdShare), 0, 1) : 1;
+  if (!Number.isFinite(occurrences) || occurrences <= 0) return 0;
+  if (!Number.isFinite(minutes) || minutes <= 0) return occurrences * share;
+  return occurrences * minutes * share;
+}
+
+// Share of household time AI can take on: the time-weighted mean score. A weighted
+// median is kept as context; with one task holding a fifth of all minutes it barely moves.
+function weightedMean(items) {
+  const usable = items.filter((item) => Number.isFinite(item.value) && Number.isFinite(item.weight) && item.weight > 0);
+  const total = usable.reduce((sum, item) => sum + item.weight, 0);
+  return total ? usable.reduce((sum, item) => sum + (item.value * item.weight), 0) / total : null;
+}
+
+async function readLifeRatingRuns() {
+  let files = [];
+  try {
+    files = (await fs.readdir(LIFE_RATINGS_DIR)).filter((file) => file.endsWith('.json')).sort();
+  } catch (error) {
+    if (error.code !== 'ENOENT') console.warn('Could not read Life rating runs:', error.message);
+  }
+  const runs = await Promise.all(files.map(async (file) => {
+    const run = await readJsonFile(path.join(LIFE_RATINGS_DIR, file), null);
+    return run && run.ratings ? { file, ...run } : null;
+  }));
+  return runs.filter(Boolean);
+}
+
+// Life tasks are an explicit, editable taxonomy. The current model run is
+// separate from the taxonomy so a new prompt can be compared without hiding
+// which task list was used.
+async function loadLifeTaskData() {
+  const [dataset, runs] = await Promise.all([readJsonFile(LIFE_TASKS_FILE, null), readLifeRatingRuns()]);
+  const tasks = Array.isArray(dataset?.tasks) ? dataset.tasks.filter((task) => task?.id) : [];
+  if (!tasks.length) return null;
+  const taskIds = tasks.map((task) => task.id);
+  const coverageOf = (run) => taskIds.filter((id) => Number.isInteger(run.ratings[id]?.score)).length / taskIds.length;
+  const usableRuns = runs
+    .filter((run) => coverageOf(run) >= LIFE_TASKS_MIN_COVERAGE)
+    .sort((left, right) => Date.parse(right.checkedAt) - Date.parse(left.checkedAt) || (right.prompt?.version || 0) - (left.prompt?.version || 0));
+  const currentRun = usableRuns[0] || null;
+  const taskRows = tasks.map((task) => {
+    const rating = currentRun?.ratings?.[task.id];
+    return {
+      ...task,
+      score: Number.isInteger(rating?.score) ? rating.score : null,
+      rationale: rating?.rationale || null,
+      annualMinutes: roundMetric(lifeTaskWeight(task))
+    };
+  });
+  return { dataset, tasks: taskRows, runs, usableRuns, currentRun };
+}
+
+async function getLifeTasksObservation() {
+  const data = await loadLifeTaskData();
+  if (!data?.currentRun) return null;
+  const { currentRun, tasks, dataset } = data;
+  const rated = tasks.filter((task) => Number.isInteger(task.score));
+  const weightedItems = rated.map((task) => ({ value: task.score, weight: lifeTaskWeight(task) }));
+  const frequencyGroups = [...new Set(tasks.map((task) => task.frequency).filter(Boolean))];
+  return {
+    id: 'ai-countdown-life-task-ratings',
+    status: sourceFreshnessStatus(currentRun.checkedAt),
+    metric: 'household-time-weighted-mean-ai-capability-by-life-task',
+    value: roundMetric(weightedMean(weightedItems)),
+    weightedMedian: roundMetric(weightedMedian(weightedItems)),
+    comparable: true,
+    source: '/life.html',
+    computedAt: currentRun.checkedAt,
+    run: {
+      file: `data/life/ratings/${currentRun.file}`,
+      checkedDate: currentRun.checkedDate,
+      checkedAt: currentRun.checkedAt,
+      model: currentRun.model,
+      provider: currentRun.provider || null,
+      promptVersion: currentRun.prompt?.version ?? null,
+      promptSha256: currentRun.prompt?.sha256 || null,
+      datasetSha256: currentRun.inputs?.dataset?.sha256 || null,
+      embodiment: currentRun.assumptions?.embodiment || ['software', 'smart-home-devices']
+    },
+    scale: currentRun.scale || null,
+    frequencyScale: dataset.frequencyScale || {},
+    coverage: {
+      tasks: tasks.length,
+      scored: rated.length,
+      share: roundMetric((rated.length / tasks.length) * 100),
+      minimumShare: LIFE_TASKS_MIN_COVERAGE * 100,
+      annualMinutesRated: roundMetric(weightedItems.reduce((sum, item) => sum + item.weight, 0)),
+      annualMinutesTotal: roundMetric(tasks.reduce((sum, task) => sum + lifeTaskWeight(task), 0))
+    },
+    distribution: frequencyGroups.map((frequency) => {
+      const rows = rated.filter((task) => task.frequency === frequency);
+      return {
+        frequency,
+        tasks: tasks.filter((task) => task.frequency === frequency).length,
+        scored: rows.length,
+        value: roundMetric(weightedMean(rows.map((task) => ({ value: task.score, weight: lifeTaskWeight(task) }))))
+      };
+    }),
+    history: data.usableRuns.map((run) => {
+      const rows = tasks
+        .map((task) => ({ value: run.ratings[task.id]?.score, weight: lifeTaskWeight(task) }))
+        .filter((item) => Number.isInteger(item.value));
+      return {
+        checkedDate: run.checkedDate,
+        model: run.model,
+        promptVersion: run.prompt?.version ?? null,
+        value: roundMetric(weightedMean(rows)),
+        file: `data/life/ratings/${run.file}`
+      };
+    }).reverse(),
+    note: 'Share of household time AI can take on: AI capability per recurring household task, averaged with the expected annual minutes per household (occurrences x minutes x share of households with the task). Capability includes software, smart-home devices, and currently available robotic mechanisms; it is not measured household adoption.'
+  };
+}
+
+function createLifeBaselineObservation() {
+  return {
+    id: 'ai-countdown-life-baseline',
+    status: 'illustrative',
+    metric: 'prototype-life-estimate',
+    value: DASHBOARD_METRICS.life,
+    comparable: true,
+    source: '/methodology',
+    note: 'The earlier prototype Life estimate, kept as one compatible source while the task dataset is established.'
+  };
+}
+
+// Life uses the same median rule as Code and Work. Task frequency changes the
+// task-level observation, not the number of independent source votes.
+function buildLifeIndex(lifeTasks) {
+  const baseline = createLifeBaselineObservation();
+  const candidates = [baseline, lifeTasks].filter(Boolean);
+  const used = candidates.filter((observation) => observation.comparable && Number.isFinite(Number(observation.value)));
+  const value = roundMetric(median(used.map((observation) => observation.value)));
+  return {
+    value,
+    unit: 'percent',
+    aggregation: 'median-compatible-percentages',
+    status: used.some((observation) => observation.id !== baseline.id) ? 'partial' : 'illustrative',
+    sourcesUsed: used.map((observation) => observation.id),
+    sourcesExcluded: candidates.filter((observation) => !used.includes(observation)).map((observation) => observation.id),
+    sourceValues: used.map((observation) => ({ id: observation.id, value: observation.value, status: observation.status })),
+    note: 'Life is the median of the prototype estimate and the frequency-and-time-weighted task rating. The task list and model assumptions stay visible separately.'
+  };
+}
+
+// AI building AI is intentionally a separate evidence track. It uses only
+// company statements about AI-written code and keeps incomparable signals
+// such as AI-token share or undisclosed percentages out of the median.
+function buildSelfBuildingIndex(data) {
+  const observations = Array.isArray(data?.observations) ? data.observations : [];
+  const excludedObservations = Array.isArray(data?.excludedObservations) ? data.excludedObservations : [];
+  const included = observations.filter((observation) => (
+    observation?.comparable !== false
+      && observation?.unit
+      && String(observation.unit).startsWith('percent-')
+      && Number.isFinite(Number(observation.value))
+  ));
+  const value = roundMetric(median(included.map((observation) => observation.value)));
+  const timestamps = [...observations, ...excludedObservations]
+    .map((observation) => Date.parse(observation?.observedAt || ''))
+    .filter(Number.isFinite)
+    .sort((left, right) => right - left);
+  const computedAt = data?.updatedAt || (timestamps.length ? new Date(timestamps[0]).toISOString() : null);
+  return {
+    id: 'ai-countdown-self-building',
+    metric: data?.metric || 'ai-authored-code-inside-ai-development',
+    value,
+    unit: 'percent',
+    aggregation: data?.methodology?.aggregation || 'median',
+    status: value === null ? 'unavailable' : 'reported',
+    source: '/data/self-building-observations.json',
+    computedAt,
+    coverage: {
+      materials: observations.length + excludedObservations.length,
+      included: included.length,
+      excluded: observations.length - included.length + excludedObservations.length
+    },
+    sourcesUsed: included.map((observation) => observation.id),
+    sourcesExcluded: [
+      ...observations.filter((observation) => !included.includes(observation)).map((observation) => observation.id),
+      ...excludedObservations.map((observation) => observation.id)
+    ],
+    sourceValues: included.map((observation) => ({
+      id: observation.id,
+      label: observation.label || observation.company || observation.id,
+      value: roundMetric(observation.value),
+      range: observation.range || null,
+      lowerBound: Boolean(observation.lowerBound),
+      status: observation.status || 'reported',
+      observedAt: observation.observedAt || null,
+      source: observation.source || null
+    })),
+    observations,
+    excludedObservations,
+    methodology: data?.methodology || {},
+    history: Array.isArray(data?.history) ? data.history : [],
+    note: 'Медиана публичных, сопоставимых заявлений о доле AI-кода внутри разработки компаний. Это не оценка автономного саморазвития моделей.'
+  };
+}
+
+async function getSelfBuildingIndex() {
+  const data = await readJsonFile(SELF_BUILDING_OBSERVATIONS_FILE, { version: 1, observations: [] });
+  return {
+    version: data?.version || 1,
+    fetchedAt: new Date().toISOString(),
+    ...buildSelfBuildingIndex(data)
+  };
+}
+
+async function getLifeIndex() {
+  const lifeTasks = await getLifeTasksObservation();
+  return {
+    version: 1,
+    fetchedAt: new Date().toISOString(),
+    ...buildLifeIndex(lifeTasks),
+    lifeTasks
+  };
+}
+
+async function getLifeTasks() {
+  const [data, summary] = await Promise.all([loadLifeTaskData(), getLifeTasksObservation()]);
+  if (!data) return { version: 1, status: 'unavailable', summary: null, frequencyScale: {}, tasks: [] };
+  return {
+    version: 1,
+    status: summary ? summary.status : 'unscored',
+    dataset: {
+      version: data.dataset.version || 1,
+      source: data.dataset.source || 'AI Countdown editorial task register',
+      updatedAt: data.dataset.updatedAt || data.dataset.createdAt || null,
+      note: data.dataset.note || null
+    },
+    frequencyScale: data.dataset.frequencyScale || {},
+    prompt: data.currentRun?.prompt || null,
+    request: data.currentRun?.request || null,
+    summary,
+    tasks: data.tasks
+  };
+}
+
 function createBotCommitsObservation(raw) {
   const labels = Array.isArray(raw.labels) ? raw.labels : [];
   const values = Array.isArray(raw.claude) ? raw.claude : [];
@@ -3390,7 +4039,7 @@ function createBotCommitsObservation(raw) {
 }
 
 async function refreshSourceFeeds() {
-  const previous = await readJsonFile(SOURCE_FEEDS_CACHE_FILE, { version: 1, feeds: {} });
+  const previous = await sourceFeedsDocument.read({ version: 1, feeds: {} });
   const feeds = { ...(previous.feeds || {}) };
   const now = new Date().toISOString();
   const loaders = [
@@ -3404,20 +4053,20 @@ async function refreshSourceFeeds() {
       feeds[id] = await loader();
     } catch (error) {
       if (feeds[id]) {
-        feeds[id] = { ...feeds[id], status: 'stale-cache', failedAt: now, error: error.message };
+        feeds[id] = { ...feeds[id], status: 'stale-cache', failedAt: now, ...storedErrorFields(error) };
       } else {
-        feeds[id] = { id, status: 'unavailable', failedAt: now, error: error.message };
+        feeds[id] = { id, status: 'unavailable', failedAt: now, ...storedErrorFields(error) };
       }
     }
   }));
 
   const snapshot = { version: 1, fetchedAt: now, feeds };
-  await writeJsonFile(SOURCE_FEEDS_CACHE_FILE, snapshot);
+  await sourceFeedsDocument.write(snapshot);
   return snapshot;
 }
 
 async function getSourceFeeds({ refresh = false } = {}) {
-  const cached = await readJsonFile(SOURCE_FEEDS_CACHE_FILE, { version: 1, feeds: {} });
+  const cached = await sourceFeedsDocument.read({ version: 1, feeds: {} });
   if (!refresh && Object.keys(cached.feeds || {}).length) return cached;
   return refreshSourceFeeds();
 }
@@ -3475,13 +4124,13 @@ async function getBootstrapCodeIndex() {
 }
 
 async function getCachedCodeIndex() {
-  const cached = await readJsonFile(CODE_INDEX_CACHE_FILE, null);
+  const cached = await codeIndexStores.codeIndex.read(null);
   if (!cached || !Number.isFinite(Number(cached.codeIndex))) return null;
   if (cached.complete === true) return cached;
 
   // Older workers did not write `complete` into the final snapshot. Accept
   // that file only when the persisted run proves the whole catalog finished.
-  const progress = await readJsonFile(CODE_INDEX_PROGRESS_FILE, null);
+  const progress = await codeIndexStores.progress.read(null);
   const completedCatalog = progress?.status === 'complete'
     && Number(progress.processed) === Number(progress.catalogEntries)
     && Number(cached.coverage?.included) === Number(cached.coverage?.discovered);
@@ -3504,7 +4153,7 @@ function getRepositoryAnalysisCodeSnapshot(analysis) {
 }
 
 async function readRepositoryAnalysesForCodeIndex() {
-  const collection = await getMongoRepositoryCollection();
+  const collection = await storage.collection(AI_COUNTDOWN_MONGO_COLLECTION, { repositoryKey: 1 });
   if (collection) {
     try {
       // Commit lists make full documents heavy; the index needs only the summaries.
@@ -3520,7 +4169,10 @@ async function readRepositoryAnalysesForCodeIndex() {
           'analysis.continuation.status': 1,
           'analysis.history.status': 1,
           'analysis.history.fetchedAt': 1,
-          'analysis.history.summary': 1
+          'analysis.history.summary': 1,
+          'analysis.commits.date': 1,
+          'analysis.commits.kind': 1,
+          'analysis.commits.changedLines': 1
         }
       }).toArray();
       if (documents.length) {
@@ -3532,32 +4184,45 @@ async function readRepositoryAnalysesForCodeIndex() {
       console.warn(`Could not read Mongo repository analyses for Code: ${error.message}`);
     }
   }
-  const fileCache = await readJsonFile(REPOSITORY_ANALYSES_FILE, { version: 1, repositories: {} });
-  return Object.entries(fileCache.repositories || {});
+  return Object.entries(await repositoryAnalysesStore.list());
 }
 
-function createRepositoryAnalysesCodeObservation(entries) {
+// AI share of one repository over its commits from the last CODE_INDEX_WINDOW_DAYS.
+// Automation commits (dependency, release, translation bots) are not authored work.
+function getRepositoryWindowShare(analysis, cutoff) {
+  const commits = (Array.isArray(analysis?.commits) ? analysis.commits : [])
+    .filter((commit) => (commit?.kind === 'ai' || commit?.kind === 'human') && Date.parse(commit.date || '') >= cutoff);
+  const changedLines = commits.reduce((sum, commit) => sum + (Number(commit.changedLines) || 0), 0);
+  const aiChangedLines = commits.filter((commit) => commit.kind === 'ai').reduce((sum, commit) => sum + (Number(commit.changedLines) || 0), 0);
+  return {
+    commits: commits.length,
+    changedLines,
+    aiChangedLines,
+    share: changedLines ? roundMetric((aiChangedLines / changedLines) * 100) : null
+  };
+}
+
+function createRepositoryAnalysesCodeObservation(entries, referenceKeys = new Set()) {
   const rows = [];
   let excluded = 0;
+  const cutoff = Date.now() - (CODE_INDEX_WINDOW_DAYS * 24 * 60 * 60 * 1000);
   for (const [repositoryKey, analysis] of entries) {
-    const snapshot = getRepositoryAnalysisCodeSnapshot(analysis);
-    const summary = snapshot?.summary;
-    const share = numeric(summary?.aiChangedShare);
-    const analyzedCommits = Number(summary?.analyzedCommits || 0);
+    const recent = getRepositoryWindowShare(analysis, cutoff);
     if (analysis?.repository?.fork
-      || share === null
-      || !(Number(summary?.changedLines) > 0)
-      || analyzedCommits < REPOSITORY_ANALYSES_CODE_MIN_COMMITS) {
+      || recent.share === null
+      || !(recent.changedLines > 0)
+      || recent.commits < REPOSITORY_ANALYSES_CODE_MIN_COMMITS) {
       excluded += 1;
       continue;
     }
     rows.push({
       repositoryKey,
-      share,
-      aiChangedLines: Number(summary.aiChangedLines || 0),
-      changedLines: Number(summary.changedLines || 0),
-      analyzedCommits,
-      fetchedAt: snapshot.fetchedAt
+      share: recent.share,
+      aiChangedLines: recent.aiChangedLines,
+      changedLines: recent.changedLines,
+      analyzedCommits: recent.commits,
+      reference: referenceKeys.has(repositoryKey.toLowerCase()),
+      fetchedAt: analysis.fetchedAt || null
     });
   }
   if (!rows.length) return null;
@@ -3586,10 +4251,64 @@ function createRepositoryAnalysesCodeObservation(entries) {
       excluded,
       commits: rows.reduce((sum, row) => sum + row.analyzedCommits, 0),
       changedLines: totalChangedLines,
-      minCommits: REPOSITORY_ANALYSES_CODE_MIN_COMMITS
+      minCommits: REPOSITORY_ANALYSES_CODE_MIN_COMMITS,
+      windowDays: CODE_INDEX_WINDOW_DAYS,
+      referenceRepositories: rows.filter((row) => row.reference).length,
+      visitorRepositories: rows.filter((row) => !row.reference).length,
+      referenceMean: rows.some((row) => row.reference)
+        ? roundMetric(rows.filter((row) => row.reference).reduce((sum, row) => sum + row.share, 0) / rows.filter((row) => row.reference).length)
+        : null
     },
     note: 'AI Countdown research: mean share of changed lines attributed to AI agents across public GitHub repositories analyzed by the site (one vote per repository). Repositories are chosen by visitors, so the sample is not random.'
   };
+}
+
+async function readReferenceRepositories() {
+  const config = await readJsonFile(REFERENCE_REPOSITORIES_FILE, { repositories: [] });
+  return (Array.isArray(config.repositories) ? config.repositories : []).flatMap((item) => {
+    try {
+      const repository = normalizePublicGithubRepository(`https://github.com/${item.repository}`);
+      return [{ ...item, key: repository.key, input: repository.url }];
+    } catch (error) {
+      console.warn(`Skipping reference repository ${item.repository}: ${error.message}`);
+      return [];
+    }
+  });
+}
+
+// Analyzes the reference set one repository at a time, without the recursive profile
+// crawl, and re-analyzes each one weekly. A rate limit pauses the round until GitHub
+// accepts requests again; the next round resumes where this one stopped.
+let referenceRefreshRunning = false;
+
+async function refreshReferenceRepositories() {
+  if (referenceRefreshRunning || !getGithubApiToken()) return;
+  referenceRefreshRunning = true;
+  let analyzed = 0;
+  try {
+    for (const item of await readReferenceRepositories()) {
+      const stored = await getStoredRepositoryAnalysis(item.key);
+      const attemptAt = Date.parse(stored?.lastAttemptAt || stored?.requestedAt || '');
+      const current = Number(stored?.analysisVersion || 0) >= REPOSITORY_ANALYSIS_CLASSIFICATION_VERSION;
+      if (stored?.summary && current && Number.isFinite(attemptAt) && Date.now() - attemptAt < REFERENCE_REANALYSIS_AFTER_MS
+        && stored.continuation?.status !== 'running') continue;
+      try {
+        await getRepositoryAnalysis({ input: item.input, refresh: true, recursionDepth: REPOSITORY_ANALYSIS_RECURSIVE_MAX_DEPTH });
+        // Let the background pages finish before the next repository starts.
+        while (repositoryAnalysisContinuationJobs.has(item.key)) await repositoryAnalysisContinuationJobs.get(item.key);
+        analyzed += 1;
+      } catch (error) {
+        if (isGitHubRateLimitError(error)) {
+          console.warn(`Reference repositories paused by the GitHub rate limit after ${analyzed} analyses.`);
+          return;
+        }
+        console.warn(`Reference repository ${item.key} failed: ${error.message}`);
+      }
+    }
+    if (analyzed) console.log(`Reference repositories analyzed: ${analyzed}`);
+  } finally {
+    referenceRefreshRunning = false;
+  }
 }
 
 async function getRepositoryAnalysesCodeObservation() {
@@ -3599,7 +4318,11 @@ async function getRepositoryAnalysesCodeObservation() {
   }
   let value = null;
   try {
-    value = createRepositoryAnalysesCodeObservation(await readRepositoryAnalysesForCodeIndex());
+    const reference = await readReferenceRepositories();
+    value = createRepositoryAnalysesCodeObservation(
+      await readRepositoryAnalysesForCodeIndex(),
+      new Set(reference.map((item) => item.key.toLowerCase()))
+    );
   } catch (error) {
     console.warn(`Could not aggregate repository analyses for Code: ${error.message}`);
   }
@@ -3607,7 +4330,15 @@ async function getRepositoryAnalysesCodeObservation() {
   return value;
 }
 
-function radarAsCodeIndex(observation, repositoryObservation = null) {
+// Editorial Code percentages marked comparable (a developer survey that also sees AI
+// used without public markers) join the Code median next to Radar and our analyses.
+async function readComparableCodeObservations() {
+  const editorial = await readJsonFile(EDITORIAL_OBSERVATIONS_FILE, { observations: [] });
+  return (Array.isArray(editorial.observations) ? editorial.observations : [])
+    .filter((observation) => observation.category === 'code' && observation.comparable && observation.unit === 'percent' && Number.isFinite(Number(observation.value)));
+}
+
+function radarAsCodeIndex(observation, repositoryObservation = null, comparableObservations = []) {
   const repositories = numeric(observation.coverage?.repositories);
   const included = numeric(observation.coverage?.included);
   const discovered = repositories || included || 0;
@@ -3632,6 +4363,16 @@ function radarAsCodeIndex(observation, repositoryObservation = null) {
       lineWeighted: repositoryObservation.lineWeighted
     });
   }
+  for (const comparable of comparableObservations) {
+    sourceValues.push({
+      id: comparable.id,
+      label: comparable.label || comparable.id,
+      value: Number(comparable.value),
+      metric: comparable.metric,
+      source: comparable.source,
+      observedAt: comparable.observedAt || null
+    });
+  }
   const codeIndex = roundMetric(median(sourceValues.map((source) => source.value)));
   return {
     status: observation.status,
@@ -3642,7 +4383,7 @@ function radarAsCodeIndex(observation, repositoryObservation = null) {
     repositoryMedianCodeIndex: observation.repositoryMedian ?? numeric(observation.global?.median_ai_percentage),
     source: observation.source,
     sourceId: observation.id,
-    sourceLabel: sourceValues.length > 1 ? 'AI Code Radar + AI Countdown · median sources' : 'AI Code Radar · median sources',
+    sourceLabel: `${sourceValues.map((source) => source.label).join(' + ')} · median sources`,
     weighting: 'median-compatible-sources',
     coverage: {
       catalogTotal: repositories,
@@ -3653,7 +4394,7 @@ function radarAsCodeIndex(observation, repositoryObservation = null) {
     updatedAt: observation.computedAt || observation.generatedAt || observation.fetchedAt,
     fetchedAt: observation.fetchedAt,
     quality: observation.quality,
-    note: `${observation.note} Current Code is the median of compatible source values (AI Code Radar and, when available, the mean AI share across repositories analyzed by AI Countdown); the source's repository median is retained separately for context.`
+    note: `${observation.note} Current Code is the median of compatible source values: AI Code Radar, the mean AI share across repositories analyzed by AI Countdown over the last 12 months (public markers only, a lower bound), and developer-survey shares of committed code that also cover AI used without markers. The source's repository median is retained separately for context.`
   };
 }
 
@@ -3718,7 +4459,7 @@ function launchCodeIndexWorker({ force = false } = {}) {
 }
 
 async function getCodeIndexProgress() {
-  return readJsonFile(CODE_INDEX_PROGRESS_FILE, {
+  return codeIndexStores.progress.read({
     status: 'idle',
     processed: 0,
     catalogEntries: 0,
@@ -3739,6 +4480,7 @@ async function refreshCodeIndex() {
     const catalog = await fetchRepositoryCatalog();
     const cache = await readCache();
     const now = Date.now();
+    const changed = [];
     const results = await mapWithConcurrency(catalog.entries, async ({ repo, branch }) => {
       const key = cacheKey(repo, branch);
       const cached = cache.entries[key];
@@ -3748,21 +4490,22 @@ async function refreshCodeIndex() {
       try {
         const fresh = await fetchSlopScore(repo, branch);
         cache.entries[key] = fresh;
+        changed.push([key, fresh]);
         return fresh;
       } catch (error) {
-        if (cached) return { ...cached, status: 'stale-cache', error: error.message };
+        if (cached) return { ...cached, status: 'stale-cache', ...storedErrorFields(error) };
         return null;
       }
     }, FETCH_CONCURRENCY);
 
-    await writeCache(cache);
+    await slopscoreStore.putMany(changed);
     const records = results.filter((record) => record && record.status !== 'baseline');
     const snapshot = aggregateCodeIndex(records, catalog.catalogTotal, 'live');
     snapshot.catalogEntries = catalog.entries.length;
     snapshot.note = catalog.entries.length < (catalog.catalogTotal || catalog.entries.length)
       ? 'The source catalog exposes a partial page to the backend; coverage is shown explicitly until pagination is added.'
       : 'The aggregate currently uses one equal-weight vote per scanned repository; code-volume weighting is the next refinement.';
-    await writeJsonFile(CODE_INDEX_CACHE_FILE, snapshot);
+    await codeIndexStores.codeIndex.write(snapshot);
     return snapshot;
   })();
 
@@ -3777,7 +4520,7 @@ async function getCodeIndex({ refresh = false } = {}) {
   const feeds = await getSourceFeeds();
   const radar = feeds.feeds?.['ai-code-radar'];
   if (!refresh) {
-    if (radar && Number.isFinite(Number(radar.value))) return radarAsCodeIndex(radar, await getRepositoryAnalysesCodeObservation());
+    if (radar && Number.isFinite(Number(radar.value))) return radarAsCodeIndex(radar, await getRepositoryAnalysesCodeObservation(), await readComparableCodeObservations());
     const cached = await getCachedCodeIndex();
     if (cached) {
       return {
@@ -3804,8 +4547,8 @@ async function getCodeIndex({ refresh = false } = {}) {
 
 async function getSources() {
   const registry = await readJsonFile(SOURCES_FILE, { version: 1, sources: [] });
-  const feedCache = await readJsonFile(SOURCE_FEEDS_CACHE_FILE, { version: 1, feeds: {} });
-  const contributorCache = await readJsonFile(GITHUB_CONTRIBUTORS_CACHE_FILE, null);
+  const feedCache = await sourceFeedsDocument.read({ version: 1, feeds: {} });
+  const contributorCache = await githubContributorsDocument.read(null);
   const feedStatus = Object.fromEntries(Object.entries(feedCache.feeds || {}).map(([id, feed]) => [id, {
     status: feed.status,
     value: feed.value ?? null,
@@ -3872,7 +4615,7 @@ function combinedStatus(statuses) {
   return 'stale-cache';
 }
 
-function buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contributors, registry, editorial, repositoryAnalyses, workOccupations }) {
+function buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contributors, registry, editorial, selfBuilding, repositoryAnalyses, workOccupations, lifeTasks }) {
   const feeds = sourceFeeds?.feeds || {};
   const radar = feeds['ai-code-radar'];
   const meo = feeds['meo-workforce-data'];
@@ -3987,6 +4730,41 @@ function buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contribut
     }));
   }
 
+  const lifeBaseline = createLifeBaselineObservation();
+  observations.push(createCombinedObservation({
+    id: lifeBaseline.id,
+    category: 'life',
+    metric: lifeBaseline.metric,
+    value: lifeBaseline.value,
+    unit: 'percent',
+    status: lifeBaseline.status,
+    source: lifeBaseline.source,
+    comparable: true,
+    note: lifeBaseline.note
+  }));
+
+  if (lifeTasks) {
+    observations.push(createCombinedObservation({
+      id: lifeTasks.id,
+      category: 'life',
+      metric: lifeTasks.metric,
+      value: numeric(lifeTasks.value),
+      unit: 'percent',
+      status: lifeTasks.status,
+      source: lifeTasks.source,
+      observedAt: lifeTasks.computedAt,
+      coverage: lifeTasks.coverage,
+      comparable: lifeTasks.comparable,
+      note: lifeTasks.note,
+      extra: {
+        run: lifeTasks.run,
+        frequencyScale: lifeTasks.frequencyScale,
+        distribution: lifeTasks.distribution,
+        history: lifeTasks.history
+      }
+    }));
+  }
+
   if (botcommits) {
     observations.push(createCombinedObservation({
       id: botcommits.id,
@@ -4040,8 +4818,55 @@ function buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contribut
       observedAt: observation.observedAt,
       coverage: observation.coverage,
       lowerBound: Boolean(observation.lowerBound),
+      // An editorial percentage joins the median only when it is marked comparable.
+      comparable: Boolean(observation.comparable),
       note: observation.note,
-      extra: { range: observation.range || null }
+      extra: { range: observation.range || null, label: observation.label || null }
+    }));
+  }
+
+  const selfBuildIndex = buildSelfBuildingIndex(selfBuilding);
+  for (const observation of [
+    ...(Array.isArray(selfBuilding?.observations) ? selfBuilding.observations : []),
+    ...(Array.isArray(selfBuilding?.excludedObservations) ? selfBuilding.excludedObservations : [])
+  ]) {
+    observations.push(createCombinedObservation({
+      id: observation.id,
+      category: 'self-building',
+      metric: selfBuilding?.metric || 'ai-authored-code-inside-ai-development',
+      value: observation.value === null || observation.value === undefined ? null : numeric(observation.value),
+      unit: observation.unit,
+      status: observation.status || 'reported',
+      source: observation.source,
+      observedAt: observation.observedAt,
+      comparable: false,
+      lowerBound: Boolean(observation.lowerBound),
+      note: observation.note || observation.exclusionReason,
+      extra: {
+        company: observation.company || observation.label || null,
+        range: observation.range || null,
+        includedInMedian: selfBuildIndex.sourcesUsed.includes(observation.id),
+        exclusionReason: observation.exclusionReason || null
+      }
+    }));
+  }
+  if (selfBuildIndex.value !== null) {
+    observations.push(createCombinedObservation({
+      id: selfBuildIndex.id,
+      category: 'self-building',
+      metric: selfBuildIndex.metric,
+      value: selfBuildIndex.value,
+      unit: selfBuildIndex.unit,
+      status: selfBuildIndex.status,
+      source: selfBuildIndex.source,
+      observedAt: selfBuildIndex.computedAt,
+      coverage: selfBuildIndex.coverage,
+      note: selfBuildIndex.note,
+      extra: {
+        aggregation: selfBuildIndex.aggregation,
+        sourcesUsed: selfBuildIndex.sourcesUsed,
+        sourcesExcluded: selfBuildIndex.sourcesExcluded
+      }
     }));
   }
 
@@ -4061,17 +4886,21 @@ function buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contribut
     .map((observation) => observation.value);
   const codeValue = roundMetric(median(compatibleValues));
   const workIndex = buildWorkIndex(workOccupations);
+  const lifeIndex = buildLifeIndex(lifeTasks);
   const statusValues = [
     ...Object.values(feeds).map((feed) => feed.status),
     contributors?.status,
-    slopSnapshot?.status
+    slopSnapshot?.status,
+    lifeTasks?.status
   ];
   const combinedSnapshotStatus = combinedStatus(statusValues);
   const metrics = createDashboardMetricSnapshot(
     codeValue,
     combinedSnapshotStatus,
     codeIndex?.updatedAt || radar?.computedAt || radar?.fetchedAt || null,
-    workIndex.value
+    workIndex.value,
+    lifeIndex.value,
+    selfBuildIndex.value
   );
 
   return {
@@ -4089,12 +4918,14 @@ function buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contribut
         note: 'Different units are retained as separate observations. No global percentage is invented from commit counts, repository counts, or occupational exposure.'
       },
       work: workIndex,
+      life: lifeIndex,
+      selfBuilding: selfBuildIndex,
       overall: {
         value: metrics?.overall ?? null,
         unit: 'percent',
         status: metrics ? 'model-estimate' : 'not-calculated',
         weights: DASHBOARD_METRICS.weights,
-        note: 'The displayed total is a weighted model estimate from Code, Work, and Life. Work is the median of the prototype estimate and model-rated occupations; Life remains illustrative.'
+        note: 'The displayed total is a weighted model estimate from Code, Work, and Life. Work and Life use the median of compatible sources; Life task scores are weighted by estimated annual minutes.'
       }
     },
     observations,
@@ -4105,26 +4936,30 @@ function buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contribut
       slopScoreIndex: slopSnapshot || null,
       githubContributors: contributors || null,
       repositoryAnalyses: repositoryAnalyses || null,
-      workOccupations: workOccupations || null
+      workOccupations: workOccupations || null,
+      lifeTasks: lifeTasks || null,
+      selfBuilding: selfBuilding || null
     }
   };
 }
 
 async function getCombinedSnapshot({ refresh = false } = {}) {
-  const cached = await readJsonFile(COMBINED_SNAPSHOT_CACHE_FILE, null);
+  const cached = await combinedSnapshotDocument.read(null);
   try {
-    const [sourceFeeds, codeIndex, slopSnapshot, contributors, registry, editorial, repositoryAnalyses, workOccupations] = await Promise.all([
+    const [sourceFeeds, codeIndex, slopSnapshot, contributors, registry, editorial, selfBuilding, repositoryAnalyses, workOccupations, lifeTasks] = await Promise.all([
       getSourceFeeds({ refresh }),
       getCodeIndex({ refresh }),
-      readJsonFile(CODE_INDEX_CACHE_FILE, null),
+      codeIndexStores.codeIndex.read(null),
       getGithubContributors({ refresh }),
       readJsonFile(SOURCES_FILE, { version: 1, sources: [] }),
       readJsonFile(EDITORIAL_OBSERVATIONS_FILE, { version: 1, observations: [] }),
+      readJsonFile(SELF_BUILDING_OBSERVATIONS_FILE, { version: 1, observations: [] }),
       getRepositoryAnalysesCodeObservation(),
-      getWorkOccupationsObservation()
+      getWorkOccupationsObservation(),
+      getLifeTasksObservation()
     ]);
-    const snapshot = buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contributors, registry, editorial, repositoryAnalyses, workOccupations });
-    await writeJsonFile(COMBINED_SNAPSHOT_CACHE_FILE, snapshot);
+    const snapshot = buildCombinedSnapshot({ sourceFeeds, codeIndex, slopSnapshot, contributors, registry, editorial, selfBuilding, repositoryAnalyses, workOccupations, lifeTasks });
+    await combinedSnapshotDocument.write(snapshot);
     try {
       await recordMetricSnapshot(snapshot.metrics);
     } catch (error) {
@@ -4132,34 +4967,55 @@ async function getCombinedSnapshot({ refresh = false } = {}) {
     }
     return snapshot;
   } catch (error) {
-    if (cached) return { ...cached, status: 'stale-cache', error: error.message };
+    if (cached) return { ...cached, status: 'stale-cache', ...storedErrorFields(error) };
     return {
       version: 1,
       status: 'unavailable',
       fetchedAt: null,
-      methodology: { code: { value: null }, work: { value: null }, overall: { value: null, status: 'not-calculated' } },
+      metrics: { selfBuild: fallbackSelfBuilding.value },
+      methodology: { code: { value: null }, work: { value: null }, life: { value: null }, selfBuilding: fallbackSelfBuilding, overall: { value: null, status: 'not-calculated' } },
       observations: [],
       sourceCatalog: [],
-      inputs: {},
-      error: error.message
+      inputs: { selfBuilding: await readJsonFile(SELF_BUILDING_OBSERVATIONS_FILE, { version: 1, observations: [] }) },
+      ...storedErrorFields(error)
     };
   }
 }
 
+async function getLastSnapshotJson() {
+  const snapshot = await getCombinedSnapshot({ refresh: false });
+  const metrics = snapshot?.metrics || {};
+  const numericOrNull = (value) => Number.isFinite(Number(value)) ? Number(value) : null;
+  return {
+    version: 1,
+    status: snapshot?.status || 'unavailable',
+    updatedAt: metrics.observedAt || snapshot?.fetchedAt || null,
+    date: metrics.date || null,
+    code: numericOrNull(metrics.code),
+    work: numericOrNull(metrics.work),
+    life: numericOrNull(metrics.life),
+    selfBuild: numericOrNull(metrics.selfBuild),
+    overall: numericOrNull(metrics.overall),
+    sourceUpdatedAt: metrics.sourceUpdatedAt || null,
+    selfBuildUpdatedAt: snapshot?.methodology?.selfBuilding?.computedAt || null,
+    selfBuildDate: snapshot?.methodology?.selfBuilding?.computedAt
+      ? dateOnly(snapshot.methodology.selfBuilding.computedAt)
+      : null
+  };
+}
+
 async function getSlopScore(repo, branch) {
-  const cache = await readCache();
   const key = cacheKey(repo, branch);
 
   try {
     const payload = await fetchSlopScore(repo, branch);
-    cache.entries[key] = payload;
-    await writeCache(cache);
+    await slopscoreStore.put(key, payload);
     return payload;
   } catch (error) {
-    const cached = cache.entries[key];
+    const cached = await slopscoreStore.get(key);
     if (cached) {
       console.warn(`Slop Score unavailable; serving cached value for ${repo}:`, error.message);
-      return { ...cached, status: 'stale-cache', cachedAt: cached.fetchedAt, error: error.message };
+      return { ...cached, status: 'stale-cache', cachedAt: cached.fetchedAt, ...storedErrorFields(error) };
     }
 
     console.warn(`Slop Score unavailable and no cache exists for ${repo}:`, error.message);
@@ -4170,23 +5026,31 @@ async function getSlopScore(repo, branch) {
       codeIndex: 42,
       score: null,
       fetchedAt: null,
-      error: error.message
+      ...storedErrorFields(error)
     };
   }
 }
 
-function sendApiError(response, error) {
-  const failure = isGitHubRateLimitError(error) && !error.statusCode ? toGitHubRateLimitHttpError(error) : error;
-  sendJson(response, failure.statusCode || 500, {
+function sendApiError(response, error, context = 'API request') {
+  const source = isGitHubRateLimitError(error) && !error?.expose ? toGitHubRateLimitHttpError(error) : error;
+  const failure = publicError(source);
+  const incidentId = failure.code === 'internal-error' || failure.code === 'storage-unavailable'
+    ? logIncident(error, context)
+    : null;
+  if (!incidentId && !error?.expose) console.warn(`${context}: ${failure.code}: ${error?.message || error}`);
+  sendJson(response, failure.statusCode, {
     status: 'unavailable',
-    ...(failure.code ? { code: failure.code } : {}),
-    ...(failure.code === 'github-rate-limit' ? { retryAt: failure.retryAt || null } : {}),
-    error: failure.message
+    code: failure.code,
+    error: failure.message,
+    ...(failure.code === 'github-rate-limit' ? { retryAt: source?.retryAt || null } : {}),
+    ...(incidentId ? { incidentId } : {})
   });
 }
 
 const ALLOWED_CORS_ORIGINS = new Set([
   'https://ffnwz.github.io',
+  'https://ffnwz.lat',
+  'https://www.ffnwz.lat',
   'https://ai.ffnwz.lat',
   'http://127.0.0.1:8765',
   'http://localhost:8765'
@@ -4203,7 +5067,7 @@ function applyCorsHeaders(request, response) {
 }
 
 function sendJson(response, statusCode, payload) {
-  const body = JSON.stringify(payload);
+  const body = JSON.stringify(sanitizePublicErrors(payload));
   response.writeHead(statusCode, {
     'content-type': 'application/json; charset=utf-8',
     'cache-control': 'no-store',
@@ -4217,7 +5081,11 @@ async function readJsonRequestBody(request, maxBytes = 20_000) {
   let size = 0;
   for await (const chunk of request) {
     size += chunk.length;
-    if (size > maxBytes) throw repositoryAnalysisError('Запрос слишком большой.', 413);
+    if (size > maxBytes) {
+      const error = repositoryAnalysisError('Запрос слишком большой.', 413);
+      error.code = 'request-too-large';
+      throw error;
+    }
     chunks.push(chunk);
   }
   if (!chunks.length) return {};
@@ -4228,14 +5096,40 @@ async function readJsonRequestBody(request, maxBytes = 20_000) {
   }
 }
 
+// Only the public site is served. Server code, .env, deploy notes, scripts, and
+// runtime data under ROOT are never reachable over HTTP.
+const PUBLIC_STATIC_FILES = new Set([
+  'index.html', 'ru.html', 'occupations.html', 'life.html', 'code.html', 'methodology.html', 'og-card.html',
+  'app.js', 'occupations.js', 'life.js', 'code.js', 'styles.css',
+  'robot-apple.png', 'og-en.png', 'og-ru.png', 'og-en.svg', 'og-ru.svg',
+  'robots.txt', 'sitemap.xml', 'README.md', 'README.ru.md'
+]);
+// Reference data that is committed to git and linked from the site.
+const PUBLIC_DATA_FILE = /^data\/(?:(?:work|life)\/[A-Za-z0-9._/-]+\.json|sources\.json|ai-agents\.json|editorial-observations\.json|self-building-observations\.json)$/;
+
 function safeStaticPath(requestPath) {
-  const decoded = decodeURIComponent(requestPath);
+  let decoded;
+  try {
+    decoded = decodeURIComponent(requestPath);
+  } catch (error) {
+    return null;
+  }
   const routeFiles = {
     '/': 'index.html',
+    '/ru': 'ru.html',
+    '/ru/': 'ru.html',
     '/work': 'occupations.html',
-    '/work/': 'occupations.html'
+    '/work/': 'occupations.html',
+    '/life': 'life.html',
+    '/life/': 'life.html',
+    '/code': 'code.html',
+    '/code/': 'code.html',
+    '/methodology': 'methodology.html',
+    '/methodology/': 'methodology.html'
   };
-  const relative = routeFiles[decoded] || decoded.replace(/^[/\\]+/, '');
+  const relative = (routeFiles[decoded] || decoded.replace(/^[/\\]+/, '')).replace(/\\/g, '/');
+  if (relative.split('/').some((part) => part === '..' || part.startsWith('.'))) return null;
+  if (!PUBLIC_STATIC_FILES.has(relative) && !PUBLIC_DATA_FILE.test(relative)) return null;
   const resolved = path.resolve(ROOT, relative);
   const rootPrefix = ROOT.endsWith(path.sep) ? ROOT : `${ROOT}${path.sep}`;
   return resolved === ROOT || resolved.startsWith(rootPrefix) ? resolved : null;
@@ -4244,8 +5138,8 @@ function safeStaticPath(requestPath) {
 async function serveStatic(requestPath, response) {
   const filePath = safeStaticPath(requestPath);
   if (!filePath) {
-    response.writeHead(403);
-    response.end('Forbidden');
+    response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+    response.end('Not found');
     return;
   }
 
@@ -4261,13 +5155,44 @@ async function serveStatic(requestPath, response) {
   }
 }
 
-const server = http.createServer(async (request, response) => {
-  const requestUrl = new URL(request.url, `http://${request.headers.host || `${HOST}:${PORT}`}`);
+async function handleRequest(request, response) {
+  // Leading slashes are collapsed so "//host" is never read as an absolute URL,
+  // and the base does not depend on the client's Host header.
+  let requestUrl;
+  try {
+    requestUrl = new URL(String(request.url || '/').replace(/^\/+/, '/'), `http://${HOST}:${PORT}`);
+  } catch (error) {
+    sendJson(response, 400, { status: 'unavailable', code: 'invalid-request', error: PUBLIC_ERRORS['invalid-request'].message });
+    return;
+  }
   applyCorsHeaders(request, response);
 
   if (request.method === 'OPTIONS' && requestUrl.pathname.startsWith('/api/')) {
     response.writeHead(204);
     response.end();
+    return;
+  }
+
+  if (request.method === 'GET' && requestUrl.pathname === '/last.json') {
+    try {
+      sendJson(response, 200, await getLastSnapshotJson());
+    } catch (error) {
+      sendJson(response, 200, {
+        version: 1,
+        status: 'unavailable',
+        updatedAt: null,
+        date: null,
+        code: null,
+        work: null,
+        life: null,
+        selfBuild: null,
+        overall: null,
+        sourceUpdatedAt: null,
+        selfBuildUpdatedAt: null,
+        selfBuildDate: null,
+        ...storedErrorFields(error)
+      });
+    }
     return;
   }
 
@@ -4306,6 +5231,21 @@ const server = http.createServer(async (request, response) => {
 
   if (request.method === 'GET' && requestUrl.pathname === '/api/work-occupations') {
     sendJson(response, 200, await getWorkOccupations());
+    return;
+  }
+
+  if (request.method === 'GET' && requestUrl.pathname === '/api/life-index') {
+    sendJson(response, 200, await getLifeIndex());
+    return;
+  }
+
+  if (request.method === 'GET' && requestUrl.pathname === '/api/life-tasks') {
+    sendJson(response, 200, await getLifeTasks());
+    return;
+  }
+
+  if (request.method === 'GET' && requestUrl.pathname === '/api/self-building') {
+    sendJson(response, 200, await getSelfBuildingIndex());
     return;
   }
 
@@ -4367,7 +5307,7 @@ const server = http.createServer(async (request, response) => {
     const repo = requestUrl.searchParams.get('repo') || DEFAULT_REPO;
     const branch = requestUrl.searchParams.get('branch') || DEFAULT_BRANCH;
     if (!/^https?:\/\//i.test(repo) || repo.length > 500 || branch.length > 100) {
-      sendJson(response, 400, { error: 'Invalid repository or branch' });
+      sendJson(response, 400, { status: 'unavailable', code: 'invalid-request', error: 'Некорректный репозиторий или ветка.' });
       return;
     }
     sendJson(response, 200, await getSlopScore(repo, branch));
@@ -4381,16 +5321,34 @@ const server = http.createServer(async (request, response) => {
   }
 
   await serveStatic(requestUrl.pathname, response);
+}
+
+const server = http.createServer((request, response) => {
+  handleRequest(request, response).catch((error) => {
+    const context = `${request.method} ${String(request.url || '').split('?')[0]}`;
+    if (response.headersSent) {
+      logIncident(error, context);
+      response.destroy();
+      return;
+    }
+    sendApiError(response, error, context);
+  });
 });
 
 server.listen(PORT, HOST, () => {
   console.log(`AI Countdown running at http://${HOST}:${PORT}`);
-  console.log(`Slop Score fallback cache: ${CACHE_FILE}`);
-  console.log(`Aggregated Code index cache: ${CODE_INDEX_CACHE_FILE}`);
-  console.log(`External source feeds cache: ${SOURCE_FEEDS_CACHE_FILE}`);
-  console.log(`Source registry: ${SOURCES_FILE}`);
+  storage.usesMongo()
+    .then((mongo) => console.log(`Runtime state: ${mongo ? 'Mongo' : `JSON files in ${CACHE_DIR} (Mongo unavailable)`}`))
+    .catch((error) => console.error('Could not check the runtime storage:', error.message));
   setTimeout(() => {
+    normalizeContributorProfileKeys().catch((error) => console.error('Could not normalize contributor profile keys:', error.message));
     ensureBackgroundCodeIndexRefresh().catch((error) => console.error('Could not start code-index worker:', error.message));
-    migrateRepositoryAnalysisHistory().catch((error) => console.error('Could not migrate repository analysis history:', error.message));
+    migrateRepositoryAnalysisHistory()
+      .then(() => reclassifyStoredRepositoryAnalyses())
+      .then(() => refreshReferenceRepositories())
+      .catch((error) => console.error('Could not migrate repository analyses:', error.message));
+    setInterval(() => {
+      refreshReferenceRepositories().catch((error) => console.error('Could not refresh reference repositories:', error.message));
+    }, REFERENCE_REFRESH_INTERVAL_MS).unref();
   }, 250);
 });

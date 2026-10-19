@@ -1,4 +1,5 @@
 .env
+.local/
 data/*-cache.json
 data/slopscore-cache.json
 data/code-index-catalog.json
@@ -9,3 +10,5 @@ data/github-contributors.json
 data/metric-series.json
 data/repository-analysis-locks/
 deploy.local.md
+scripts/deploy.config.ps1
+scripts/*.local.ps1

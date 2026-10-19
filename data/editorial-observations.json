@@ -51,7 +51,10 @@
       "category": "company",
       "metric": "ai-written-code",
       "value": 25,
-      "range": [20, 30],
+      "range": [
+        20,
+        30
+      ],
       "unit": "percent-of-code-in-selected-projects",
       "status": "reported",
       "source": "https://techcrunch.com/2025/04/29/microsoft-ceo-says-up-to-30-of-the-companys-code-was-written-by-ai/",
@@ -102,6 +105,75 @@
       "source": "https://apnews.com/article/cb64af47ebb794541fbdfa8fd264932c",
       "observedAt": null,
       "note": "Approximate announced corporate reduction; the AI-attributable share is not established."
+    },
+    {
+      "id": "sonar-state-of-code-2026",
+      "category": "code",
+      "metric": "ai-share-of-committed-code-self-reported",
+      "value": 42,
+      "unit": "percent",
+      "comparable": true,
+      "label": "Sonar State of Code 2026",
+      "status": "reported",
+      "source": "https://www.sonarsource.com/company/press-releases/sonar-data-reveals-critical-verification-gap-in-ai-coding/",
+      "observedAt": "2026-01-08",
+      "coverage": {
+        "respondents": 1100,
+        "population": "professional developers",
+        "method": "survey self-report"
+      },
+      "note": "Developers estimate that AI accounts for 42% of the code they commit (expected 65% by 2027). A self-report, so it includes AI used without public markers, which repository attribution cannot see."
+    },
+    {
+      "id": "daniotti-2026-ai-python-functions",
+      "category": "code",
+      "metric": "ai-written-python-functions-us-detector",
+      "value": 28.6,
+      "unit": "percent",
+      "comparable": true,
+      "label": "Daniotti et al. (Science, 2026)",
+      "status": "reported",
+      "source": "https://arxiv.org/abs/2506.08945",
+      "observedAt": "2024-12",
+      "coverage": {
+        "commits": 30000000,
+        "developers": 170000,
+        "language": "Python",
+        "method": "neural classifier of AI-written Python functions on GitHub"
+      },
+      "range": {
+        "us": 28.6,
+        "germanyFrance": "23-24",
+        "india": 20
+      },
+      "note": "Detection-based share of AI-written Python functions by US developers at the end of 2024 (Germany and France 23-24%, India about 20%; no figure for Russia or China). A detector sees AI used without public markers; the data ends in 2024 and covers Python only."
+    },
+    {
+      "id": "stackoverflow-2026-ai-coding",
+      "category": "code",
+      "metric": "daily-use-of-ai-coding-tools",
+      "value": 73,
+      "unit": "percent-of-ai-coding-tool-users",
+      "comparable": false,
+      "label": "Stack Overflow Developer Survey 2026",
+      "status": "reported",
+      "source": "https://survey.stackoverflow.co/2026/ai",
+      "observedAt": "2026-10-06",
+      "coverage": {
+        "respondents": 30000,
+        "dailyUsersAnsweringHours": 10926,
+        "taskRespondents": 12547
+      },
+      "range": {
+        "dailyUse": 73,
+        "fourPlusHoursAmongDailyUsers": 31,
+        "generatingCodeInFamiliarArea": 69,
+        "debuggingOrRefactoring": 64,
+        "writingTests": 58,
+        "claudeCode": 66,
+        "githubCopilot": 59
+      },
+      "note": "Usage, not code share: 73% of developers who use AI coding assistants or agents use them daily, 31% of daily users spend 4+ hours a day with AI, and 69% use AI to generate code in a familiar area. The survey did not ask what share of code AI writes, so it stays out of the Code median."
     }
   ]
 }

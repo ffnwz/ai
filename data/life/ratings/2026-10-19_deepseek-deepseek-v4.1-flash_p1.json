@@ -1,0 +1,1092 @@
+{
+  "version": 2,
+  "checkedAt": "2026-10-19T11:27:19.779Z",
+  "checkedDate": "2026-10-19",
+  "provider": "openrouter",
+  "model": "deepseek/deepseek-v4.1-flash",
+  "servedBy": [
+    "Decart",
+    "Sail Research",
+    "Ionstream",
+    "InferenceNet",
+    "DeepInfra"
+  ],
+  "request": {
+    "temperature": 0,
+    "seed": 42,
+    "passes": 3,
+    "maxTokens": 12000,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "responseFormat": "json_schema (strict)",
+    "merge": "median of pass scores per task"
+  },
+  "scale": {
+    "0": "AI cannot meaningfully help with this task.",
+    "50": "AI or a smart device can do a substantial part, but a person prepares, supervises, or finishes it.",
+    "100": "AI or a device can complete the task to an accepted result without a person doing the task."
+  },
+  "assumptions": {
+    "embodiment": [
+      "software agents",
+      "smart-home devices",
+      "commercial household mechanisms"
+    ]
+  },
+  "prompt": {
+    "version": 1,
+    "sha256": "0ba0904aed61a1b6268e7b7365057cfb293353813665ddf17af6c5da3514b5f3",
+    "system": "You rate recurring household and personal-administration tasks for AI Countdown, a project that measures how much human work AI can already take on.\n\nJudge the task as it can be completed today in a typical home, not a research demo and not a future promise. Include software AI, voice and vision models, agents that use apps, and commercially available smart-home devices or mechanisms such as dishwashers, washing machines, dryers, robot vacuums/mops, smart feeders, and window-cleaning robots. A device only counts for the part it actually performs; loading, unloading, preparation, moving obstacles, maintenance, checking, and decisions remain human work unless the task says otherwise.\n\nGive one integer score from 0 to 100 for each task:\n- 0: AI cannot meaningfully help with this task.\n- 50: AI or a smart device can do a substantial part, but a person prepares, supervises, or finishes it.\n- 100: AI or a device can complete the task to an accepted result without a person doing the task.\n\nRate the complete task, including setup, supervision, quality checking, exception handling, and putting things away where relevant. Judge capability rather than household adoption, price, legal permission, or whether a specific family owns the device. Return a short rationale in English (at most 24 words) naming the main human remainder.\n\nReturn exactly one rating for every task id you receive."
+  },
+  "inputs": {
+    "dataset": {
+      "file": "data/life/life-tasks.json",
+      "sha256": "eef642b58d1f128b044eaaf164456afd4ae0a2d42477636d00cf903a82c5d73f",
+      "tasks": 46,
+      "hashFields": [
+        "id",
+        "titleEn",
+        "frequency",
+        "occurrencesPerYear",
+        "typicalMinutes",
+        "devices"
+      ]
+    }
+  },
+  "status": "complete",
+  "coverage": {
+    "rated": 46,
+    "total": 46
+  },
+  "usage": {
+    "inputTokens": 9299,
+    "outputTokens": 44997,
+    "costUsd": 0.024549
+  },
+  "ratings": {
+    "make-bed": {
+      "score": 0,
+      "rationale": "No available device can make a bed; human must do it entirely.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "dishes-and-dishwasher": {
+      "score": 50,
+      "rationale": "Dishwasher washes, but human scrapes, loads, unloads, and puts dishes away.",
+      "scores": [
+        50,
+        50,
+        50
+      ],
+      "spread": 0
+    },
+    "wipe-kitchen-surfaces": {
+      "score": 0,
+      "rationale": "No device can physically wipe counters; human must do it entirely.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "take-out-trash": {
+      "score": 0,
+      "rationale": "No device can collect and take out trash; human must do it entirely.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "tidy-hotspots": {
+      "score": 0,
+      "rationale": "No device can sort and put away scattered items; human must do it.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "spot-floor-cleanup": {
+      "score": 50,
+      "rationale": "Robot vacuum handles crumbs, but human manages wet spills, obstacles, and checking.",
+      "scores": [
+        50,
+        50,
+        30
+      ],
+      "spread": 20
+    },
+    "wipe-bathroom-fixtures": {
+      "score": 0,
+      "rationale": "No device can physically wipe bathroom fixtures; human must do it entirely.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "feed-pets-and-litter": {
+      "score": 60,
+      "rationale": "Smart feeder and litter box automate routine feeding/scooping, but person refills, empties waste, and monitors pets.",
+      "scores": [
+        50,
+        60,
+        60
+      ],
+      "spread": 10
+    },
+    "walk-dog": {
+      "score": 0,
+      "rationale": "No available device can walk a dog; human must do it entirely.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "cook-meals": {
+      "score": 50,
+      "rationale": "Smart oven or cooker cooks, but human plans, preps, loads, monitors, and plates meals.",
+      "scores": [
+        50,
+        50,
+        50
+      ],
+      "spread": 0
+    },
+    "water-plants": {
+      "score": 70,
+      "rationale": "Smart irrigation waters automatically; human installs, refills, checks plants, and handles leaks.",
+      "scores": [
+        70,
+        70,
+        60
+      ],
+      "spread": 10
+    },
+    "sort-mail-packages": {
+      "score": 20,
+      "rationale": "Smart reminders track deliveries, but human sorts, opens, decides, and discards mail.",
+      "scores": [
+        20,
+        20,
+        10
+      ],
+      "spread": 10
+    },
+    "household-reminders": {
+      "score": 70,
+      "rationale": "AI captures, schedules, and reminds; human still decides priorities and marks completion.",
+      "scores": [
+        65,
+        70,
+        70
+      ],
+      "spread": 5
+    },
+    "wet-clean-floors": {
+      "score": 60,
+      "rationale": "Robot mop handles accessible floors; human clears obstacles, refills, cleans edges, and checks results.",
+      "scores": [
+        60,
+        55,
+        65
+      ],
+      "spread": 10
+    },
+    "vacuum-carpets-upholstery": {
+      "score": 50,
+      "rationale": "Robot vacuum does carpets; human clears, handles upholstery, stairs, edges, and empties.",
+      "scores": [
+        50,
+        45,
+        50
+      ],
+      "spread": 5
+    },
+    "change-bedding-towels": {
+      "score": 0,
+      "rationale": "No device can physically strip, replace, or launder bedding; human does all.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "laundry": {
+      "score": 50,
+      "rationale": "Washer/dryer automate wash and dry; human sorts, loads, transfers, folds, and puts away.",
+      "scores": [
+        50,
+        55,
+        45
+      ],
+      "spread": 10
+    },
+    "deep-bathroom-cleaning": {
+      "score": 0,
+      "rationale": "No available device performs scrubbing, disinfecting, or toilet cleaning; human does all.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "dust-surfaces": {
+      "score": 0,
+      "rationale": "No available device dusts surfaces, sills, and appliances; human does all.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "refrigerator-audit": {
+      "score": 35,
+      "rationale": "Smart fridge tracks inventory/expiry; human inspects spoilage, discards, and cleans.",
+      "scores": [
+        35,
+        30,
+        35
+      ],
+      "spread": 5
+    },
+    "grocery-shopping": {
+      "score": 70,
+      "rationale": "AI plans list and delivery orders; human approves, handles substitutions, receives, and stores.",
+      "scores": [
+        70,
+        70,
+        75
+      ],
+      "spread": 5
+    },
+    "meal-planning": {
+      "score": 40,
+      "rationale": "AI plans meals and lists; human prepares ingredients, cooks, and checks preferences.",
+      "scores": [
+        40,
+        40,
+        40
+      ],
+      "spread": 0
+    },
+    "restock-household-supplies": {
+      "score": 60,
+      "rationale": "Smart inventory and delivery can order supplies; human approves, receives, and stores them.",
+      "scores": [
+        55,
+        60,
+        65
+      ],
+      "spread": 10
+    },
+    "pet-grooming": {
+      "score": 15,
+      "rationale": "Smart tools assist brushing or cleanup, but human handles pet, bathes, clips nails, cleans.",
+      "scores": [
+        30,
+        15,
+        10
+      ],
+      "spread": 20
+    },
+    "change-pet-bedding": {
+      "score": 40,
+      "rationale": "Washer/dryer clean bedding; human removes, loads, replaces, and checks pet bedding.",
+      "scores": [
+        40,
+        40,
+        40
+      ],
+      "spread": 0
+    },
+    "sort-paperwork": {
+      "score": 55,
+      "rationale": "Scanner/AI classify, but human feeds, decides retention, verifies, and files.",
+      "scores": [
+        60,
+        50,
+        55
+      ],
+      "spread": 10
+    },
+    "clean-oven-microwave": {
+      "score": 40,
+      "rationale": "Self-cleaning oven handles oven interior, but microwave, racks, ash, and edges need manual removal, wiping, and supervision.",
+      "scores": [
+        40,
+        40,
+        35
+      ],
+      "spread": 5
+    },
+    "clean-appliance-filters": {
+      "score": 20,
+      "rationale": "Smart appliances may remind or run rinse cycles, but filters still need manual removal, washing, drying, and reinstallation.",
+      "scores": [
+        20,
+        20,
+        20
+      ],
+      "spread": 0
+    },
+    "wash-trash-bins": {
+      "score": 0,
+      "rationale": "No available device or AI can wash trash bins; a person must scrub, rinse, and dry them.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "wipe-baseboards-doors-switches": {
+      "score": 0,
+      "rationale": "No device can wipe these surfaces; a person must dust, scrub, and reach edges and switches manually.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "organize-storage": {
+      "score": 10,
+      "rationale": "AI may suggest layout, but human sorts, discards, and arranges items physically.",
+      "scores": [
+        5,
+        15,
+        10
+      ],
+      "spread": 10
+    },
+    "clean-windows-inside": {
+      "score": 50,
+      "rationale": "Window robot can clean some glass, but a person must set it up, move it, clean frames and mirrors, and check streaks.",
+      "scores": [
+        50,
+        50,
+        50
+      ],
+      "spread": 0
+    },
+    "wash-soft-furnishings": {
+      "score": 45,
+      "rationale": "Washer/dryer automate washing/drying, but human takes down, removes covers, loads, transfers, and rehangs.",
+      "scores": [
+        60,
+        45,
+        40
+      ],
+      "spread": 20
+    },
+    "pay-bills-household-budget": {
+      "score": 60,
+      "rationale": "AI tracks, categorizes, and can autopay, but human sets up, approves, handles exceptions, and makes budget decisions.",
+      "scores": [
+        70,
+        60,
+        55
+      ],
+      "spread": 15
+    },
+    "clean-small-appliances": {
+      "score": 30,
+      "rationale": "Smart coffee makers and kettles may run descale cycles, but a person must empty, rinse, scrub parts, and clean exteriors.",
+      "scores": [
+        30,
+        30,
+        30
+      ],
+      "spread": 0
+    },
+    "clean-air-purifier-filters": {
+      "score": 20,
+      "rationale": "Smart purifier can alert when cleaning is due, but a person must remove, vacuum or wash, dry, and reinstall the filter.",
+      "scores": [
+        20,
+        20,
+        20
+      ],
+      "spread": 0
+    },
+    "test-smoke-co-detectors": {
+      "score": 60,
+      "rationale": "Smart detectors self-test and alert, but manual button tests, battery changes, and verifying alarms remain human.",
+      "scores": [
+        80,
+        60,
+        50
+      ],
+      "spread": 30
+    },
+    "schedule-home-maintenance": {
+      "score": 65,
+      "rationale": "AI can find and book providers, but human must approve, authorize, provide access, and handle exceptions.",
+      "scores": [
+        70,
+        65,
+        65
+      ],
+      "spread": 5
+    },
+    "seasonal-wardrobe": {
+      "score": 0,
+      "rationale": "No device; AI cannot physically sort, move, store, or decide seasonal clothing.",
+      "scores": [
+        0,
+        0,
+        0
+      ],
+      "spread": 0
+    },
+    "deep-clean-carpets-mattresses": {
+      "score": 40,
+      "rationale": "Machine scrubs or vacuums, but human moves furniture, pretreats stains, operates, and dries.",
+      "scores": [
+        50,
+        35,
+        40
+      ],
+      "spread": 15
+    },
+    "clean-windows-outside": {
+      "score": 55,
+      "rationale": "Robot cleans glass, but human attaches, moves between windows, supervises safety, and handles edges.",
+      "scores": [
+        60,
+        55,
+        55
+      ],
+      "spread": 5
+    },
+    "medicine-cabinet-audit": {
+      "score": 45,
+      "rationale": "Smart inventory tracks and alerts, but human inspects, decides, removes, and disposes safely.",
+      "scores": [
+        45,
+        35,
+        45
+      ],
+      "spread": 10
+    },
+    "check-ventilation-heating": {
+      "score": 50,
+      "rationale": "Smart HVAC monitors and alerts, but human inspects, replaces filters, clears vents, and verifies.",
+      "scores": [
+        50,
+        45,
+        55
+      ],
+      "spread": 10
+    },
+    "declutter-and-donate": {
+      "score": 35,
+      "rationale": "AI can inventory and schedule donation pickup, but human sorts, decides, packs, and moves items.",
+      "scores": [
+        40,
+        35,
+        35
+      ],
+      "spread": 5
+    },
+    "defrost-freezer": {
+      "score": 30,
+      "rationale": "Smart freezer may auto-defrost, but human empties, thaws, scrubs, dries, and restocks.",
+      "scores": [
+        35,
+        15,
+        30
+      ],
+      "spread": 20
+    },
+    "balcony-yard-maintenance": {
+      "score": 50,
+      "rationale": "Irrigation and robot mower help, but human prunes, plants, cleans, and handles seasonal exceptions.",
+      "scores": [
+        50,
+        45,
+        50
+      ],
+      "spread": 5
+    }
+  },
+  "updatedAt": "2026-10-19T18:36:51.987Z",
+  "passes": {
+    "42": {
+      "make-bed": {
+        "score": 0,
+        "rationale": "No available device can make a bed; human must do it entirely."
+      },
+      "dishes-and-dishwasher": {
+        "score": 50,
+        "rationale": "Dishwasher washes, but human scrapes, loads, unloads, and puts dishes away."
+      },
+      "wipe-kitchen-surfaces": {
+        "score": 0,
+        "rationale": "No device can physically wipe counters; human must do it entirely."
+      },
+      "take-out-trash": {
+        "score": 0,
+        "rationale": "No device can collect and take out trash; human must do it entirely."
+      },
+      "tidy-hotspots": {
+        "score": 0,
+        "rationale": "No device can sort and put away scattered items; human must do it."
+      },
+      "spot-floor-cleanup": {
+        "score": 50,
+        "rationale": "Robot vacuum handles crumbs, but human manages wet spills, obstacles, and checking."
+      },
+      "wipe-bathroom-fixtures": {
+        "score": 0,
+        "rationale": "No device can physically wipe bathroom fixtures; human must do it entirely."
+      },
+      "feed-pets-and-litter": {
+        "score": 50,
+        "rationale": "Smart feeder and litter box automate parts; human refills, cleans, and monitors pets."
+      },
+      "walk-dog": {
+        "score": 0,
+        "rationale": "No available device can walk a dog; human must do it entirely."
+      },
+      "cook-meals": {
+        "score": 50,
+        "rationale": "Smart oven or cooker cooks, but human plans, preps, loads, monitors, and plates meals."
+      },
+      "water-plants": {
+        "score": 70,
+        "rationale": "Smart irrigation waters automatically; human installs, refills, checks plants, and handles leaks."
+      },
+      "sort-mail-packages": {
+        "score": 20,
+        "rationale": "Smart reminders track deliveries, but human sorts, opens, decides, and discards mail."
+      },
+      "household-reminders": {
+        "score": 65,
+        "rationale": "AI captures, schedules, and reminds, but a person must decide tasks, prioritize, and confirm completion."
+      },
+      "wet-clean-floors": {
+        "score": 60,
+        "rationale": "Robot mop handles accessible floors; human clears obstacles, refills, cleans edges, and checks results."
+      },
+      "vacuum-carpets-upholstery": {
+        "score": 50,
+        "rationale": "Robot vacuum does carpets; human clears, handles upholstery, stairs, edges, and empties."
+      },
+      "change-bedding-towels": {
+        "score": 0,
+        "rationale": "No device can physically strip, replace, or launder bedding; human does all."
+      },
+      "laundry": {
+        "score": 50,
+        "rationale": "Washer/dryer automate wash and dry; human sorts, loads, transfers, folds, and puts away."
+      },
+      "deep-bathroom-cleaning": {
+        "score": 0,
+        "rationale": "No available device performs scrubbing, disinfecting, or toilet cleaning; human does all."
+      },
+      "dust-surfaces": {
+        "score": 0,
+        "rationale": "No available device dusts surfaces, sills, and appliances; human does all."
+      },
+      "refrigerator-audit": {
+        "score": 35,
+        "rationale": "Smart fridge tracks inventory/expiry; human inspects spoilage, discards, and cleans."
+      },
+      "grocery-shopping": {
+        "score": 70,
+        "rationale": "AI plans list and delivery orders; human approves, handles substitutions, receives, and stores."
+      },
+      "meal-planning": {
+        "score": 40,
+        "rationale": "AI plans meals and lists; human prepares ingredients, cooks, and checks preferences."
+      },
+      "restock-household-supplies": {
+        "score": 55,
+        "rationale": "Smart inventory and delivery reorder supplies; human confirms, receives, and shelves items."
+      },
+      "pet-grooming": {
+        "score": 30,
+        "rationale": "Smart tools assist brushing; human handles pet, nails, baths, hygiene, and supervision."
+      },
+      "change-pet-bedding": {
+        "score": 40,
+        "rationale": "Washer/dryer clean bedding; human removes, loads, replaces, and checks pet bedding."
+      },
+      "sort-paperwork": {
+        "score": 60,
+        "rationale": "AI scans and classifies digital copies, but a person must handle physical papers, decide retention, and file or shred them."
+      },
+      "clean-oven-microwave": {
+        "score": 40,
+        "rationale": "Self-cleaning oven handles oven interior, but microwave, racks, ash, and edges need manual removal, wiping, and supervision."
+      },
+      "clean-appliance-filters": {
+        "score": 20,
+        "rationale": "Smart appliances may remind or run rinse cycles, but filters still need manual removal, washing, drying, and reinstallation."
+      },
+      "wash-trash-bins": {
+        "score": 0,
+        "rationale": "No available device or AI can wash trash bins; a person must scrub, rinse, and dry them."
+      },
+      "wipe-baseboards-doors-switches": {
+        "score": 0,
+        "rationale": "No device can wipe these surfaces; a person must dust, scrub, and reach edges and switches manually."
+      },
+      "organize-storage": {
+        "score": 5,
+        "rationale": "AI might suggest layouts, but no device can physically sort, discard, and arrange cabinet contents; a person does it."
+      },
+      "clean-windows-inside": {
+        "score": 50,
+        "rationale": "Window robot can clean some glass, but a person must set it up, move it, clean frames and mirrors, and check streaks."
+      },
+      "wash-soft-furnishings": {
+        "score": 60,
+        "rationale": "Washer and dryer do the washing, but a person must take down, load, unload, rehang, and fold curtains, blankets, and covers."
+      },
+      "pay-bills-household-budget": {
+        "score": 70,
+        "rationale": "Banking apps and AI can autopay, categorize, and alert, but a person must verify, decide, and handle exceptions and budget choices."
+      },
+      "clean-small-appliances": {
+        "score": 30,
+        "rationale": "Smart coffee makers and kettles may run descale cycles, but a person must empty, rinse, scrub parts, and clean exteriors."
+      },
+      "clean-air-purifier-filters": {
+        "score": 20,
+        "rationale": "Smart purifier can alert when cleaning is due, but a person must remove, vacuum or wash, dry, and reinstall the filter."
+      },
+      "test-smoke-co-detectors": {
+        "score": 80,
+        "rationale": "Smart detectors self-test and report status, but a person must check alerts, replace batteries, and handle faults."
+      },
+      "schedule-home-maintenance": {
+        "score": 70,
+        "rationale": "AI can search, compare, and book, but human must approve, provide access, and verify."
+      },
+      "seasonal-wardrobe": {
+        "score": 0,
+        "rationale": "No device; AI cannot physically sort, move, store, or decide seasonal clothing."
+      },
+      "deep-clean-carpets-mattresses": {
+        "score": 50,
+        "rationale": "Machines clean surfaces, but human moves furniture, pretreats, operates, empties, and dries."
+      },
+      "clean-windows-outside": {
+        "score": 60,
+        "rationale": "Robot cleans glass, but human attaches, moves between windows, supervises safety, and checks."
+      },
+      "medicine-cabinet-audit": {
+        "score": 45,
+        "rationale": "Smart inventory tracks and alerts, but human inspects, decides, removes, and disposes safely."
+      },
+      "check-ventilation-heating": {
+        "score": 50,
+        "rationale": "Smart HVAC monitors and alerts, but human inspects, replaces filters, clears vents, and verifies."
+      },
+      "declutter-and-donate": {
+        "score": 40,
+        "rationale": "AI inventories and schedules pickup, but human decides, sorts, packs, and moves items."
+      },
+      "defrost-freezer": {
+        "score": 35,
+        "rationale": "Smart freezer may auto-defrost, but human empties, deep-cleans, dries, and reloads."
+      },
+      "balcony-yard-maintenance": {
+        "score": 50,
+        "rationale": "Irrigation and robot mower help, but human prunes, plants, cleans, and handles seasonal exceptions."
+      }
+    },
+    "43": {
+      "make-bed": {
+        "score": 0,
+        "rationale": "No device can physically make a bed; person must arrange sheets, blankets, pillows."
+      },
+      "dishes-and-dishwasher": {
+        "score": 50,
+        "rationale": "Dishwasher washes, but person loads, unloads, puts away, and handles non-dishwasher items."
+      },
+      "wipe-kitchen-surfaces": {
+        "score": 0,
+        "rationale": "No available device wipes counters; person must spray, wipe, and check all surfaces."
+      },
+      "take-out-trash": {
+        "score": 0,
+        "rationale": "No robot handles bins; person must bag, carry, and place trash for collection."
+      },
+      "tidy-hotspots": {
+        "score": 0,
+        "rationale": "No device can identify and put away scattered items; person must sort and tidy."
+      },
+      "spot-floor-cleanup": {
+        "score": 50,
+        "rationale": "Robot vacuum handles dry crumbs, but person must treat wet spills, clear obstacles, and verify."
+      },
+      "wipe-bathroom-fixtures": {
+        "score": 0,
+        "rationale": "No device wipes fixtures; person must spray, scrub, rinse, and check."
+      },
+      "feed-pets-and-litter": {
+        "score": 60,
+        "rationale": "Smart feeder and litter box automate routine feeding/scooping, but person refills, empties waste, and monitors pets."
+      },
+      "walk-dog": {
+        "score": 0,
+        "rationale": "No available device walks dogs; person must leash, walk, and handle pet."
+      },
+      "cook-meals": {
+        "score": 50,
+        "rationale": "Smart oven/cooker can cook programmed dishes, but person plans, preps, seasons, plates, and cleans."
+      },
+      "water-plants": {
+        "score": 70,
+        "rationale": "Smart irrigation with moisture sensor waters automatically, but person refills, maintains, and checks plant health."
+      },
+      "sort-mail-packages": {
+        "score": 20,
+        "rationale": "Smart reminders can notify and track deliveries, but person must physically sort, open, decide, and discard."
+      },
+      "household-reminders": {
+        "score": 70,
+        "rationale": "AI captures, schedules, and reminds; human still decides priorities and marks completion."
+      },
+      "wet-clean-floors": {
+        "score": 55,
+        "rationale": "Robot mop cleans open floors; human fills, clears obstacles, cleans device, handles edges and stains."
+      },
+      "vacuum-carpets-upholstery": {
+        "score": 45,
+        "rationale": "Robot vacuums carpets, but human must vacuum upholstery, stairs, edges, empty bin, clear obstacles."
+      },
+      "change-bedding-towels": {
+        "score": 0,
+        "rationale": "Entirely manual; no available device can remove or fit bedding and towels."
+      },
+      "laundry": {
+        "score": 55,
+        "rationale": "Washer and dryer handle wash/dry; human sorts, loads, transfers, folds, and puts away."
+      },
+      "deep-bathroom-cleaning": {
+        "score": 0,
+        "rationale": "No device performs scrubbing, descaling, disinfecting, or toilet cleaning; fully human."
+      },
+      "dust-surfaces": {
+        "score": 0,
+        "rationale": "No available AI or device dusts surfaces, windowsills, and appliances; entirely manual."
+      },
+      "refrigerator-audit": {
+        "score": 30,
+        "rationale": "Smart fridge tracks inventory and expiry; human inspects, smells, discards spoiled food, cleans."
+      },
+      "grocery-shopping": {
+        "score": 70,
+        "rationale": "AI plans lists and can place delivery orders; human approves substitutions, receives, and puts away."
+      },
+      "meal-planning": {
+        "score": 40,
+        "rationale": "AI suggests meals and lists; human chooses, washes, chops, measures, and cooks ingredients."
+      },
+      "restock-household-supplies": {
+        "score": 60,
+        "rationale": "Smart inventory and delivery can order supplies; human approves, receives, and stores them."
+      },
+      "pet-grooming": {
+        "score": 15,
+        "rationale": "Smart tools assist brushing or cleanup, but human handles pet, bathes, clips nails, cleans."
+      },
+      "change-pet-bedding": {
+        "score": 40,
+        "rationale": "Washer/dryer wash and dry, but human removes/installs bedding, loads machines, and cleans pet hair."
+      },
+      "sort-paperwork": {
+        "score": 50,
+        "rationale": "AI scans, OCRs, and categorizes, but human gathers, feeds scanner, decides retention, shreds, and files."
+      },
+      "clean-oven-microwave": {
+        "score": 40,
+        "rationale": "Self-cleaning oven helps oven, but microwave, racks, residue, seals, and supervision remain manual."
+      },
+      "clean-appliance-filters": {
+        "score": 20,
+        "rationale": "Reminders/self-clean cycles help, but human removes, rinses/vacuums, dries, and reinstalls each filter."
+      },
+      "wash-trash-bins": {
+        "score": 0,
+        "rationale": "No device or AI can wash bins; human must scrub, rinse, dry, and replace them."
+      },
+      "wipe-baseboards-doors-switches": {
+        "score": 0,
+        "rationale": "No device or AI can wipe these surfaces; all physical wiping and detail work remain human."
+      },
+      "organize-storage": {
+        "score": 15,
+        "rationale": "AI can suggest layouts/labels, but physical sorting, decisions, and rearranging remain entirely human."
+      },
+      "clean-windows-inside": {
+        "score": 50,
+        "rationale": "Window robot cleans glass, but human sets up, moves obstacles, handles mirrors/edges, and checks streaks."
+      },
+      "wash-soft-furnishings": {
+        "score": 45,
+        "rationale": "Washer/dryer automate washing/drying, but human takes down, removes covers, loads, transfers, and rehangs."
+      },
+      "pay-bills-household-budget": {
+        "score": 60,
+        "rationale": "AI tracks, categorizes, and can autopay, but human sets up, approves, handles exceptions, and makes budget decisions."
+      },
+      "clean-small-appliances": {
+        "score": 30,
+        "rationale": "Smart appliances run descaling cycles/reminders, but human fills, empties, scrubs parts, rinses, and dries."
+      },
+      "clean-air-purifier-filters": {
+        "score": 20,
+        "rationale": "Smart purifier reminds, but human removes, vacuums/rinses, dries, and reinstalls the filter."
+      },
+      "test-smoke-co-detectors": {
+        "score": 60,
+        "rationale": "Smart detectors self-test and alert, but manual button tests, battery changes, and verifying alarms remain human."
+      },
+      "schedule-home-maintenance": {
+        "score": 65,
+        "rationale": "AI can find and book providers, but human must approve, authorize, provide access, and handle exceptions."
+      },
+      "seasonal-wardrobe": {
+        "score": 0,
+        "rationale": "No device can move or sort clothes; AI only offers reminders and planning."
+      },
+      "deep-clean-carpets-mattresses": {
+        "score": 35,
+        "rationale": "Carpet cleaner does scrubbing, but human fills, moves furniture, operates, empties, and dries."
+      },
+      "clean-windows-outside": {
+        "score": 55,
+        "rationale": "Robot cleans glass, but human attaches, moves between windows, supervises safety, and handles edges."
+      },
+      "medicine-cabinet-audit": {
+        "score": 35,
+        "rationale": "Smart inventory tracks dates, but human must open, inspect, decide, and dispose of items."
+      },
+      "check-ventilation-heating": {
+        "score": 45,
+        "rationale": "Smart HVAC monitors and diagnoses, but human replaces filters, inspects vents, and arranges repairs."
+      },
+      "declutter-and-donate": {
+        "score": 35,
+        "rationale": "AI can inventory and schedule donation pickup, but human sorts, decides, packs, and moves items."
+      },
+      "defrost-freezer": {
+        "score": 15,
+        "rationale": "Smart freezer alerts, but human empties, melts ice, scrubs, dries, and restocks."
+      },
+      "balcony-yard-maintenance": {
+        "score": 45,
+        "rationale": "Irrigation and robot mower help, but human prunes, plants, weeds, cleans balcony, and decides seasonal care."
+      }
+    },
+    "44": {
+      "make-bed": {
+        "score": 0,
+        "rationale": "No device; human must straighten sheets, blankets, and pillows."
+      },
+      "dishes-and-dishwasher": {
+        "score": 50,
+        "rationale": "Dishwasher washes and dries, but human loads, unloads, checks, and puts dishes away."
+      },
+      "wipe-kitchen-surfaces": {
+        "score": 0,
+        "rationale": "No device; human must spray, wipe, and check all counters."
+      },
+      "take-out-trash": {
+        "score": 0,
+        "rationale": "No device; human must gather, carry, and dispose of trash."
+      },
+      "tidy-hotspots": {
+        "score": 0,
+        "rationale": "No device; human must sort, decide, and put scattered items away."
+      },
+      "spot-floor-cleanup": {
+        "score": 30,
+        "rationale": "Robot vacuum handles crumbs, but human spots spills, moves obstacles, and cleans wet messes."
+      },
+      "wipe-bathroom-fixtures": {
+        "score": 0,
+        "rationale": "No device; human must scrub, wipe, and check fixtures and sink."
+      },
+      "feed-pets-and-litter": {
+        "score": 60,
+        "rationale": "Smart feeder and litter box automate routine, but human refills, disposes waste, and monitors pets."
+      },
+      "walk-dog": {
+        "score": 0,
+        "rationale": "No device; human must leash, walk, and manage the dog outdoors."
+      },
+      "cook-meals": {
+        "score": 50,
+        "rationale": "Smart appliances cook programmed food, but human preps, loads, seasons, plates, and cleans."
+      },
+      "water-plants": {
+        "score": 60,
+        "rationale": "Smart irrigation waters on schedule, but human refills, checks lines, and handles plant health."
+      },
+      "sort-mail-packages": {
+        "score": 10,
+        "rationale": "Smart reminders track deliveries, but human sorts, opens, decides, and discards mail."
+      },
+      "household-reminders": {
+        "score": 70,
+        "rationale": "AI captures, schedules, and reminds, but human still decides priorities, updates context, and acts."
+      },
+      "wet-clean-floors": {
+        "score": 65,
+        "rationale": "Robot mop scrubs floors, but human clears obstacles, refills, empties, cleans pads, and handles edges."
+      },
+      "vacuum-carpets-upholstery": {
+        "score": 50,
+        "rationale": "Robot vacuums carpets, but human must vacuum upholstery, move cushions, clear obstacles, and maintain device."
+      },
+      "change-bedding-towels": {
+        "score": 0,
+        "rationale": "No device can physically strip, wash, and remake beds; human does all handling."
+      },
+      "laundry": {
+        "score": 45,
+        "rationale": "Washer/dryer automate washing and drying; human sorts, loads, transfers, folds, and puts away."
+      },
+      "deep-bathroom-cleaning": {
+        "score": 0,
+        "rationale": "No available device scrubs toilets, showers, and grout; human does all physical cleaning."
+      },
+      "dust-surfaces": {
+        "score": 0,
+        "rationale": "No device dusts surfaces, windowsills, and appliances; human must wipe and reach."
+      },
+      "refrigerator-audit": {
+        "score": 35,
+        "rationale": "Smart fridge can flag expiry, but human must inspect, discard spoiled food, and clean."
+      },
+      "grocery-shopping": {
+        "score": 75,
+        "rationale": "AI plans lists and delivery orders, but human approves preferences, substitutions, and receives/puts away."
+      },
+      "meal-planning": {
+        "score": 40,
+        "rationale": "AI suggests meals and lists; human still chooses, shops, and prepares ingredients."
+      },
+      "restock-household-supplies": {
+        "score": 65,
+        "rationale": "Smart inventory and delivery reorder supplies; human confirms, receives, and shelves items."
+      },
+      "pet-grooming": {
+        "score": 10,
+        "rationale": "Smart tools may assist brushing, but human must handle, bathe, clip, and manage pet safely."
+      },
+      "change-pet-bedding": {
+        "score": 40,
+        "rationale": "Washer/dryer wash, but human removes, loads, transfers, and replaces bedding."
+      },
+      "sort-paperwork": {
+        "score": 55,
+        "rationale": "Scanner/AI classify, but human feeds, decides retention, verifies, and files."
+      },
+      "clean-oven-microwave": {
+        "score": 35,
+        "rationale": "Self-cleaning oven helps, but human cleans microwave, racks, and wipes residue."
+      },
+      "clean-appliance-filters": {
+        "score": 20,
+        "rationale": "Human removes, rinses, dries, and reinstalls washer, dishwasher, and AC filters."
+      },
+      "wash-trash-bins": {
+        "score": 0,
+        "rationale": "No device; human must scrub, rinse, and dry bins entirely."
+      },
+      "wipe-baseboards-doors-switches": {
+        "score": 0,
+        "rationale": "No device; human must wipe all baseboards, doors, and switches."
+      },
+      "organize-storage": {
+        "score": 10,
+        "rationale": "AI may suggest layout, but human sorts, discards, and arranges items physically."
+      },
+      "clean-windows-inside": {
+        "score": 50,
+        "rationale": "Robot cleans some glass, but human sets up, moves, supervises, and does edges/mirrors."
+      },
+      "wash-soft-furnishings": {
+        "score": 40,
+        "rationale": "Washer/dryer wash, but human removes, loads, transfers, and rehangs furnishings."
+      },
+      "clean-small-appliances": {
+        "score": 30,
+        "rationale": "Smart appliances may descale, but human disassembles, scrubs, rinses, and reassembles."
+      },
+      "clean-air-purifier-filters": {
+        "score": 20,
+        "rationale": "Smart purifier alerts, but human removes, vacuums/washes, dries, and reinstalls filter."
+      },
+      "test-smoke-co-detectors": {
+        "score": 50,
+        "rationale": "Smart detectors self-monitor and alert, but human still manually tests alarms and replaces batteries."
+      },
+      "schedule-home-maintenance": {
+        "score": 65,
+        "rationale": "AI finds and books providers, but human approves, provides access, and verifies completed work."
+      },
+      "seasonal-wardrobe": {
+        "score": 0,
+        "rationale": "No device; all sorting, moving, and storing clothes remains physical human work."
+      },
+      "deep-clean-carpets-mattresses": {
+        "score": 40,
+        "rationale": "Machine scrubs or vacuums, but human moves furniture, pretreats stains, operates, and dries."
+      },
+      "clean-windows-outside": {
+        "score": 55,
+        "rationale": "Robot cleans flat panes, but human attaches, moves between windows, cleans edges, supervises safety."
+      },
+      "medicine-cabinet-audit": {
+        "score": 45,
+        "rationale": "Inventory AI tracks expiry, but human physically inspects, decides, and disposes safely."
+      },
+      "check-ventilation-heating": {
+        "score": 55,
+        "rationale": "Smart HVAC monitors and alerts, but human replaces filters, inspects vents, and arranges repairs."
+      },
+      "declutter-and-donate": {
+        "score": 35,
+        "rationale": "AI inventories and schedules pickup, but human decides, sorts, packs, and moves items."
+      },
+      "defrost-freezer": {
+        "score": 30,
+        "rationale": "Smart freezer may auto-defrost, but human empties, thaws, scrubs, dries, and restocks."
+      },
+      "balcony-yard-maintenance": {
+        "score": 50,
+        "rationale": "Irrigation and robot mower help, but human prunes, plants, repots, winterizes, and decides."
+      },
+      "pay-bills-household-budget": {
+        "score": 55,
+        "rationale": "AI automates bill pay and categorizes spending, but humans set budgets, approve exceptions, and ensure funds."
+      }
+    }
+  }
+}
