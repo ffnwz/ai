@@ -1,0 +1,201 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "slopscore",
+      "name": "Slop Score",
+      "url": "https://slopscore.ava.pet/",
+      "kind": "repository-scan",
+      "rings": ["code"],
+      "integration": "backend-live",
+      "description": {
+        "ru": "Широкий каталог репозиториев и эвристический сигнал AI-участия.",
+        "en": "A broad repository catalog and a heuristic signal of AI involvement."
+      }
+    },
+    {
+      "id": "ai-code-radar",
+      "name": "AI Code Radar",
+      "url": "https://github.com/Korext/ai-code-radar",
+      "api": "https://oss.korext.com/api/radar/current",
+      "kind": "public-api",
+      "rings": ["code"],
+      "integration": "backend-live",
+      "license": "data CC BY 4.0 · code Apache-2.0",
+      "description": {
+        "ru": "Публичные AI-attestation-файлы, динамика и API по open source.",
+        "en": "Public AI-attestation files, trends, and an API for open source."
+      }
+    },
+    {
+      "id": "qmmit",
+      "name": "qmmit",
+      "url": "https://www.qmmit.dev/",
+      "repository": "https://github.com/pandey019/qmmit-cli",
+      "kind": "commit-dataset",
+      "rings": ["code", "self-building"],
+      "integration": "dataset-reference",
+      "license": "MIT",
+      "description": {
+        "ru": "AI-коммиты с разделением assisted и autonomous; публикует правила и данные.",
+        "en": "AI commits split into assisted and autonomous, with public rules and data."
+      }
+    },
+    {
+      "id": "causari",
+      "name": "Causari Survival Report",
+      "url": "https://causari.dev/reports/survival/",
+      "kind": "line-survival-report",
+      "rings": ["code"],
+      "integration": "weekly-report",
+      "description": {
+        "ru": "Сколько строк пришло из AI-помеченных коммитов и сколько пережило изменения.",
+        "en": "How many lines came from AI-tagged commits and how many survived at HEAD."
+      }
+    },
+    {
+      "id": "agent-adoption",
+      "name": "AI Agent Adoption",
+      "url": "https://alteredcraft.github.io/dashboards/ai-agent-adoption/",
+      "kind": "repository-dashboard",
+      "rings": ["code"],
+      "integration": "dashboard-reference",
+      "description": {
+        "ru": "Конфигурации Claude, Cursor, Copilot и других агентов в публичных репозиториях.",
+        "en": "Claude, Cursor, Copilot, and other agent configuration files in public repos."
+      }
+    },
+    {
+      "id": "anthropic-economic-index",
+      "name": "Anthropic Economic Index",
+      "url": "https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main",
+      "kind": "open-dataset",
+      "rings": ["work", "life"],
+      "integration": "dataset",
+      "license": "MIT",
+      "description": {
+        "ru": "Использование AI по странам, профессиям и задачам; augmentation против automation.",
+        "en": "AI use by country, occupation, and task; augmentation versus automation."
+      }
+    },
+    {
+      "id": "stackoverflow-developer-survey-2026",
+      "name": "Stack Overflow Developer Survey 2026",
+      "url": "https://stackoverflow.blog/2026/10/06/the-results-of-the-2026-developer-survey-are-here/",
+      "dataset": "https://survey.stackoverflow.co/2026/",
+      "kind": "developer-survey",
+      "rings": ["code", "work", "life"],
+      "integration": "context-survey",
+      "publishedAt": "2026-10-06",
+      "coverage": "30,903 responses · 169 countries",
+      "signals": {
+        "aiUsageDailyHourPlus": 80,
+        "aiCodingUsersDaily": 73,
+        "aiAgentsForAnswers": 70,
+        "trustSomeAiOutput": 87,
+        "trustOnlyVerifiable": 48
+      },
+      "description": {
+        "ru": "Опрос разработчиков о ежедневном использовании AI, доверии к результатам и рабочих привычках.",
+        "en": "A developer survey on daily AI use, trust in outputs, and changing work habits."
+      }
+    },
+    {
+      "id": "meo-workforce-data",
+      "name": "Meo AI Workforce Data",
+      "url": "https://github.com/meoadvisors/ai-workforce-data",
+      "dataset": "https://meoadvisors.com/datasets/",
+      "kind": "open-dataset",
+      "rings": ["work"],
+      "integration": "backend-live",
+      "license": "CC BY-NC 4.0",
+      "description": {
+        "ru": "Adoption компаний, риск автоматизации профессий и WARN-увольнения.",
+        "en": "Company adoption, occupational automation risk, and WARN layoffs."
+      }
+    },
+    {
+      "id": "git-ai-grafana",
+      "name": "Git AI / Grafana",
+      "url": "https://grafana.com/grafana/dashboards/25803-git-ai-code-attribution/",
+      "kind": "self-hosted-telemetry",
+      "rings": ["code"],
+      "integration": "company-telemetry",
+      "description": {
+        "ru": "Построчная атрибуция AI-кода из git notes для подключившихся команд.",
+        "en": "Line-level AI code attribution from git notes for connected teams."
+      }
+    },
+    {
+      "id": "ai-attestation",
+      "name": "AI Attestation",
+      "url": "https://github.com/Korext/ai-attestation",
+      "kind": "open-standard",
+      "rings": ["code"],
+      "integration": "standard",
+      "license": "spec CC0 · tools Apache-2.0",
+      "description": {
+        "ru": "Стандарт .ai-attestation.yaml для явной фиксации AI-происхождения кода.",
+        "en": "The .ai-attestation.yaml standard for declaring AI code provenance."
+      }
+    },
+    {
+      "id": "botcommits",
+      "name": "Bot Commits",
+      "url": "https://botcommits.dev/",
+      "dataset": "https://botcommits.dev/data.json",
+      "repository": "https://github.com/edgardomunoznajar/github_explosion",
+      "kind": "public-commit-series",
+      "rings": ["code", "self-building"],
+      "integration": "backend-live",
+      "description": {
+        "ru": "Помесячный ряд публичных коммитов, атрибутированных Claude Code и другим AI-инструментам; считает активность, а не уникальные репозитории.",
+        "en": "Monthly public commit series attributed to Claude Code and other AI tools; it measures activity, not unique repositories."
+      }
+    },
+    {
+      "id": "ossinsight",
+      "name": "OSSInsight",
+      "url": "https://ossinsight.io/",
+      "api": "https://api.ossinsight.io/v1",
+      "repository": "https://github.com/pingcap/ossinsight",
+      "kind": "github-event-analytics",
+      "rings": ["code", "self-building"],
+      "integration": "cross-check",
+      "description": {
+        "ru": "Независимая аналитика публичной активности GitHub: репозитории, коммиты, PR и контрибьюторы. Используется как знаменатель и проверка масштаба, а не как прямая атрибуция AI-кода.",
+        "en": "Independent analytics of public GitHub activity: repositories, commits, pull requests, and contributors. Used as a denominator and scale cross-check, not as direct AI-code attribution."
+      }
+    },
+    {
+      "id": "github-ai-contributors",
+      "name": "GitHub AI Contributors",
+      "url": "https://github.com/claude",
+      "api": "https://api.github.com/graphql",
+      "kind": "github-contribution-monitor",
+      "rings": ["code"],
+      "integration": "backend-live",
+      "trackedProfiles": [
+        { "id": "claude", "label": "Claude Code", "url": "https://github.com/claude", "kind": "user" },
+        { "id": "copilot", "label": "GitHub Copilot", "url": "https://github.com/copilot", "kind": "product-route" },
+        { "id": "codex", "label": "OpenAI Codex", "url": "https://github.com/openai/codex", "kind": "official-repository" },
+        { "id": "gemini", "label": "Gemini Code Assist", "url": "https://github.com/google-gemini", "kind": "organization" },
+        { "id": "jules", "label": "Jules", "url": "https://github.com/google-labs-code/jules-action", "kind": "official-repository" },
+        { "id": "cursor", "label": "Cursor", "url": "https://github.com/getcursor", "kind": "organization" },
+        { "id": "devin", "label": "Devin", "url": "https://github.com/CognitionAI", "kind": "organization" },
+        { "id": "windsurf", "label": "Windsurf", "url": "https://github.com/Codeium", "kind": "organization" },
+        { "id": "cline", "label": "Cline", "url": "https://github.com/cline", "kind": "organization" },
+        { "id": "qodo", "label": "Qodo", "url": "https://github.com/qodo-ai", "kind": "organization" },
+        { "id": "aider", "label": "Aider", "url": "https://github.com/Aider-AI", "kind": "organization" },
+        { "id": "amazon-q", "label": "Amazon Q Developer", "url": "https://github.com/Amazon-Q-Developer", "kind": "organization" },
+        { "id": "junie", "label": "JetBrains Junie", "url": "https://github.com/jetbrains-junie", "kind": "organization-archived" },
+        { "id": "cody", "label": "Sourcegraph Cody", "url": "https://github.com/sourcegraph", "kind": "organization" },
+        { "id": "replit", "label": "Replit Agent", "url": "https://github.com/replit", "kind": "organization" }
+      ],
+      "description": {
+        "ru": "Публичные репозитории и коммиты, где участвовали AI-связанные GitHub-аккаунты, официальные организации и bot-маркеры.",
+        "en": "Public repositories and commits involving AI-linked GitHub accounts, official organizations, and bot markers."
+      }
+    }
+  ]
+}

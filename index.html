@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Countdown — сколько работы уже делает AI?</title>
+  <meta name="description" content="Какую человеческую работу AI уже берёт на себя: код, рабочие процессы и повседневные задачи. Данные, заявления компаний и границы каждой оценки." />
+  <link rel="icon" type="image/png" href="robot-apple.png" />
+  <link rel="stylesheet" href="styles.css?v=20261019-rate-limit-time" />
+</head>
+<body class="app-pending">
+  <header class="topbar shell">
+    <a class="brand" href="#top" aria-label="AI Countdown home">
+      <span class="brand-mark" aria-hidden="true"><img src="robot-apple.png" alt="" /></span>
+      <span>AI COUNTDOWN</span>
+    </a>
+    <nav aria-label="Навигация">
+      <span class="locale-switch" role="group" aria-label="Язык">
+        <button class="locale-btn active" data-locale="ru" type="button">RU</button>
+        <span aria-hidden="true">/</span>
+        <button class="locale-btn" data-locale="en" type="button">EN</button>
+      </span>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div id="app-loader" class="app-loader" role="status" data-i18n="data.loading">КОД: ЗАГРУЖАЕМ ДАННЫЕ…</div>
+      <div class="hero-meter">
+        <div class="ring-stage intro-sequence">
+          <svg viewBox="0 0 380 380" role="img" aria-label="Участие AI в коде и работе и условный показатель жизни">
+            <circle class="track outer" cx="190" cy="190" r="156"></circle>
+            <circle class="track middle" cx="190" cy="190" r="124"></circle>
+            <circle class="track inner" cx="190" cy="190" r="92"></circle>
+            <circle id="life-ring" class="progress outer" cx="190" cy="190" r="156" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"></circle>
+            <circle id="work-ring" class="progress middle" cx="190" cy="190" r="124" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"></circle>
+            <circle id="code-ring" class="progress inner" cx="190" cy="190" r="92" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"></circle>
+          </svg>
+          <div class="meter-center">
+            <span id="center-label" class="meter-center-label" data-i18n="meter.center.overall">ИТОГО</span>
+            <strong id="overall">33.6%</strong>
+          </div>
+        </div>
+        <div class="ring-legend intro-pending" data-i18n-aria="legend.aria" aria-label="Легенда колец">
+          <div class="legend-item" data-signal="code">
+            <span class="legend-pct code" id="code-legend-value">42%</span>
+            <span data-i18n="legend.code.label">Код</span>
+            <button class="help" type="button" data-i18n-aria="legend.code.help" aria-label="Что означает кольцо «Код»?">?</button>
+            <span class="tooltip" role="tooltip" data-i18n="legend.code.tip">Участие AI в публичной выборке кода: от помощи до генерации изменений.</span>
+          </div>
+          <div class="legend-item" data-signal="work">
+            <span class="legend-pct work">31%</span>
+            <span data-i18n="legend.work.label">Работа</span>
+            <button class="help" type="button" data-i18n-aria="legend.work.help" aria-label="Что означает кольцо «Работа»?">?</button>
+            <span class="tooltip" role="tooltip" data-i18n="legend.work.tip">Рабочие задачи, которые может взять на себя AI: медиана оценки прототипа и AI-оценки профессий ISCO-08.</span>
+          </div>
+          <div class="legend-item" data-signal="life">
+            <span class="legend-pct life">24%</span>
+            <span data-i18n="legend.life.label">Жизнь</span>
+            <button class="help" type="button" data-i18n-aria="legend.life.help" aria-label="Что означает кольцо «Жизнь»?">?</button>
+            <span class="tooltip" role="tooltip" data-i18n="legend.life.tip">Личные дела, которые человек поручает AI. Число пока условное.</span>
+          </div>
+        </div>
+        <p class="meter-note intro-pending" data-i18n="meter.note">Код — сигнал участия AI в выборке. Работа — медиана оценки прототипа и AI-оценки профессий; Жизнь — условное значение. Общий процент показывает итоговую оценку.</p>
+        <div class="chart-actions">
+          <button id="copy-chart" class="chart-action intro-pending" type="button">
+            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"></path></svg>
+            <span data-action-label data-i18n="meter.copyChart">СКОПИРОВАТЬ ГРАФИК</span>
+          </button>
+          <button id="share-chart" class="chart-action intro-pending" type="button">
+            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2"></circle><circle cx="6" cy="12" r="2"></circle><circle cx="18" cy="19" r="2"></circle><path d="m8 11 8-5M8 13l8 5"></path></svg>
+            <span data-action-label data-i18n="meter.shareChart">ПОДЕЛИТЬСЯ</span>
+          </button>
+          <button id="download-chart" class="chart-action intro-pending" type="button">
+            <svg class="action-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"></path><path d="m7 11 5 5 5-5"></path><path d="M5 20h14"></path></svg>
+            <span data-action-label data-i18n="meter.downloadChart">СКАЧАТЬ ГРАФИК</span>
+          </button>
+        </div>
+        <span id="copy-chart-status" class="copy-chart-status" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section id="signals" class="shell signals intro-pending" aria-label="AI Countdown signals">
+      <button class="signal active" data-signal="code" type="button">
+        <span class="signal-top"><span data-i18n="code.title">01 / КОД</span><small data-i18n="code.confidence">пример · до загрузки данных</small></span>
+      <strong><span id="code-value">42</span><span class="signal-unit">%</span></strong>
+        <b data-i18n="code.label">AI пишет и меняет код</b>
+        <small data-i18n="code.note">написание, исправления, тесты; человек проверяет результат</small>
+      </button>
+      <button class="signal" data-signal="work" type="button">
+        <span class="signal-top"><span data-i18n="work.title">02 / РАБОТА</span><small data-i18n="work.confidence">условное значение</small></span>
+        <strong>31<span>%</span></strong>
+        <b data-i18n="work.label">AI выполняет рабочие задачи</b>
+        <small data-i18n="work.note">обращения клиентов, документы, отчёты</small>
+      </button>
+      <button class="signal" data-signal="life" type="button">
+        <span class="signal-top"><span data-i18n="life.title">03 / ЖИЗНЬ</span><small data-i18n="life.confidence">условное значение</small></span>
+        <strong>24<span>%</span></strong>
+        <b data-i18n="life.label">AI берёт на себя повседневные дела</b>
+        <small data-i18n="life.note">письма, поиск информации, планирование</small>
+      </button>
+    </section>
+
+    <section class="section shell repository-analysis-section" id="repo-analysis" aria-labelledby="repo-analysis-title">
+      <div class="section-head">
+        <p class="eyebrow" data-i18n="repoAnalysis.eyebrow">ПРОВЕРИТЬ РЕПОЗИТОРИЙ</p>
+        <h2 id="repo-analysis-title" data-i18n="repoAnalysis.title">Кто написал код в этом репозитории?</h2>
+        <p class="section-copy" data-i18n="repoAnalysis.copy">Введите публичный GitHub-репозиторий. Backend сохранит его и сравнит AI-агентов с остальными контрибьюторами.</p>
+      </div>
+      <form id="repo-analysis-form" class="repository-analysis-form">
+        <label class="repository-analysis-input">
+          <span data-i18n="repoAnalysis.inputLabel">Публичный репозиторий GitHub</span>
+          <input id="repo-analysis-repository" name="repository" type="url" inputmode="url" autocomplete="url" required placeholder="https://github.com/owner/repo или https://github.com/user" data-i18n-placeholder="repoAnalysis.placeholder" />
+        </label>
+        <button type="submit" class="chart-action repository-analysis-submit"><svg class="action-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m15.5 15.5 4.5 4.5"></path></svg><span data-i18n="repoAnalysis.submit">ПРОАНАЛИЗИРОВАТЬ</span></button>
+      </form>
+      <p id="repo-analysis-status" class="repository-analysis-status" role="status" aria-live="polite"></p>
+      <div id="repo-analysis-progress" class="repository-analysis-progress" hidden role="status" aria-live="polite" aria-label="Прогресс анализа">
+        <div class="repository-analysis-progress-head"><span id="repo-analysis-progress-label" data-i18n="repoAnalysis.progressCollecting">Собираем публичную историю коммитов…</span><strong id="repo-analysis-progress-percent">0%</strong></div>
+        <div class="repository-analysis-progress-track"><span id="repo-analysis-progress-fill" class="repository-analysis-progress-fill"></span></div>
+        <p id="repo-analysis-progress-note" class="repository-analysis-progress-note" data-i18n="repoAnalysis.progressAverage">Среднее время анализа — около 12 секунд</p>
+      </div>
+      <article id="repo-analysis-result" class="repository-analysis-result" hidden aria-live="polite">
+        <div class="repository-analysis-result-head">
+          <div><span class="eyebrow" data-i18n="repoAnalysis.resultEyebrow">РЕЗУЛЬТАТ АНАЛИЗА</span><h3 id="repo-analysis-name">—</h3><a id="repo-analysis-link" class="external-link" href="#" target="_blank" rel="noreferrer">github.com</a><p id="repo-analysis-last-commit" class="repository-analysis-last-commit" hidden></p></div>
+          <div class="repository-analysis-head-actions"><span id="repo-analysis-result-status" class="repository-analysis-badge">—</span><button type="button" class="repository-analysis-download" data-download-card="repository" data-i18n="repoAnalysis.downloadImage">Скачать картинку</button></div>
+        </div>
+        <div id="repo-analysis-contribution-details" class="repository-analysis-contribution-details" aria-hidden="false">
+          <div class="repository-analysis-contribution">
+            <div class="repository-analysis-contribution-head">
+              <h4 data-i18n="repoAnalysis.contributionTitle">Доля по изменённым строкам</h4>
+              <span id="repo-analysis-contribution-total">—</span>
+            </div>
+            <div id="repo-analysis-contribution-track" class="repository-analysis-contribution-track" role="img" aria-label="Доля AI-агентов и остальных контрибьюторов"></div>
+            <div id="repo-analysis-contribution-legend" class="repository-analysis-contribution-legend"></div>
+            <p class="repository-analysis-contribution-method" data-i18n="repoAnalysis.contributionMethod">AI-агенты заполняются по очереди, затем остальные контрибьюторы</p>
+          </div>
+          <div class="repository-analysis-columns">
+            <div><h4 data-i18n="repoAnalysis.agentsTitle">AI-агенты</h4><div id="repo-analysis-agents" class="repository-analysis-list"></div></div>
+            <div><h4 data-i18n="repoAnalysis.contributorsTitle">Другие контрибьюторы</h4><div id="repo-analysis-contributors" class="repository-analysis-list"></div></div>
+          </div>
+        </div>
+        <div class="repository-analysis-metrics">
+          <div class="repository-analysis-metric ai"><span data-i18n="repoAnalysis.aiChanged">AI изменил строк</span><strong id="repo-analysis-ai-lines">—</strong><small id="repo-analysis-ai-share">—</small></div>
+          <div class="repository-analysis-metric"><span data-i18n="repoAnalysis.totalChanged">Всего изменено строк</span><strong id="repo-analysis-total-lines">—</strong><small id="repo-analysis-window">—</small></div>
+          <div class="repository-analysis-metric"><span data-i18n="repoAnalysis.commits">Коммиты AI / всего</span><strong id="repo-analysis-commits">—</strong><small id="repo-analysis-coverage">—</small></div>
+        </div>
+        <p id="repo-analysis-note" class="repository-analysis-note"></p>
+        <span class="repository-analysis-watermark" data-domain-watermark aria-hidden="true"></span>
+      </article>
+      <article id="repo-analysis-profile" class="repository-analysis-result repository-analysis-profile" hidden aria-live="polite">
+        <div class="repository-analysis-result-head">
+          <div class="repository-analysis-profile-head">
+            <span id="repo-analysis-profile-avatar" class="repository-analysis-profile-avatar"></span>
+            <div><span class="eyebrow" data-i18n="repoAnalysis.profileEyebrow">ПРОФИЛЬ GITHUB</span><h3 id="repo-analysis-profile-name">—</h3><a id="repo-analysis-profile-link" class="external-link" href="#" target="_blank" rel="noreferrer">github.com</a></div>
+          </div>
+          <div class="repository-analysis-head-actions"><span id="repo-analysis-profile-status" class="repository-analysis-badge">—</span><button type="button" class="repository-analysis-download" data-download-card="profile" data-i18n="repoAnalysis.downloadImage">Скачать картинку</button></div>
+        </div>
+        <div class="repository-analysis-contribution">
+          <div class="repository-analysis-contribution-head">
+            <h4 data-i18n="repoAnalysis.profileTitle">Кто пишет код в своих репозиториях</h4>
+            <span id="repo-analysis-profile-summary">—</span>
+          </div>
+          <div id="repo-analysis-profile-track" class="repository-analysis-contribution-track" role="img"></div>
+          <div id="repo-analysis-profile-legend" class="repository-analysis-contribution-legend"></div>
+          <p id="repo-analysis-profile-repositories" class="repository-analysis-contribution-method"></p>
+        </div>
+        <p id="repo-analysis-profile-note" class="repository-analysis-note"></p>
+        <span class="repository-analysis-watermark" data-domain-watermark aria-hidden="true"></span>
+      </article>
+      <section id="repo-analysis-leaderboard" class="repository-analysis-leaderboard" hidden aria-labelledby="repo-analysis-leaderboard-title">
+        <div class="repository-analysis-leaderboard-head">
+          <p class="eyebrow" data-i18n="repoAnalysis.leaderboardEyebrow">СОХРАНЁННАЯ ИСТОРИЯ</p>
+          <h3 id="repo-analysis-leaderboard-title" data-i18n="repoAnalysis.leaderboardTitle">Топ-3 репозитория по AI-вкладу</h3>
+          <p data-i18n="repoAnalysis.leaderboardCopy">Репозитории, в которых распознанные AI-агенты изменили больше всего строк по последнему сохранённому замеру.</p>
+        </div>
+        <div id="repo-analysis-leaderboard-list" class="repository-analysis-leaderboard-list"></div>
+      </section>
+      <section id="repo-analysis-clean-leaderboard" class="repository-analysis-leaderboard is-clean" hidden aria-labelledby="repo-analysis-clean-leaderboard-title">
+        <div class="repository-analysis-leaderboard-head">
+          <p class="eyebrow" data-i18n="repoAnalysis.leaderboardEyebrow">СОХРАНЁННАЯ ИСТОРИЯ</p>
+          <h3 id="repo-analysis-clean-leaderboard-title" data-i18n="repoAnalysis.cleanTitle">Топ-3 репозитория, которые пишут люди</h3>
+          <p id="repo-analysis-clean-leaderboard-copy"></p>
+        </div>
+        <div id="repo-analysis-clean-leaderboard-list" class="repository-analysis-leaderboard-list"></div>
+      </section>
+    </section>
+
+    <section class="hero-intro shell">
+      <div class="hero-copy">
+        <p class="eyebrow" data-i18n="hero.eyebrow">ЗАМЕЩЕНИЕ ЧЕЛОВЕЧЕСКОЙ РАБОТЫ</p>
+        <h1 data-i18n-html="hero.title">Сколько работы<br /><em>AI уже делает за нас?</em></h1>
+        <p class="lede" data-i18n="hero.lede">Код, рабочие процессы, повседневные задачи. Следим за тем, какую работу AI берёт на себя и сколько участия человека остаётся.</p>
+        <div class="hero-meta">
+          <span data-i18n="hero.date">Версия 0.2 · 18 окт. 2026</span>
+          <span id="data-status" class="data-status" data-i18n="data.loading">КОД: ЗАГРУЖАЕМ ДАННЫЕ…</span>
+        </div>
+      </div>
+    </section>
+
+<section class="section shell split" id="model">
+      <div>
+        <p class="eyebrow" data-i18n="model.eyebrow">ЧТО СЧИТАЕМ ЗАМЕЩЕНИЕМ</p>
+        <h2 data-i18n-html="model.title">Отдельная задача.<br />Или уже целый процесс?</h2>
+        <p class="section-copy" data-i18n="model.copy">Важно понять, какой ручной этап AI выполнил и что осталось человеку: поставить задачу, проверить результат, исправить ошибки или принять решение.</p>
+        <div class="definition">
+          <div class="definition-label" data-i18n="model.definitionLabel">Полное замещение задачи</div>
+          <p data-i18n="model.definition">AI доводит конкретную задачу до принятого результата. Для оценки нужны данные о качестве, проверке и случаях, когда работу пришлось вернуть человеку.</p>
+        </div>
+      </div>
+      <div class="detail-panel">
+        <div class="panel-kicker" data-i18n="detail.kicker">ЧТО ПРОИСХОДИТ В ЭТОМ НАПРАВЛЕНИИ</div>
+        <h3 id="detail-title">AI создаёт код. Кто доводит его до выпуска?</h3>
+        <p id="detail-copy">Сигнал из репозиториев показывает участие AI в создании изменений. Чтобы понять объём замещённой работы, нужны также данные о проверке, исправлениях и выпуске. Текущий процент относится к выборке источника.</p>
+        <div class="detail-rule"></div>
+        <div class="self-build">
+          <div><span data-i18n-html="selfBuild.label">Особый случай: <b>AI создаёт AI</b></span><strong data-i18n="selfBuild.status">ПОКА БЕЗ ОЦЕНКИ</strong></div>
+          <small data-i18n="selfBuild.note">Код, тесты и эксперименты для новых моделей. Для оценки самостоятельности нужны отдельные данные.</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell evidence-section">
+      <div class="section-head">
+        <div><p class="eyebrow" data-i18n="reading.eyebrow">СТЕПЕНЬ ЗАМЕЩЕНИЯ</p><h2 data-i18n="reading.title">Что именно осталось человеку?</h2></div>
+        <p class="section-copy" data-i18n="reading.copy">Один сгенерированный ответ и самостоятельно выполненный процесс означают разный объём замещённой работы. Для каждого случая смотрим на весь путь до результата.</p>
+      </div>
+      <div class="evidence-grid">
+        <article class="evidence-main">
+          <span class="quote-mark">“</span>
+          <h3 data-i18n="reading.quoteTitle">Важен весь путь: от задачи до принятого результата.</h3>
+          <p data-i18n="reading.quoteCopy">AI может написать ответ, а человек — проверить каждый факт. Может закрыть обращение целиком и передать оператору только исключения. Объём участия человека определяет, сколько работы удалось передать.</p>
+        </article>
+        <div class="evidence-list">
+          <div class="evidence-row"><span>01</span><div><b data-i18n="reading.output">Помощь</b><p data-i18n="reading.outputCopy">AI предлагает вариант. Человек выполняет задачу.</p></div><strong aria-hidden="true"><svg class="evidence-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
+          <div class="evidence-row"><span>02</span><div><b data-i18n="reading.adoption">Выполнение задачи</b><p data-i18n="reading.adoptionCopy">AI готовит результат. Человек проверяет и принимает.</p></div><strong aria-hidden="true"><svg class="evidence-icon" viewBox="0 0 24 24" fill="none"><path d="M4 12h15m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
+          <div class="evidence-row"><span>03</span><div><b data-i18n="reading.autonomy">Выполнение процесса</b><p data-i18n="reading.autonomyCopy">AI проходит этапы сам. Человек разбирает исключения.</p></div><strong aria-hidden="true"><svg class="evidence-icon check" viewBox="0 0 24 24" fill="none"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section shell" id="sources">
+      <div class="section-head">
+        <div><p class="eyebrow" data-i18n="sources.eyebrow">ИСТОЧНИКИ И НАБЛЮДЕНИЯ</p><h2 data-i18n="sources.title">Что стоит за числами</h2></div>
+        <p class="section-copy" data-i18n="sources.copy">Измерения репозиториев, опросы и заявления компаний описывают разные стороны замещения. У каждого источника — своя выборка, дата и единица измерения.</p>
+      </div>
+      <div class="source-grid">
+        <a href="https://slopscore.ava.pet/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.repoLabel">СИГНАЛ РЕПОЗИТОРИЕВ</span><b>Slop Score</b><small>slopscore.ava.pet</small></a>
+        <a href="https://codeberg.org/polyphony/slopscore" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.methodLabel">ОТКРЫТАЯ МЕТОДОЛОГИЯ</span><b>Polyphony / slopscore</b><small>codeberg.org/polyphony/slopscore</small></a>
+        <a href="https://assets.aboutamazon.com/bb/2e/9077b9f44a2898c01fcc7f35440d/aws-ai-europe.pdf" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.companyLabel">СИГНАЛ КОМПАНИИ</span><b>Amazon / AWS Survey</b><small>assets.aboutamazon.com</small></a>
+        <article class="source-card project-card"><span data-i18n="source.projectLabel">ЭТОТ ПРОЕКТ</span><b>AI Countdown</b><p data-i18n="source.projectCopy">Следим за тем, какую работу AI выполняет вместо человека — в коде, компаниях и повседневных делах.</p><small data-i18n="source.projectStatus">прототип · данные собраны частично</small></article>
+        <a href="https://github.com/Korext/ai-code-radar" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.feedLabel">ДАННЫЕ ИСТОЧНИКА</span><b>AI Code Radar</b><p data-i18n="source.radarCopy">Декларации об участии AI в коде с размером выборки и датой снимка.</p><small>oss.korext.com/api/radar/current</small><small id="radar-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
+        <a href="https://www.qmmit.dev/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>qmmit</b><p data-i18n="source.qmmitCopy">Коммиты с помощью AI и автономные изменения учитываются отдельно.</p><small>qmmit.dev</small></a>
+        <a href="https://causari.dev/reports/survival/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.reportLabel">ИССЛЕДОВАТЕЛЬСКИЙ ОТЧЁТ</span><b>Causari Survival</b><p data-i18n="source.causariCopy">AI-помеченные строки, которые пережили дальнейшие изменения.</p><small>causari.dev/reports/survival</small></a>
+        <a href="https://alteredcraft.github.io/dashboards/ai-agent-adoption/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>AI Agent Adoption</b><p data-i18n="source.agentCopy">Распространённость конфигураций агентов в публичных репозиториях.</p><small>alteredcraft.github.io</small></a>
+        <a href="https://huggingface.co/datasets/Anthropic/EconomicIndex/tree/main" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>Anthropic Economic Index</b><p data-i18n="source.anthropicCopy">Использование AI в задачах: помощь человеку и автоматическое выполнение.</p><small>huggingface.co/datasets</small></a>
+        <a href="https://stackoverflow.blog/2026/10/06/the-results-of-the-2026-developer-survey-are-here/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.surveyLabel">ОПРОС РАЗРАБОТЧИКОВ</span><b>Stack Overflow Survey 2026</b><p data-i18n="source.stackCopy">Опрос разработчиков об использовании AI, доверии и рабочих привычках.</p><small>stackoverflow.blog</small></a>
+        <a href="https://meoadvisors.com/datasets/" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.datasetLabel">ОТКРЫТЫЕ ДАННЫЕ</span><b>Meo Workforce Data</b><p data-i18n="source.meoCopy">Потенциал автоматизации профессий и наблюдения о рынке труда.</p><small>data.meoadvisors.com</small><small id="meo-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
+        <a href="https://grafana.com/grafana/dashboards/25803-git-ai-code-attribution/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>Git AI / Grafana</b><p data-i18n="source.gitAiCopy">Учёт строк, созданных с участием AI, в отдельных командах.</p><small>grafana.com/dashboards</small></a>
+        <a href="https://github.com/Korext/ai-attestation" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.standardLabel">ОТКРЫТЫЙ СТАНДАРТ</span><b>AI Attestation</b><p data-i18n="source.attestationCopy">Машиночитаемый формат декларации происхождения кода.</p><small>github.com/Korext/ai-attestation</small></a>
+        <a href="https://botcommits.dev/" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.botcommitsLabel">ПУБЛИЧНЫЕ AI-КОММИТЫ</span><b>Bot Commits</b><p data-i18n="source.botcommitsCopy">Помесячная оценка публичных коммитов, атрибутированных AI-инструментам.</p><small>botcommits.dev</small><small id="botcommits-feed-value" class="source-data" data-i18n="source.feedLoading">Загружаем данные…</small></a>
+        <a href="https://ossinsight.io/" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.dashboardLabel">ПУБЛИЧНЫЙ ДАШБОРД</span><b>OSSInsight</b><p data-i18n="source.ossInsightCopy">Независимая статистика GitHub: репозитории, коммиты, PR и контрибьюторы для проверки масштаба.</p><small>ossinsight.io</small></a>
+        <a href="https://github.com/edgardomunoznajar/github_explosion" target="_blank" rel="noreferrer" class="source-card"><span data-i18n="source.methodLabel">ОТКРЫТАЯ МЕТОДОЛОГИЯ</span><b>github_explosion</b><p data-i18n="source.explosionCopy">Сборщик и анализатор рядов AI-атрибутированных коммитов через GH Archive и GitHub Search.</p><small>github.com/edgardomunoznajar</small></a>
+        <a href="https://github.com/claude" target="_blank" rel="noreferrer" class="source-card source-integrated"><span data-i18n="source.contributorsLabel">GITHUB-КОНТРИБЬЮТОРЫ</span><b>AI Contributors</b><p data-i18n="source.contributorsCopy">Публичные репозитории и коммиты AI-связанных GitHub-аккаунтов, например Claude.</p><small>api.github.com</small><small id="github-contributors-value" class="source-data" data-i18n="source.contributorsLoading">Загружаем данные контрибьюторов…</small></a>
+      </div>
+      <p class="methodology-cta"><a class="external-link" href="methodology.html" data-i18n="sources.methodologyLink">Как считаются показатели</a> · <a class="external-link" href="/work" data-i18n="sources.occupationsLink">Доля AI и человека по профессиям</a></p>
+
+      <div class="companies-block">
+        <div class="section-head company-head">
+          <div><p class="eyebrow" data-i18n="companies.eyebrow">РАБОТА ВНУТРИ КОМПАНИЙ</p><h3 data-i18n="companies.title">Какую работу компании поручают AI</h3></div>
+          <p class="section-copy" data-i18n="companies.copy">Публичные заявления о коде, инструментах и рабочих задачах. На каждой карточке указано, к чему относится число.</p>
+        </div>
+        <p class="companies-note" data-i18n="companies.note">Доля AI-кода, доля токенов и ожидания сотрудников измеряют разные вещи. Эти значения показываем отдельно; они не меняют кольцо «Работа».</p>
+        <div class="company-grid">
+          <article class="company-card featured">
+            <div class="company-top"><span>01</span><small data-i18n="company.openai.kind">ВНУТРЕННЯЯ РАБОТА</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />OpenAI</h4>
+            <div class="company-metric"><strong>99<span>%</span></strong><span data-i18n="company.openai.metric">токенов AI-ответов среднего инженера — через Codex</span></div>
+            <p data-i18n="company.openai.copy">По отчёту OpenAI от 25 июня 2026, средний инженер получает через Codex 99% токенов своих AI-ответов. Это доля использования инструмента в сравнении с ChatGPT.</p>
+            <a class="external-link" href="https://openai.com/index/how-agents-are-transforming-work/" target="_blank" rel="noreferrer" data-i18n="company.openai.source">отчёт OpenAI</a>
+          </article>
+          <article class="company-card featured">
+            <div class="company-top"><span>02</span><small data-i18n="company.anthropic.kind">ВНУТРЕННИЙ КОД</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=anthropic.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />Anthropic</h4>
+            <div class="company-metric"><strong>80<span>%+</span></strong><span data-i18n="company.anthropic.metric">кода, включённого в кодовую базу, написал Claude</span></div>
+            <p data-i18n="company.anthropic.copy">Anthropic сообщает: к маю 2026 Claude писал более 80% кода, включённого в кодовую базу компании. Инженеры направляют работу и проверяют изменения.</p>
+            <a class="external-link" href="https://www.anthropic.com/institute/recursive-self-improvement" target="_blank" rel="noreferrer" data-i18n="company.anthropic.source">исследование Anthropic</a>
+          </article>
+          <article class="company-card unknown">
+            <div class="company-top"><span>03</span><small data-i18n="company.xai.kind">ДАННЫЕ НЕ РАСКРЫТЫ</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=x.ai&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />X / xAI</h4>
+            <div class="company-metric"><strong>—</strong><span data-i18n="company.xai.metric">доля внутренней работы AI не опубликована</span></div>
+            <p data-i18n="company.xai.copy">xAI сообщает о планах измерять внутреннее использование AI, но конкретная доля кода или замещённой работы пока не раскрыта.</p>
+            <a class="external-link" href="https://data.x.ai/2025-12-31-xai-frontier-artificial-intelligence-framework.pdf" target="_blank" rel="noreferrer" data-i18n="company.xai.source">документ xAI</a>
+          </article>
+          <article class="company-card">
+            <div class="company-top"><span>04</span><small data-i18n="company.google.kind">ВНУТРЕННИЙ КОД</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=google.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />Google</h4>
+            <div class="company-metric"><strong>75<span>%</span></strong><span data-i18n="company.google.metric">нового кода создано AI и проверено инженерами</span></div>
+            <p data-i18n="company.google.copy">В сообщении от 22 апреля 2026 Google оценивает эту долю в 75%. Проверка инженерами входит в описанный процесс.</p>
+            <a class="external-link" href="https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/cloud-next-2026-sundar-pichai/" target="_blank" rel="noreferrer" data-i18n="company.google.source">отчёт Google</a>
+          </article>
+          <article class="company-card">
+            <div class="company-top"><span>05</span><small data-i18n="company.microsoft.kind">ЗАЯВЛЕНИЕ CEO</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=microsoft.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />Microsoft</h4>
+            <div class="company-metric"><strong>20–30<span>%</span></strong><span data-i18n="company.microsoft.metric">кода в отдельных проектах</span></div>
+            <p data-i18n="company.microsoft.copy">В заявлении Сатьи Наделлы доля кода, написанного AI, оценивается в 20–30% для отдельных проектов Microsoft. Она зависит от языка и проекта.</p>
+            <a class="external-link" href="https://techcrunch.com/2025/04/29/microsoft-ceo-says-up-to-30-of-the-companys-code-was-written-by-ai/" target="_blank" rel="noreferrer" data-i18n="company.microsoft.source">публикация о заявлении CEO</a>
+          </article>
+          <article class="company-card">
+            <div class="company-top"><span>06</span><small data-i18n="company.amazon.kind">ОПРОС AWS</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=amazon.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />Amazon</h4>
+            <div class="company-metric"><strong>81<span>%</span></strong><span data-i18n="company.amazon.metric">опрошенных ожидают использовать AI к 2028 году</span></div>
+            <p data-i18n="company.amazon.copy">В опросе AWS более 6500 сотрудников в Европе 81% ожидали использовать AI на работе к 2028 году. Показатель отражает ожидания участников.</p>
+            <a class="external-link" href="https://assets.aboutamazon.com/bb/2e/9077b9f44a2898c01fcc7f35440d/aws-ai-europe.pdf" target="_blank" rel="noreferrer" data-i18n="company.amazon.source">опрос AWS</a>
+          </article>
+        </div>
+      </div>
+      <div class="workforce-block">
+        <div class="section-head company-head">
+          <div><p class="eyebrow" data-i18n="workforce.eyebrow">ЗАДАЧИ И РАБОЧИЕ МЕСТА</p><h3 data-i18n="workforce.title">Как меняется работа людей</h3></div>
+          <p class="section-copy" data-i18n="workforce.copy">Когда AI выполняет больше задач, меняются нагрузка и состав команд. Здесь собираем сообщения о сокращениях и объёме работы AI.</p>
+        </div>
+        <p class="companies-note" data-i18n="workforce.note">Для каждого случая сохраняем период, размер команды и характер заявления. Связь сокращения с AI может быть заявлена компанией или оставаться неясной.</p>
+        <div class="workforce-grid">
+          <article class="workforce-card explicit">
+            <div class="company-top"><span>01</span><small data-i18n="workforce.salesforce.kind">CEO СВЯЗАЛ СОКРАЩЕНИЕ С AI</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=salesforce.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />Salesforce</h4>
+            <div class="workforce-metric"><strong>44<span>%</span></strong><span data-i18n="workforce.salesforce.metric">сокращение численности поддержки</span></div>
+            <p data-i18n="workforce.salesforce.copy">По заявлению CEO, штат поддержки сократился примерно с 9000 до 5000 человек; он связал это с AI-агентами. 44% рассчитаны от численности этой команды.</p>
+            <a class="external-link" href="https://www.latimes.com/business/story/2025-09-02/salesforce-ceo-marc-benioff-says-he-cut-4-000-support-roles-because-of-ai" target="_blank" rel="noreferrer" data-i18n="workforce.salesforce.source">публикация о заявлении CEO</a>
+          </article>
+          <article class="workforce-card capacity">
+            <div class="company-top"><span>02</span><small data-i18n="workforce.klarna.kind">ЗАЯВЛЕННЫЙ ОБЪЁМ РАБОТЫ AI</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=klarna.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />Klarna</h4>
+            <div class="workforce-metric"><strong>700<span>+</span></strong><span data-i18n="workforce.klarna.metric">эквивалент полной занятости в поддержке</span></div>
+            <p data-i18n="workforce.klarna.copy">Klarna оценивала работу ассистента как эквивалент более 700 сотрудников поддержки с полной занятостью. Такая оценка описывает объём работы; для вывода о сокращении штата нужны отдельные данные.</p>
+            <a class="external-link" href="https://www.sec.gov/Archives/edgar/data/2003292/000200329226000007/klar-20251231.htm" target="_blank" rel="noreferrer" data-i18n="workforce.klarna.source">годовой отчёт Klarna</a>
+          </article>
+          <article class="workforce-card mixed">
+            <div class="company-top"><span>03</span><small data-i18n="workforce.amazon.kind">НЕСКОЛЬКО ПРИЧИН СОКРАЩЕНИЯ</small></div>
+            <h4><img class="company-logo" src="https://www.google.com/s2/favicons?domain=amazon.com&amp;sz=64" alt="" aria-hidden="true" onerror="this.hidden=true" />Amazon</h4>
+            <div class="workforce-metric"><strong>~4<span>%</span></strong><span data-i18n="workforce.amazon.metric">сокращение корпоративного штата</span></div>
+            <p data-i18n="workforce.amazon.copy">Около 14 000 объявленных сокращений при оценке корпоративного штата в 350 000 человек. Компания обсуждала AI и изменения структуры; доля сокращений, вызванных AI, не установлена.</p>
+            <a class="external-link" href="https://apnews.com/article/cb64af47ebb794541fbdfa8fd264932c" target="_blank" rel="noreferrer" data-i18n="workforce.amazon.source">отчёт о штате</a>
+          </article>
+        </div>
+      </div>
+      <div class="questions">
+        <details open><summary data-i18n="questions.ownershipTitle">AI написал код. Какую работу он заменил?</summary><p data-i18n="questions.ownershipCopy">Создание кода — один этап разработки. Постановка задачи, проверка, тестирование и выпуск могут оставаться за человеком. Для оценки замещения процесса нужны данные об этих этапах.</p></details>
+        <details><summary data-i18n="questions.selfTitle">Что означают проценты в кольцах?</summary><p data-i18n="questions.selfCopy">Код показывает сигнал участия AI в доступной выборке репозиториев. Работа — медиана условных 31% прототипа и медианной AI-оценки профессий ISCO-08. 24% для Жизни — условное значение. Общее число объединяет их по выбранным весам и подписано «Модель». Измеренной общей доли замещения пока нет.</p></details>
+        <details><summary data-i18n="questions.claimTitle">Когда можно сказать, что AI заменил сотрудника?</summary><p data-i18n="questions.claimCopy">Для такого вывода нужны данные о должностях, численности команды, периоде и причинах изменений. Объём работы в эквиваленте сотрудников и процент сгенерированного кода сами по себе такого вывода не дают.</p></details>
+      </div>
+    </section>
+
+    <section class="section shell roadmap-section" id="roadmap" aria-labelledby="roadmap-title">
+      <div class="section-head">
+        <div><p class="eyebrow" data-i18n="roadmap.eyebrow">КАРТА ЗАМЕЩЕНИЯ</p><h2 id="roadmap-title" data-i18n="roadmap.title">От подсказки к самостоятельной работе</h2></div>
+        <p class="section-copy" data-i18n="roadmap.copy">Чем больше этапов AI доводит до результата, тем больше работы он берёт на себя. Эта карта помогает описать отдельный случай.</p>
+      </div>
+
+      <div class="roadmap-card">
+
+
+        <div class="roadmap-stages">
+          <article class="roadmap-stage-card roadmap-assist" data-roadmap-stage="assist">
+            <span class="roadmap-stage-kicker" data-i18n="roadmap.stage.assist.kicker">01 / ПОДСКАЗКА</span>
+            <h3 data-i18n="roadmap.stage.assist.title">Помогает</h3>
+            <p data-i18n="roadmap.stage.assist.copy">Предлагает текст, ответ или фрагмент кода. Дальше работает человек.</p>
+          </article>
+          <article class="roadmap-stage-card roadmap-agents" data-roadmap-stage="agents">
+            <span class="roadmap-stage-kicker" data-i18n="roadmap.stage.agents.kicker">02 / ЗАДАЧА</span>
+            <h3 data-i18n="roadmap.stage.agents.title">Выполняет</h3>
+            <p data-i18n="roadmap.stage.agents.copy">Получает задачу и готовит результат для проверки человеком.</p>
+          </article>
+          <article class="roadmap-stage-card roadmap-process" data-roadmap-stage="process">
+            <span class="roadmap-stage-kicker" data-i18n="roadmap.stage.process.kicker">03 / ПРОЦЕСС</span>
+            <h3 data-i18n="roadmap.stage.process.title">Ведёт процесс</h3>
+            <p data-i18n="roadmap.stage.process.copy">Выполняет цепочку действий, проверяет результат, передаёт исключения.</p>
+          </article>
+          <article class="roadmap-stage-card roadmap-recursive" data-roadmap-stage="recursive">
+            <span class="roadmap-stage-kicker" data-i18n="roadmap.stage.recursive.kicker">04 / РАЗВИТИЕ</span>
+            <h3 data-i18n="roadmap.stage.recursive.title">Улучшает систему</h3>
+            <p data-i18n="roadmap.stage.recursive.copy">Участвует в создании инструментов и моделей. Степень самостоятельности исследуется отдельно.</p>
+          </article>
+        </div>
+        <p class="roadmap-footnote" data-i18n="roadmap.footnote">У разных задач разная степень замещения. Для AGI, ASI и автономного саморазвития нужны отдельные критерии и свидетельства.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer"><span><b>AI Countdown</b> · <span data-i18n="footer.left">наблюдаем за замещением человеческой работы</span></span><span data-i18n="footer.right">Прототип: Код — сигнал в выборке; Работа — медиана источников; Жизнь — условное значение. Методология и источники открыты.</span></footer>
+  <script src="app.js?v=20261019-domain-watermark"></script>
+</body>
+</html>

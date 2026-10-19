@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "observations": [
+    {
+      "id": "company-openai-codex",
+      "category": "company",
+      "metric": "ai-output-token-share",
+      "value": 99,
+      "unit": "percent-of-ai-output-tokens",
+      "status": "reported",
+      "source": "https://openai.com/index/how-agents-are-transforming-work/",
+      "observedAt": "2026-06-25",
+      "note": "Reported share of an average engineer's AI output tokens generated through Codex; not a share of all engineering work."
+    },
+    {
+      "id": "company-anthropic-code",
+      "category": "company",
+      "metric": "ai-authored-merged-code",
+      "value": 80,
+      "unit": "percent-at-least",
+      "status": "reported",
+      "source": "https://www.anthropic.com/institute/recursive-self-improvement",
+      "observedAt": "2026-05",
+      "lowerBound": true,
+      "note": "Anthropic reports that Claude authored over 80% of code merged into its codebase; engineers direct and review the work."
+    },
+    {
+      "id": "company-xai-code",
+      "category": "company",
+      "metric": "internal-ai-work-share",
+      "value": null,
+      "unit": "undisclosed",
+      "status": "reported",
+      "source": "https://data.x.ai/2025-12-31-xai-frontier-artificial-intelligence-framework.pdf",
+      "observedAt": "2025-12-31",
+      "note": "xAI has not published a comparable percentage."
+    },
+    {
+      "id": "company-google-code",
+      "category": "company",
+      "metric": "ai-generated-new-code",
+      "value": 75,
+      "unit": "percent-of-new-code",
+      "status": "reported",
+      "source": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/cloud-next-2026-sundar-pichai/",
+      "observedAt": "2026-04-22",
+      "note": "Reported new code generated with AI and reviewed by engineers."
+    },
+    {
+      "id": "company-microsoft-code",
+      "category": "company",
+      "metric": "ai-written-code",
+      "value": 25,
+      "range": [20, 30],
+      "unit": "percent-of-code-in-selected-projects",
+      "status": "reported",
+      "source": "https://techcrunch.com/2025/04/29/microsoft-ceo-says-up-to-30-of-the-companys-code-was-written-by-ai/",
+      "observedAt": "2025-04-29",
+      "note": "Approximate range for selected Microsoft projects, not the whole company."
+    },
+    {
+      "id": "company-amazon-ai-adoption",
+      "category": "company",
+      "metric": "expected-ai-use",
+      "value": 81,
+      "unit": "percent-of-survey-respondents-by-2028",
+      "status": "reported",
+      "source": "https://assets.aboutamazon.com/bb/2e/9077b9f44a2898c01fcc7f35440d/aws-ai-europe.pdf",
+      "observedAt": null,
+      "note": "Survey expectation about future workplace AI use, not observed automation."
+    },
+    {
+      "id": "workforce-salesforce-support",
+      "category": "workforce",
+      "metric": "support-headcount-reduction-linked-to-ai",
+      "value": 44,
+      "unit": "percent-of-support-team",
+      "status": "reported",
+      "source": "https://www.latimes.com/business/story/2025-09-02/salesforce-ceo-marc-benioff-says-he-cut-4-000-support-roles-because-of-ai",
+      "observedAt": "2025-09-02",
+      "note": "Calculated from a reported reduction from roughly 9,000 to 5,000 support roles; attribution to AI comes from the CEO statement."
+    },
+    {
+      "id": "workforce-klarna-support",
+      "category": "workforce",
+      "metric": "ai-support-capacity",
+      "value": 700,
+      "unit": "full-time-equivalent-people-plus",
+      "status": "reported",
+      "source": "https://www.sec.gov/Archives/edgar/data/2003292/000200329226000007/klar-20251231.htm",
+      "observedAt": "2025-12-31",
+      "lowerBound": true,
+      "note": "Reported support capacity equivalent; it does not prove that 700 employees were dismissed."
+    },
+    {
+      "id": "workforce-amazon-corporate",
+      "category": "workforce",
+      "metric": "corporate-headcount-reduction",
+      "value": 4,
+      "unit": "approx-percent-of-corporate-workforce",
+      "status": "reported",
+      "source": "https://apnews.com/article/cb64af47ebb794541fbdfa8fd264932c",
+      "observedAt": null,
+      "note": "Approximate announced corporate reduction; the AI-attributable share is not established."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "ai-countdown",
+  "private": true,
+  "version": "0.2.0",
+  "scripts": {
+    "start": "node server.js",
+    "work:inputs": "node refresh-work-occupations.js inputs",
+    "work:rate": "node refresh-work-occupations.js rate",
+    "work:verify": "node refresh-work-occupations.js verify"
+  }
+}

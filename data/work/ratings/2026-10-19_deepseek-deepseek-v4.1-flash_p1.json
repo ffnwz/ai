@@ -1,0 +1,1799 @@
+{
+  "version": 1,
+  "checkedAt": "2026-10-19T07:53:45.735Z",
+  "checkedDate": "2026-10-19",
+  "provider": "openrouter",
+  "model": "deepseek/deepseek-v4.1-flash",
+  "servedBy": [
+    "PrimeIntellect",
+    "Wafer",
+    "Ionstream",
+    "DeepInfra",
+    "Makora",
+    "Crusoe",
+    "InferenceNet",
+    "Morph"
+  ],
+  "request": {
+    "temperature": 0,
+    "seed": 42,
+    "batchSize": 25,
+    "reasoningEffort": "medium",
+    "maxTokens": 32000,
+    "responseFormat": "json_schema (strict)"
+  },
+  "scale": {
+    "0": "AI cannot help with this job at all.",
+    "50": "AI can do the job together with a person who directs, checks, or completes it.",
+    "100": "AI is ready to do the job without a person."
+  },
+  "prompt": {
+    "version": 1,
+    "sha256": "6a73ddfb0247bc78e9d78f256ef53120a13207e1dc4400fecf2948339eee4b6d",
+    "system": "You rate occupations for AI Countdown, a project that tracks how much human work AI can already take on.\n\nEach occupation is an ISCO-08 unit group: the international classification of jobs used across Europe, Russia, Asia, and the Americas. Judge the typical work of the group as it is done today, not one country's version of it.\n\nFor each occupation, give one integer score from 0 to 100 for the occupation as a whole:\n- 0: AI cannot help with this job at all.\n- 50: AI can do the job together with a person who directs, checks, or completes it.\n- 100: AI is ready to do the job without a person.\nUse any value in between when the job sits between these points.\n\nHow to judge:\n- Think about the core tasks of the occupation and how much working time each one takes. The score describes the whole job, not its easiest task.\n- Count only AI that is commercially available now: language models, agents that use software tools and computers, speech, vision, and document models. Do not assume general-purpose robots or self-driving fleets that are not widely deployed.\n- Physical, hands-on, in-person, or licensed work that AI cannot carry out itself pulls the score toward 0, even when AI helps with paperwork around it.\n- Rate capability, not legal permission or how fast employers adopt it.\n\nReturn exactly one rating per occupation, using the code you were given, with a rationale in English of at most 20 words."
+  },
+  "inputs": {
+    "classifier": {
+      "file": "data/work/isco08-occupations.json",
+      "sha256": "618a7ae56bcabeee05d36e7cd555a8fe453fe5f35fb392a8b58b049edbd1441b",
+      "occupations": 436
+    }
+  },
+  "status": "complete",
+  "coverage": {
+    "rated": 436,
+    "total": 436
+  },
+  "usage": {
+    "inputTokens": 13626,
+    "outputTokens": 49938,
+    "costUsd": 0.042658
+  },
+  "ratings": {
+    "1111": {
+      "score": 30,
+      "rationale": "Core negotiation, representation, public trust; AI assists research and communication only."
+    },
+    "1112": {
+      "score": 35,
+      "rationale": "Policy implementation, coordination, accountability; AI aids analysis and admin but cannot decide or lead."
+    },
+    "1113": {
+      "score": 10,
+      "rationale": "Cultural, ceremonial, community leadership, in-person dispute resolution; AI minimal."
+    },
+    "1114": {
+      "score": 40,
+      "rationale": "Advocacy, member relations, strategy; AI helps drafting and analysis, not representation."
+    },
+    "1120": {
+      "score": 40,
+      "rationale": "Strategy, capital allocation, leadership, accountability; AI assists analysis but cannot lead or own decisions."
+    },
+    "1211": {
+      "score": 55,
+      "rationale": "Budgeting, forecasting, reporting AI-strong; judgment, controls, team, compliance accountability remain human."
+    },
+    "1212": {
+      "score": 50,
+      "rationale": "Recruiting, policies, records AI-assisted; conflict, culture, legal judgment need human."
+    },
+    "1213": {
+      "score": 50,
+      "rationale": "Research, drafting, scenario analysis AI-strong; stakeholder negotiation and accountability human."
+    },
+    "1219": {
+      "score": 50,
+      "rationale": "Process, contracts, reporting AI-assisted; coordination and judgment remain human."
+    },
+    "1221": {
+      "score": 55,
+      "rationale": "Campaigns, analytics, content AI-strong; client relationships and team leadership human."
+    },
+    "1222": {
+      "score": 55,
+      "rationale": "Content, media monitoring, analytics AI-strong; reputation judgment and relationships human."
+    },
+    "1223": {
+      "score": 55,
+      "rationale": "Literature, data, prototyping AI-assisted; scientific judgment, team, lab operations human."
+    },
+    "1311": {
+      "score": 25,
+      "rationale": "Physical operations, weather, livestock, crops; AI aids planning and monitoring only."
+    },
+    "1312": {
+      "score": 25,
+      "rationale": "Physical husbandry, vessels, water conditions; AI assists monitoring and planning."
+    },
+    "1321": {
+      "score": 40,
+      "rationale": "Production planning, quality data AI-assisted; shopfloor, safety, people, equipment human."
+    },
+    "1322": {
+      "score": 30,
+      "rationale": "Underground and site safety, equipment, workforce; AI aids planning and analysis only."
+    },
+    "1323": {
+      "score": 30,
+      "rationale": "On-site coordination, safety, trades, physical build; AI assists scheduling and documents."
+    },
+    "1324": {
+      "score": 50,
+      "rationale": "Logistics optimization, inventory AI-strong; physical distribution, suppliers, exceptions human."
+    },
+    "1330": {
+      "score": 60,
+      "rationale": "IT service, cloud, monitoring AI-strong; architecture, security, team, accountability human."
+    },
+    "1341": {
+      "score": 30,
+      "rationale": "Child safety, staff, parents, licensing in-person; AI aids admin only."
+    },
+    "1342": {
+      "score": 45,
+      "rationale": "Operations, budgets, staffing AI-assisted; clinical governance, people, regulation human."
+    },
+    "1343": {
+      "score": 30,
+      "rationale": "Personal care oversight, safety, families in-person; AI aids rostering and admin."
+    },
+    "1344": {
+      "score": 35,
+      "rationale": "Casework oversight, vulnerable people, legal and ethical judgment; AI aids admin."
+    },
+    "1345": {
+      "score": 40,
+      "rationale": "Curriculum, staff, students, parents; AI aids planning and admin, leadership human."
+    },
+    "1346": {
+      "score": 50,
+      "rationale": "Sales, compliance, team, client trust; AI aids analytics and documents, relationship human."
+    },
+    "1349": {
+      "score": 55,
+      "rationale": "AI aids analysis, documents, scheduling; human client relations, team leadership, and accountability remain essential."
+    },
+    "1411": {
+      "score": 35,
+      "rationale": "AI helps bookings, reports, scheduling; physical hotel operations, staff, and guest handling need humans."
+    },
+    "1412": {
+      "score": 30,
+      "rationale": "AI assists inventory, scheduling, marketing; hands-on food service, staff, and customer management dominate."
+    },
+    "1420": {
+      "score": 40,
+      "rationale": "AI supports forecasting, inventory, analytics; physical stores, staff, and customer interactions require humans."
+    },
+    "1431": {
+      "score": 35,
+      "rationale": "AI helps scheduling, marketing, analytics; facility operations, events, and in-person staff management need humans."
+    },
+    "1439": {
+      "score": 40,
+      "rationale": "AI aids admin, scheduling, analytics; varied physical, interpersonal, and operational duties need human oversight."
+    },
+    "2111": {
+      "score": 65,
+      "rationale": "AI models, analyzes data, writes papers; experiments, observations, and physical apparatus still need humans."
+    },
+    "2112": {
+      "score": 70,
+      "rationale": "AI improves forecasting, data analysis, modeling; public warnings, instruments, and expert judgment need humans."
+    },
+    "2113": {
+      "score": 55,
+      "rationale": "AI designs molecules, analyzes spectra, writes reports; laboratory synthesis, safety, and physical testing need humans."
+    },
+    "2114": {
+      "score": 50,
+      "rationale": "AI aids data interpretation, mapping, modeling; fieldwork, sampling, and physical site assessment need humans."
+    },
+    "2120": {
+      "score": 80,
+      "rationale": "AI performs proofs, statistical modeling, coding, and analysis; problem framing and validation need human oversight."
+    },
+    "2131": {
+      "score": 55,
+      "rationale": "AI assists data analysis, literature, modeling; laboratory, field, and specimen work need human hands."
+    },
+    "2132": {
+      "score": 45,
+      "rationale": "AI helps data, planning, advice; farm, forest, and fishery site visits need human presence."
+    },
+    "2133": {
+      "score": 50,
+      "rationale": "AI aids monitoring, modeling, compliance; field inspections, sampling, and enforcement need human presence."
+    },
+    "2141": {
+      "score": 65,
+      "rationale": "AI optimizes processes, designs, simulations; physical production, testing, and site implementation need humans."
+    },
+    "2142": {
+      "score": 55,
+      "rationale": "AI assists design, calculations, drafting; site work, safety, licensing, and physical infrastructure need humans."
+    },
+    "2143": {
+      "score": 55,
+      "rationale": "AI aids modeling, compliance, design; field assessments, remediation, and physical systems need human oversight."
+    },
+    "2144": {
+      "score": 60,
+      "rationale": "AI helps design, simulation, analysis; physical prototyping, testing, and manufacturing implementation need humans."
+    },
+    "2145": {
+      "score": 55,
+      "rationale": "AI assists process design, simulation, analysis; laboratory, plant, safety, and physical operations need humans."
+    },
+    "2146": {
+      "score": 50,
+      "rationale": "AI aids modeling, data analysis, planning; mine sites, samples, and physical extraction need human presence."
+    },
+    "2149": {
+      "score": 55,
+      "rationale": "AI supports design, analysis, documentation; varied physical testing, site work, and licensing need humans."
+    },
+    "2151": {
+      "score": 60,
+      "rationale": "AI assists circuit design, simulation, analysis; physical installation, testing, and safety sign-off need humans."
+    },
+    "2152": {
+      "score": 60,
+      "rationale": "AI helps design, simulation, diagnostics; hardware prototyping, testing, and physical systems need human hands."
+    },
+    "2153": {
+      "score": 60,
+      "rationale": "AI aids network design, optimization, diagnostics; physical infrastructure, installation, and field work need humans."
+    },
+    "2161": {
+      "score": 55,
+      "rationale": "AI assists drafting, modeling, compliance; site visits, client needs, and physical building constraints need humans."
+    },
+    "2162": {
+      "score": 60,
+      "rationale": "AI drafts plans, plant lists, and reports, but site visits, client negotiation, and construction oversight need humans."
+    },
+    "2163": {
+      "score": 65,
+      "rationale": "AI generates concepts, patterns, and variations; physical fit, materials, manufacturing, and brand judgment remain human-led."
+    },
+    "2164": {
+      "score": 65,
+      "rationale": "AI models traffic, zoning, and reports; public consultation, politics, and site-specific decisions require human planners."
+    },
+    "2165": {
+      "score": 50,
+      "rationale": "AI processes geospatial data and maps; field measurement, legal boundaries, and equipment operation need humans."
+    },
+    "2166": {
+      "score": 70,
+      "rationale": "AI creates images, layouts, and edits; art direction, brand strategy, and final production still need human designers."
+    },
+    "2211": {
+      "score": 50,
+      "rationale": "AI aids diagnosis, notes, and triage; physical exams, procedures, and accountable care require human doctors."
+    },
+    "2212": {
+      "score": 50,
+      "rationale": "AI reads images and suggests treatments; surgery, procedures, and complex patient judgment remain human-led."
+    },
+    "2221": {
+      "score": 35,
+      "rationale": "AI helps records and monitoring; hands-on care, medication, emergencies, and emotional support need nurses."
+    },
+    "2222": {
+      "score": 25,
+      "rationale": "AI can support records and risk flags; labor, delivery, emergencies, and hands-on care require midwives."
+    },
+    "2230": {
+      "score": 25,
+      "rationale": "AI offers information and scheduling; hands-on therapies, individualized care, and practitioner judgment remain essential."
+    },
+    "2240": {
+      "score": 30,
+      "rationale": "AI assists triage and documentation; emergency procedures, physical care, and field decisions need humans."
+    },
+    "2250": {
+      "score": 30,
+      "rationale": "AI aids diagnosis and records; animal handling, surgery, and clinical procedures require licensed veterinarians."
+    },
+    "2261": {
+      "score": 20,
+      "rationale": "AI reads X-rays and plans; drilling, surgery, and hands-on patient care cannot be done by AI."
+    },
+    "2262": {
+      "score": 55,
+      "rationale": "AI checks interactions and dispenses; patient counseling, vaccinations, and clinical judgment need pharmacists."
+    },
+    "2263": {
+      "score": 55,
+      "rationale": "AI analyzes data and regulations; workplace inspections, sampling, and enforcement require human professionals."
+    },
+    "2264": {
+      "score": 30,
+      "rationale": "AI suggests exercises and tracks progress; manual therapy, assessment, and hands-on rehabilitation need physiotherapists."
+    },
+    "2265": {
+      "score": 60,
+      "rationale": "AI creates meal plans and analyzes diets; clinical assessment, counseling, and accountability need human dieticians."
+    },
+    "2266": {
+      "score": 45,
+      "rationale": "AI supports testing and speech exercises; diagnosis, therapy, and hearing-aid fitting need human specialists."
+    },
+    "2267": {
+      "score": 35,
+      "rationale": "AI aids eye imaging and records; refraction, fitting, and clinical eye exams require optometrists."
+    },
+    "2269": {
+      "score": 45,
+      "rationale": "AI helps varied health tasks; many roles need physical exams, procedures, or licensed human judgment."
+    },
+    "2310": {
+      "score": 60,
+      "rationale": "AI creates content, grades, and tutors; lectures, research, mentorship, and assessment judgment need academics."
+    },
+    "2320": {
+      "score": 45,
+      "rationale": "AI prepares materials and assessments; hands-on skills, equipment, and workplace coaching need teachers."
+    },
+    "2330": {
+      "score": 55,
+      "rationale": "AI plans lessons and grades; classroom management, motivation, and student welfare need human teachers."
+    },
+    "2341": {
+      "score": 45,
+      "rationale": "AI assists lessons and records; child supervision, social development, and classroom care need teachers."
+    },
+    "2342": {
+      "score": 30,
+      "rationale": "AI can suggest activities; physical care, play, safety, and social-emotional development require human educators."
+    },
+    "2351": {
+      "score": 65,
+      "rationale": "AI drafts curricula and methods, but human validation and classroom context remain essential."
+    },
+    "2352": {
+      "score": 30,
+      "rationale": "AI can adapt materials and plans, but direct individualized care and teaching are in-person."
+    },
+    "2353": {
+      "score": 60,
+      "rationale": "AI tutors language, generates lessons and feedback; human manages class and motivation."
+    },
+    "2354": {
+      "score": 25,
+      "rationale": "Instrument and voice teaching needs physical demonstration, real-time correction, and performance coaching."
+    },
+    "2355": {
+      "score": 30,
+      "rationale": "AI aids ideas and critique, but hands-on studio, performance, and mentorship dominate."
+    },
+    "2356": {
+      "score": 60,
+      "rationale": "AI creates IT training content and simulations; human leads labs and learner support."
+    },
+    "2359": {
+      "score": 45,
+      "rationale": "Mixed teaching roles: AI assists content, but in-person instruction and assessment remain central."
+    },
+    "2411": {
+      "score": 70,
+      "rationale": "AI automates bookkeeping, tax prep, and reports; licensed judgment and client sign-off remain."
+    },
+    "2412": {
+      "score": 55,
+      "rationale": "AI analyzes portfolios and drafts advice; trust, regulation, and client relationships need humans."
+    },
+    "2413": {
+      "score": 75,
+      "rationale": "AI builds models, analyzes data, and writes reports; humans frame decisions and clients."
+    },
+    "2421": {
+      "score": 65,
+      "rationale": "AI researches processes and drafts recommendations; stakeholder change management stays human."
+    },
+    "2422": {
+      "score": 55,
+      "rationale": "AI drafts and analyzes policy; political judgment, consultation, and accountability remain human."
+    },
+    "2423": {
+      "score": 60,
+      "rationale": "AI screens candidates and advises careers; empathy, law, and negotiation need people."
+    },
+    "2424": {
+      "score": 65,
+      "rationale": "AI generates training content and assessments; human facilitation and needs analysis remain."
+    },
+    "2431": {
+      "score": 70,
+      "rationale": "AI creates campaigns, copy, and analytics; brand strategy and client judgment need humans."
+    },
+    "2432": {
+      "score": 60,
+      "rationale": "AI drafts releases and monitors media; relationships, crisis judgment, and trust stay human."
+    },
+    "2433": {
+      "score": 40,
+      "rationale": "AI supports product info and leads; complex in-person medical/technical sales rely on trust."
+    },
+    "2434": {
+      "score": 50,
+      "rationale": "AI helps proposals and demos; enterprise ICT sales still needs relationship and negotiation."
+    },
+    "2511": {
+      "score": 75,
+      "rationale": "AI gathers requirements, models systems, and documents; human architecture and stakeholders remain."
+    },
+    "2512": {
+      "score": 80,
+      "rationale": "AI writes, tests, and debugs code; humans handle architecture, requirements, and deployment."
+    },
+    "2513": {
+      "score": 80,
+      "rationale": "AI generates web code, design, and media; humans direct UX, integration, and quality."
+    },
+    "2514": {
+      "score": 85,
+      "rationale": "AI can write and debug most application code; humans specify, review, and deploy."
+    },
+    "2519": {
+      "score": 75,
+      "rationale": "Varied software roles: AI handles coding and analysis, but human design and context remain."
+    },
+    "2521": {
+      "score": 75,
+      "rationale": "AI writes queries, tunes, and monitors databases; human design, security, and recovery remain."
+    },
+    "2522": {
+      "score": 70,
+      "rationale": "AI automates monitoring, scripting, and troubleshooting; physical infrastructure and security judgment need humans."
+    },
+    "2523": {
+      "score": 55,
+      "rationale": "AI automates config, monitoring, diagnostics; physical setup and architecture need humans."
+    },
+    "2529": {
+      "score": 55,
+      "rationale": "AI writes queries, tunes, automates; system design and physical ops need humans."
+    },
+    "2611": {
+      "score": 55,
+      "rationale": "AI drafts, researches; court, negotiation, ethics need licensed human."
+    },
+    "2612": {
+      "score": 20,
+      "rationale": "AI can research, but adjudication, courtroom authority, human judgment remain human."
+    },
+    "2619": {
+      "score": 50,
+      "rationale": "AI assists research, documents; licensing, representation, judgment need humans."
+    },
+    "2621": {
+      "score": 45,
+      "rationale": "AI catalogs, researches; physical preservation, exhibitions, curation judgment need humans."
+    },
+    "2622": {
+      "score": 55,
+      "rationale": "AI handles reference, cataloging, search; community, physical collections need humans."
+    },
+    "2631": {
+      "score": 65,
+      "rationale": "AI analyzes data, models, writes; original policy judgment and client context need humans."
+    },
+    "2632": {
+      "score": 55,
+      "rationale": "AI analyzes, transcribes, writes; fieldwork, interviews, interpretation need humans."
+    },
+    "2633": {
+      "score": 65,
+      "rationale": "AI researches, summarizes, drafts; original scholarship and teaching need humans."
+    },
+    "2634": {
+      "score": 45,
+      "rationale": "AI assists notes, research, triage; therapy, diagnosis, licensed care need humans."
+    },
+    "2635": {
+      "score": 35,
+      "rationale": "AI documents, triages; crisis, home visits, emotional support need humans."
+    },
+    "2636": {
+      "score": 20,
+      "rationale": "AI drafts sermons; rituals, pastoral care, sacred community need humans."
+    },
+    "2641": {
+      "score": 65,
+      "rationale": "AI drafts, edits, generates; original voice, contracts, publication need humans."
+    },
+    "2642": {
+      "score": 60,
+      "rationale": "AI researches, drafts, summarizes; interviews, field reporting, ethics need humans."
+    },
+    "2643": {
+      "score": 70,
+      "rationale": "AI translates well; live interpreting and nuanced cultural work still need humans."
+    },
+    "2651": {
+      "score": 45,
+      "rationale": "AI generates images; physical craft, exhibitions, original concept need humans."
+    },
+    "2652": {
+      "score": 40,
+      "rationale": "AI composes, generates audio; live performance, instruments, vocals need humans."
+    },
+    "2653": {
+      "score": 15,
+      "rationale": "AI may choreograph; physical performance and live presence need humans."
+    },
+    "2654": {
+      "score": 45,
+      "rationale": "AI assists scripts, edits, planning; leadership, physical production need humans."
+    },
+    "2655": {
+      "score": 20,
+      "rationale": "AI can generate voices/faces; live performance, embodiment, presence need humans."
+    },
+    "2656": {
+      "score": 50,
+      "rationale": "AI voices/avatars can present; live personality, interviews, spontaneity need humans."
+    },
+    "2659": {
+      "score": 30,
+      "rationale": "AI assists content; live, physical, original performance need humans."
+    },
+    "3111": {
+      "score": 35,
+      "rationale": "AI analyzes data; hands-on lab equipment, samples, safety need humans."
+    },
+    "3112": {
+      "score": 40,
+      "rationale": "AI aids drafting, calculations; site testing, inspection, physical work need humans."
+    },
+    "3113": {
+      "score": 45,
+      "rationale": "AI aids design, testing, diagnostics, and documentation, but physical installation and repair limit autonomy."
+    },
+    "3114": {
+      "score": 45,
+      "rationale": "AI assists circuit analysis, diagnostics, and reports; hands-on testing, soldering, and repair keep human needed."
+    },
+    "3115": {
+      "score": 45,
+      "rationale": "AI helps CAD, calculations, and fault diagnosis; physical assembly, testing, and maintenance require technicians."
+    },
+    "3116": {
+      "score": 45,
+      "rationale": "AI supports data analysis, protocols, and reporting; sample handling and lab equipment operation remain manual."
+    },
+    "3117": {
+      "score": 35,
+      "rationale": "AI can analyze assay and geological data; field sampling, equipment, and safety work are physical."
+    },
+    "3118": {
+      "score": 70,
+      "rationale": "AI can generate and revise CAD drawings from specifications, but standards and review need draughtsperson."
+    },
+    "3119": {
+      "score": 45,
+      "rationale": "Broad technician role mixes computer analysis with hands-on testing; AI assists but cannot replace physical tasks."
+    },
+    "3121": {
+      "score": 30,
+      "rationale": "AI helps scheduling, reporting, and safety monitoring; supervising miners underground remains physical and human-led."
+    },
+    "3122": {
+      "score": 40,
+      "rationale": "AI aids production scheduling, quality tracking, and reports; shop-floor supervision and worker management need presence."
+    },
+    "3123": {
+      "score": 30,
+      "rationale": "AI assists planning, documentation, and safety checks; on-site coordination and physical inspection require supervisors."
+    },
+    "3131": {
+      "score": 55,
+      "rationale": "AI can monitor and optimize plant parameters, but emergency response and physical checks need operators."
+    },
+    "3132": {
+      "score": 50,
+      "rationale": "AI helps monitor treatment processes and optimize chemicals; physical maintenance and compliance sampling remain human."
+    },
+    "3133": {
+      "score": 55,
+      "rationale": "AI can optimize control loops and predict faults; plant upsets, safety, and physical intervention need controllers."
+    },
+    "3134": {
+      "score": 55,
+      "rationale": "AI assists refinery monitoring and optimization; hazardous operations, emergencies, and equipment checks require operators."
+    },
+    "3135": {
+      "score": 50,
+      "rationale": "AI supports process monitoring and optimization; molten metal handling and emergency intervention remain physical."
+    },
+    "3139": {
+      "score": 50,
+      "rationale": "Mixed process control work; AI aids monitoring and optimization, but physical plant and safety duties persist."
+    },
+    "3141": {
+      "score": 45,
+      "rationale": "AI helps analyze lab data and protocols; sample preparation, experiments, and instrument handling are physical."
+    },
+    "3142": {
+      "score": 35,
+      "rationale": "AI aids crop data, advice, and reporting; field sampling, farm visits, and equipment work are physical."
+    },
+    "3143": {
+      "score": 30,
+      "rationale": "AI assists forest data analysis and planning; fieldwork, surveying, and physical management limit autonomy."
+    },
+    "3151": {
+      "score": 25,
+      "rationale": "AI can diagnose machinery and support documentation; onboard repairs and engine-room operations are hands-on."
+    },
+    "3152": {
+      "score": 25,
+      "rationale": "AI aids navigation, weather, and routing; ship handling, watchkeeping, and legal responsibility need officers."
+    },
+    "3153": {
+      "score": 30,
+      "rationale": "AI assists flight planning, autopilot, and monitoring; takeoff, landing, and emergencies require licensed pilots."
+    },
+    "3154": {
+      "score": 40,
+      "rationale": "AI can help trajectory prediction and conflict detection; real-time separation and safety responsibility need controllers."
+    },
+    "3155": {
+      "score": 30,
+      "rationale": "AI aids diagnostics and documentation; installing, repairing, and certifying air traffic electronics is physical."
+    },
+    "3211": {
+      "score": 40,
+      "rationale": "AI helps image analysis and reporting; patient positioning, scanning, and radiation safety require technicians."
+    },
+    "3212": {
+      "score": 40,
+      "rationale": "AI aids test analysis and records; manual specimen handling and instruments limit autonomy."
+    },
+    "3213": {
+      "score": 35,
+      "rationale": "AI helps inventory, labels, drug information; physical dispensing and compounding remain human tasks."
+    },
+    "3214": {
+      "score": 40,
+      "rationale": "AI assists CAD design and scans; fabricating, finishing, and fitting prosthetics remain hands-on."
+    },
+    "3221": {
+      "score": 25,
+      "rationale": "AI supports monitoring and documentation; direct patient care, medication, and hygiene are physical."
+    },
+    "3222": {
+      "score": 20,
+      "rationale": "AI aids risk checks and records; childbirth care, examinations, and emergency support are hands-on."
+    },
+    "3230": {
+      "score": 15,
+      "rationale": "AI can schedule and inform; acupuncture, massage, and hands-on therapies cannot be delivered remotely."
+    },
+    "3240": {
+      "score": 25,
+      "rationale": "AI helps records and diagnostics; animal restraint, procedures, and lab handling need physical presence."
+    },
+    "3251": {
+      "score": 20,
+      "rationale": "AI assists imaging and records; chairside care, instrument preparation, and dental procedures are physical."
+    },
+    "3252": {
+      "score": 75,
+      "rationale": "AI can code, summarize, and manage records; humans oversee privacy, accuracy, and exceptions."
+    },
+    "3253": {
+      "score": 30,
+      "rationale": "AI supports education, referrals, and documentation; community outreach and home visits need human trust."
+    },
+    "3254": {
+      "score": 30,
+      "rationale": "AI helps lens orders and calculations; measuring, fitting, and adjusting eyewear require physical presence."
+    },
+    "3255": {
+      "score": 25,
+      "rationale": "AI aids exercise plans and records; hands-on therapy, patient handling, and supervision remain physical."
+    },
+    "3256": {
+      "score": 40,
+      "rationale": "AI handles scheduling, coding, and records; vitals, injections, and patient care are physical."
+    },
+    "3257": {
+      "score": 35,
+      "rationale": "AI helps regulations, reports, and data; site inspections, sampling, and enforcement need physical presence."
+    },
+    "3258": {
+      "score": 15,
+      "rationale": "AI aids dispatch, triage, and records; driving, CPR, trauma care, and transport are physical."
+    },
+    "3259": {
+      "score": 30,
+      "rationale": "AI assists varied health support tasks; many roles involve direct patient contact and physical care."
+    },
+    "3311": {
+      "score": 75,
+      "rationale": "AI analyzes markets, executes trades, and monitors risk; client trust and regulation need oversight."
+    },
+    "3312": {
+      "score": 70,
+      "rationale": "AI scores credit, reviews documents, and drafts decisions; exceptions and client relations need humans."
+    },
+    "3313": {
+      "score": 80,
+      "rationale": "AI automates bookkeeping, reconciliation, payroll, and reports; human review ensures compliance and accuracy."
+    },
+    "3314": {
+      "score": 80,
+      "rationale": "AI performs data analysis, statistical modeling, and reporting; humans frame problems and validate results."
+    },
+    "3315": {
+      "score": 50,
+      "rationale": "AI helps comparables, data, and reports; property inspection and damage assessment need physical presence."
+    },
+    "3321": {
+      "score": 65,
+      "rationale": "AI automates quotes, claims, and customer chat; complex sales and trust need human representatives."
+    },
+    "3322": {
+      "score": 60,
+      "rationale": "AI supports leads, proposals, and CRM; negotiating, traveling, and client relationships remain human."
+    },
+    "3323": {
+      "score": 65,
+      "rationale": "AI analyzes suppliers, prices, and inventory; negotiation and supplier relationships still need human judgment."
+    },
+    "3324": {
+      "score": 70,
+      "rationale": "AI analyzes markets, matches trades, and monitors positions; negotiation and client trust need oversight."
+    },
+    "3331": {
+      "score": 55,
+      "rationale": "AI handles documents, tracking, quotes; physical coordination, customs exceptions, client negotiation need people."
+    },
+    "3332": {
+      "score": 50,
+      "rationale": "AI helps proposals, schedules, vendor emails; on-site logistics, negotiation, physical setup need humans."
+    },
+    "3333": {
+      "score": 60,
+      "rationale": "AI screens CVs, matches, schedules; interviews, relationship, placement judgment need humans."
+    },
+    "3334": {
+      "score": 45,
+      "rationale": "AI writes listings, answers queries; viewings, negotiations, inspections, tenant issues are in-person."
+    },
+    "3339": {
+      "score": 50,
+      "rationale": "Mixed tasks; AI assists research, documents, scheduling, but varied client and physical work remain."
+    },
+    "3341": {
+      "score": 45,
+      "rationale": "AI aids scheduling, reports; supervising people, resolving conflicts, physical office tasks need human."
+    },
+    "3342": {
+      "score": 70,
+      "rationale": "AI drafts, files, schedules, researches; confidentiality, court rules, lawyer direction need human check."
+    },
+    "3343": {
+      "score": 70,
+      "rationale": "AI manages email, calendars, travel, documents; discretion, relationships, errands need human."
+    },
+    "3344": {
+      "score": 65,
+      "rationale": "AI schedules, codes, records; patient interaction, privacy, clinical coordination need human oversight."
+    },
+    "3351": {
+      "score": 30,
+      "rationale": "AI checks data, documents; physical inspection, interviews, legal enforcement decisions need officers."
+    },
+    "3352": {
+      "score": 50,
+      "rationale": "AI analyzes returns, detects anomalies; audits, legal judgment, taxpayer interviews need humans."
+    },
+    "3353": {
+      "score": 50,
+      "rationale": "AI processes claims, eligibility data; sensitive interviews, exceptions, legal discretion need humans."
+    },
+    "3354": {
+      "score": 55,
+      "rationale": "AI reviews forms, checks criteria; inspections, legal discretion, applicant interaction need humans."
+    },
+    "3355": {
+      "score": 35,
+      "rationale": "AI analyzes evidence, reports, data; interviews, fieldwork, arrests, legal decisions need officers."
+    },
+    "3359": {
+      "score": 45,
+      "rationale": "AI assists document review, monitoring; inspections, enforcement, legal judgment need human."
+    },
+    "3411": {
+      "score": 65,
+      "rationale": "AI researches, drafts, reviews documents; court, client, licensed judgment need human."
+    },
+    "3412": {
+      "score": 25,
+      "rationale": "AI helps admin, notes, resources; in-person care, crisis, advocacy, judgment need humans."
+    },
+    "3413": {
+      "score": 15,
+      "rationale": "AI can draft sermons, texts; pastoral care, rituals, community presence need humans."
+    },
+    "3421": {
+      "score": 5,
+      "rationale": "AI aids analytics and training plans; physical performance itself cannot be done by AI."
+    },
+    "3422": {
+      "score": 25,
+      "rationale": "AI plans drills, analyzes stats; in-person coaching, motivation, officiating need humans."
+    },
+    "3423": {
+      "score": 20,
+      "rationale": "AI designs programs; leading exercise, safety, motivation in person need humans."
+    },
+    "3431": {
+      "score": 30,
+      "rationale": "AI edits, generates images; operating camera, directing subjects, on-site shooting need human."
+    },
+    "3432": {
+      "score": 50,
+      "rationale": "AI generates concepts, layouts, sourcing; site visits, client taste, installation need humans."
+    },
+    "3433": {
+      "score": 55,
+      "rationale": "AI catalogs, metadata, digitizes; handling artifacts, exhibits, visitor services need humans."
+    },
+    "3434": {
+      "score": 15,
+      "rationale": "AI creates recipes, menus, orders; cooking, tasting, kitchen leadership are physical and sensory."
+    },
+    "3435": {
+      "score": 30,
+      "rationale": "Creative, physical, in-person work; AI assists content but cannot perform core tasks."
+    },
+    "3511": {
+      "score": 60,
+      "rationale": "AI automates monitoring and diagnostics, but hardware setup and physical maintenance remain human."
+    },
+    "3512": {
+      "score": 70,
+      "rationale": "AI chatbots resolve many tickets, yet hands-on setup and complex user issues need people."
+    },
+    "3513": {
+      "score": 55,
+      "rationale": "AI helps configure and diagnose networks, but physical installation and repair dominate."
+    },
+    "3514": {
+      "score": 75,
+      "rationale": "AI can generate code, content, and debug; human oversight for deployment and design."
+    },
+    "3521": {
+      "score": 40,
+      "rationale": "Live equipment operation and physical setup limit AI; it assists editing and scheduling."
+    },
+    "3522": {
+      "score": 35,
+      "rationale": "Field installation and repair are physical; AI aids diagnostics and planning only."
+    },
+    "4110": {
+      "score": 70,
+      "rationale": "AI automates documents, data entry, scheduling; physical filing and mail remain."
+    },
+    "4120": {
+      "score": 75,
+      "rationale": "AI drafts correspondence, schedules, transcribes; in-person coordination and discretion remain."
+    },
+    "4131": {
+      "score": 90,
+      "rationale": "AI speech-to-text and formatting can do most typing; human checks accuracy."
+    },
+    "4132": {
+      "score": 90,
+      "rationale": "AI OCR and RPA can enter most data; human handles exceptions and verification."
+    },
+    "4211": {
+      "score": 45,
+      "rationale": "Cash handling and in-person identity checks limit AI; digital transactions automated."
+    },
+    "4212": {
+      "score": 30,
+      "rationale": "Casino games and betting are physical, in-person; AI only calculates odds or online bets."
+    },
+    "4213": {
+      "score": 40,
+      "rationale": "Physical appraisal of valuables and in-person lending limit AI; it assists records."
+    },
+    "4214": {
+      "score": 70,
+      "rationale": "AI voice agents can contact and negotiate; legal and emotional escalation need humans."
+    },
+    "4221": {
+      "score": 75,
+      "rationale": "AI researches, plans, and books travel; complex disruptions and advice need humans."
+    },
+    "4222": {
+      "score": 80,
+      "rationale": "AI voice and chat handle many enquiries; escalations and complex complaints need people."
+    },
+    "4223": {
+      "score": 90,
+      "rationale": "AI telephony can route and answer calls; human needed for complex or emergency calls."
+    },
+    "4224": {
+      "score": 50,
+      "rationale": "AI handles bookings and check-in kiosks; in-person guest services and keys remain."
+    },
+    "4225": {
+      "score": 65,
+      "rationale": "AI chatbots answer many enquiries; in-person and nuanced information still need staff."
+    },
+    "4226": {
+      "score": 60,
+      "rationale": "AI manages calls and scheduling; physical greeting and visitor assistance remain human."
+    },
+    "4227": {
+      "score": 75,
+      "rationale": "AI can conduct phone or online surveys; in-person and sensitive interviews need humans."
+    },
+    "4229": {
+      "score": 65,
+      "rationale": "AI handles routine client information; varied in-person and complex cases need people."
+    },
+    "4311": {
+      "score": 80,
+      "rationale": "AI software automates bookkeeping, invoicing, reconciliation; human oversight for exceptions."
+    },
+    "4312": {
+      "score": 75,
+      "rationale": "AI processes statistics, claims, and policies; human judgment for anomalies and compliance."
+    },
+    "4313": {
+      "score": 75,
+      "rationale": "AI automates payroll calculations and records; humans handle exceptions, compliance, and confidentiality."
+    },
+    "4321": {
+      "score": 50,
+      "rationale": "AI updates inventory records and orders; physical stock counting and receiving still need people."
+    },
+    "4322": {
+      "score": 55,
+      "rationale": "AI assists scheduling and production records; shop-floor coordination and physical checks remain human."
+    },
+    "4323": {
+      "score": 60,
+      "rationale": "AI tracks shipments and prepares transport documents; humans resolve delays and operational exceptions."
+    },
+    "4411": {
+      "score": 45,
+      "rationale": "AI helps catalog and circulation records; shelving, physical materials, and patron help remain human."
+    },
+    "4412": {
+      "score": 15,
+      "rationale": "AI aids sorting and routing, but mail delivery and physical handling are hands-on."
+    },
+    "4413": {
+      "score": 80,
+      "rationale": "AI proofreads and codes text well; humans handle judgment, formatting, and final checks."
+    },
+    "4414": {
+      "score": 75,
+      "rationale": "Speech-to-text and document AI can transcribe and draft; humans verify accuracy and context."
+    },
+    "4415": {
+      "score": 70,
+      "rationale": "AI manages digital files and copying workflows; physical scanning and quality checks need people."
+    },
+    "4416": {
+      "score": 70,
+      "rationale": "AI drafts HR records and onboarding paperwork; humans handle sensitive cases and judgment."
+    },
+    "4419": {
+      "score": 65,
+      "rationale": "AI handles many routine clerical tasks; mixed physical, confidential, and interpersonal duties need people."
+    },
+    "5111": {
+      "score": 15,
+      "rationale": "AI gives travel information, but onboard safety, service, and physical assistance are human."
+    },
+    "5112": {
+      "score": 20,
+      "rationale": "AI supports ticketing and schedules; onboard inspection, safety, and passenger handling are physical."
+    },
+    "5113": {
+      "score": 25,
+      "rationale": "AI can plan tours and scripts; live guiding, local presence, and group management remain human."
+    },
+    "5120": {
+      "score": 15,
+      "rationale": "AI helps recipes and planning; cooking, tasting, and kitchen physical work remain human."
+    },
+    "5131": {
+      "score": 15,
+      "rationale": "AI supports orders and reservations; carrying, serving, and in-person hospitality are physical."
+    },
+    "5132": {
+      "score": 10,
+      "rationale": "AI can suggest drinks and manage orders; mixing, serving, and bar social work are hands-on."
+    },
+    "5141": {
+      "score": 5,
+      "rationale": "Hair cutting and styling require hands-on skill and client interaction; AI only assists admin."
+    },
+    "5142": {
+      "score": 5,
+      "rationale": "Beauty treatments are physical, licensed, and client-specific; AI only helps scheduling and advice."
+    },
+    "5151": {
+      "score": 20,
+      "rationale": "AI assists scheduling and inspections records; supervising cleaning staff and physical checks remain human."
+    },
+    "5152": {
+      "score": 5,
+      "rationale": "Domestic housekeeping is physical cleaning and home management; AI cannot perform the core tasks."
+    },
+    "5153": {
+      "score": 10,
+      "rationale": "Building caretaking involves physical maintenance, security, and repairs; AI only supports records."
+    },
+    "5161": {
+      "score": 55,
+      "rationale": "LLMs can generate readings, but clients expect live human performance and trust."
+    },
+    "5162": {
+      "score": 15,
+      "rationale": "AI can converse and remind, but companionship and valet duties are in-person and physical."
+    },
+    "5163": {
+      "score": 10,
+      "rationale": "Undertaking requires physical handling, ceremony, and care; AI only assists paperwork and planning."
+    },
+    "5164": {
+      "score": 10,
+      "rationale": "Grooming and animal handling are hands-on; AI only schedules and records."
+    },
+    "5165": {
+      "score": 15,
+      "rationale": "In-car teaching and risk control need a human; AI helps theory and admin."
+    },
+    "5169": {
+      "score": 20,
+      "rationale": "Miscellaneous personal services are mostly in-person; AI assists scheduling, chat, records."
+    },
+    "5211": {
+      "score": 20,
+      "rationale": "Stall setup, handling goods, and face-to-face selling are physical; AI aids pricing."
+    },
+    "5212": {
+      "score": 15,
+      "rationale": "Cooking, serving, and mobile setup are physical; AI can take orders and payments."
+    },
+    "5221": {
+      "score": 40,
+      "rationale": "AI can manage inventory, orders, and marketing, but shopkeeping needs physical presence."
+    },
+    "5222": {
+      "score": 45,
+      "rationale": "AI assists scheduling, reports, and training, but supervising staff and shop floor is human."
+    },
+    "5223": {
+      "score": 35,
+      "rationale": "AI helps checkout, queries, and stock, but stocking and face-to-face service remain human."
+    },
+    "5230": {
+      "score": 60,
+      "rationale": "Self-checkout and ticket kiosks automate much; cash handling and exceptions need people."
+    },
+    "5241": {
+      "score": 5,
+      "rationale": "Live modeling requires a human body and presence; AI only generates images or portfolios."
+    },
+    "5242": {
+      "score": 20,
+      "rationale": "In-person product demonstrations need physical presence; AI can script and create videos."
+    },
+    "5243": {
+      "score": 20,
+      "rationale": "Door-to-door selling requires travel and face-to-face persuasion; AI only supports scripts and CRM."
+    },
+    "5244": {
+      "score": 75,
+      "rationale": "AI voice agents can handle many sales calls, with humans for complex objections."
+    },
+    "5245": {
+      "score": 15,
+      "rationale": "Fueling, cleaning, and checking vehicles are physical; AI helps payments and records."
+    },
+    "5246": {
+      "score": 30,
+      "rationale": "AI kiosks take orders and payments, but serving, cleaning, and counter work are physical."
+    },
+    "5249": {
+      "score": 35,
+      "rationale": "Mixed sales roles vary; AI helps online, calls, and admin, but physical selling remains."
+    },
+    "5311": {
+      "score": 10,
+      "rationale": "Child care needs physical care, supervision, and emotional bonding; AI only plans activities."
+    },
+    "5312": {
+      "score": 30,
+      "rationale": "AI prepares materials and tutors, but supervising children and classroom help is in-person."
+    },
+    "5321": {
+      "score": 15,
+      "rationale": "Personal care, mobility, and clinical tasks are hands-on; AI assists documentation and monitoring."
+    },
+    "5322": {
+      "score": 10,
+      "rationale": "Bathing, dressing, feeding, and companionship are physical and personal; AI only schedules or monitors."
+    },
+    "5329": {
+      "score": 15,
+      "rationale": "Miscellaneous health personal care is hands-on; AI supports records, scheduling, and monitoring."
+    },
+    "5411": {
+      "score": 5,
+      "rationale": "Firefighting and rescue are physical, dangerous, and team-based; AI only aids dispatch and data."
+    },
+    "5412": {
+      "score": 20,
+      "rationale": "AI helps reports, analysis, and surveillance, but patrol, arrest, and legal authority need humans."
+    },
+    "5413": {
+      "score": 15,
+      "rationale": "AI monitors cameras and records, but inmate supervision and physical control need guards."
+    },
+    "5414": {
+      "score": 20,
+      "rationale": "AI camera analytics help monitoring, but patrol, access control, and intervention are physical."
+    },
+    "5419": {
+      "score": 25,
+      "rationale": "AI aids surveillance and reports, but physical patrol and intervention remain human."
+    },
+    "6111": {
+      "score": 20,
+      "rationale": "AI helps planning and precision farming, but planting, tending, and harvesting are physical."
+    },
+    "6112": {
+      "score": 20,
+      "rationale": "AI supports monitoring and planning, but pruning, harvesting, and orchard work are manual."
+    },
+    "6113": {
+      "score": 15,
+      "rationale": "AI may assist scheduling and plant identification, but gardening and nursery work are hands-on."
+    },
+    "6114": {
+      "score": 20,
+      "rationale": "AI aids crop planning and monitoring, but mixed crop fieldwork remains physical and local."
+    },
+    "6121": {
+      "score": 20,
+      "rationale": "AI monitors health and milk yields, but animal handling and milking are physical."
+    },
+    "6122": {
+      "score": 25,
+      "rationale": "AI can manage climate and monitoring, but poultry handling and barn work remain physical."
+    },
+    "6123": {
+      "score": 10,
+      "rationale": "AI offers limited help; beekeeping and sericulture require hands-on hive and silk work."
+    },
+    "6129": {
+      "score": 15,
+      "rationale": "AI may assist records and monitoring, but animal care and handling are mostly physical."
+    },
+    "6130": {
+      "score": 20,
+      "rationale": "AI helps planning and monitoring, but mixed farming tasks require physical crop and animal work."
+    },
+    "6210": {
+      "score": 15,
+      "rationale": "AI aids mapping and planning, but forestry work is dangerous, manual, and outdoors."
+    },
+    "6221": {
+      "score": 20,
+      "rationale": "AI can monitor water and feeding, but aquaculture handling and net work are physical."
+    },
+    "6222": {
+      "score": 10,
+      "rationale": "AI helps navigation and fish finding, but fishing and net handling are manual."
+    },
+    "6223": {
+      "score": 5,
+      "rationale": "AI may assist navigation, but deep-sea fishing is heavy physical work on vessels."
+    },
+    "6224": {
+      "score": 5,
+      "rationale": "AI offers little; hunting and trapping require physical outdoor skills and local knowledge."
+    },
+    "6310": {
+      "score": 5,
+      "rationale": "AI cannot perform subsistence crop work; tasks are manual, local, and physical."
+    },
+    "6320": {
+      "score": 5,
+      "rationale": "AI cannot tend subsistence livestock; daily animal care is hands-on and physical."
+    },
+    "6330": {
+      "score": 5,
+      "rationale": "AI cannot do subsistence mixed farming; crop and animal tasks are manual."
+    },
+    "6340": {
+      "score": 0,
+      "rationale": "AI cannot gather, hunt, trap, or fish for subsistence; work is entirely physical and local."
+    },
+    "7111": {
+      "score": 10,
+      "rationale": "AI helps design and estimating, but house building is physical construction work."
+    },
+    "7112": {
+      "score": 5,
+      "rationale": "AI may assist planning, but bricklaying requires manual placement and mortar work."
+    },
+    "7113": {
+      "score": 5,
+      "rationale": "AI cannot carve or cut stone; stonemasonry is skilled physical work."
+    },
+    "7114": {
+      "score": 5,
+      "rationale": "AI cannot place or finish concrete; work is heavy, manual, and site-based."
+    },
+    "7115": {
+      "score": 15,
+      "rationale": "AI aids design and CNC, but carpentry and joinery installation remain physical."
+    },
+    "7119": {
+      "score": 10,
+      "rationale": "AI helps planning and measurement, but building frame work is physical and manual."
+    },
+    "7121": {
+      "score": 5,
+      "rationale": "Physical installation and repair dominate; AI only aids estimates, scheduling, safety paperwork."
+    },
+    "7122": {
+      "score": 5,
+      "rationale": "Physical cutting, laying, leveling; AI assists layout and material estimates only."
+    },
+    "7123": {
+      "score": 4,
+      "rationale": "Hand-applied plastering and finishing; AI cannot perform physical surface work."
+    },
+    "7124": {
+      "score": 4,
+      "rationale": "Installing insulation is hands-on; AI helps specs and scheduling only."
+    },
+    "7125": {
+      "score": 5,
+      "rationale": "Measuring, cutting, installing glass is manual; AI aids quotes and safety docs."
+    },
+    "7126": {
+      "score": 10,
+      "rationale": "AI can diagnose and plan, but pipe fitting, soldering, repair remain hands-on."
+    },
+    "7127": {
+      "score": 15,
+      "rationale": "AI aids fault diagnosis and refrigerant logs; physical repair and installation dominate."
+    },
+    "7131": {
+      "score": 5,
+      "rationale": "Surface prep and painting are manual; AI helps color matching and estimates."
+    },
+    "7132": {
+      "score": 8,
+      "rationale": "AI can optimize spray settings, but surface prep and application are physical."
+    },
+    "7133": {
+      "score": 5,
+      "rationale": "Cleaning high structures is physical; AI only schedules and documents."
+    },
+    "7211": {
+      "score": 5,
+      "rationale": "Mould and core making is physical; AI assists design and process parameters."
+    },
+    "7212": {
+      "score": 10,
+      "rationale": "AI guides robotic welding, but manual welding and flame cutting dominate."
+    },
+    "7213": {
+      "score": 10,
+      "rationale": "CAD/CAM and nesting AI help, but cutting, bending, fitting are manual."
+    },
+    "7214": {
+      "score": 5,
+      "rationale": "Heavy physical erection and bolting; AI aids plans and lift calculations."
+    },
+    "7215": {
+      "score": 5,
+      "rationale": "Rigging and splicing are hands-on; AI helps load calculations and inspections."
+    },
+    "7221": {
+      "score": 3,
+      "rationale": "Forging and shaping metal is physical; AI offers little direct work."
+    },
+    "7222": {
+      "score": 10,
+      "rationale": "Precision machining benefits from AI CAM, but fitting and finishing are manual."
+    },
+    "7223": {
+      "score": 25,
+      "rationale": "CNC automation and AI monitoring help, but setup, tooling, and oversight need people."
+    },
+    "7224": {
+      "score": 5,
+      "rationale": "Grinding and polishing are physical; AI only monitors or schedules."
+    },
+    "7231": {
+      "score": 20,
+      "rationale": "AI diagnostics and repair guides help, but most repair work is hands-on."
+    },
+    "7232": {
+      "score": 20,
+      "rationale": "AI aids diagnostics and compliance, but inspection and repair are physical."
+    },
+    "7233": {
+      "score": 15,
+      "rationale": "AI helps fault diagnosis, but fieldwork and mechanical repair dominate."
+    },
+    "7234": {
+      "score": 10,
+      "rationale": "AI can guide diagnostics, but wheel truing, assembly, and repair are manual."
+    },
+    "7311": {
+      "score": 8,
+      "rationale": "Precision assembly and calibration are manual; AI assists specs and diagnostics."
+    },
+    "7312": {
+      "score": 8,
+      "rationale": "Crafting and tuning are physical/auditory; AI aids design and pitch analysis."
+    },
+    "7313": {
+      "score": 15,
+      "rationale": "Hands-on crafting, setting, and finishing precious metals; AI only assists design and documentation."
+    },
+    "7314": {
+      "score": 12,
+      "rationale": "Physical shaping, throwing, glazing, and firing; AI offers little direct execution."
+    },
+    "7315": {
+      "score": 12,
+      "rationale": "Hot, manual glass forming and finishing; AI cannot perform core physical tasks."
+    },
+    "7316": {
+      "score": 25,
+      "rationale": "AI can generate designs and lettering, but painting, engraving, and etching remain manual."
+    },
+    "7317": {
+      "score": 10,
+      "rationale": "Manual wood, basketry, and material crafting; AI mainly supports design or marketing."
+    },
+    "7318": {
+      "score": 12,
+      "rationale": "Hands-on textile and leather crafting; AI assists patterns and descriptions only."
+    },
+    "7319": {
+      "score": 12,
+      "rationale": "Diverse manual handicraft work; AI cannot carry out most physical making tasks."
+    },
+    "7321": {
+      "score": 70,
+      "rationale": "Digital prepress layout, image correction, and file preparation are largely automatable with human checks."
+    },
+    "7322": {
+      "score": 35,
+      "rationale": "AI helps prepress and monitoring, but printer setup, operation, and physical output remain human."
+    },
+    "7323": {
+      "score": 25,
+      "rationale": "Binding and finishing are physical machine tasks; AI supports scheduling and quality checks."
+    },
+    "7411": {
+      "score": 18,
+      "rationale": "Licensed physical installation and repair; AI assists diagnostics, planning, and paperwork only."
+    },
+    "7412": {
+      "score": 22,
+      "rationale": "Hands-on electrical fitting and repair; AI can aid fault diagnosis but not execute safely."
+    },
+    "7413": {
+      "score": 12,
+      "rationale": "Outdoor line installation and repair require physical, safety-critical work AI cannot do."
+    },
+    "7421": {
+      "score": 30,
+      "rationale": "AI aids diagnostics and documentation, but physical servicing and component replacement dominate."
+    },
+    "7422": {
+      "score": 45,
+      "rationale": "AI can configure, diagnose, and troubleshoot ICT systems, but physical installation remains human."
+    },
+    "7511": {
+      "score": 18,
+      "rationale": "Manual cutting, deboning, and food preparation; AI cannot perform core physical tasks."
+    },
+    "7512": {
+      "score": 22,
+      "rationale": "Baking and pastry work is physical and sensory; AI assists recipes, scheduling, and monitoring."
+    },
+    "7513": {
+      "score": 28,
+      "rationale": "Dairy production involves physical processing and sensory checks; AI supports monitoring and records."
+    },
+    "7514": {
+      "score": 25,
+      "rationale": "Manual preparation and preservation dominate; AI helps scheduling, quality, and documentation."
+    },
+    "7515": {
+      "score": 40,
+      "rationale": "AI vision and sensors can assist grading, but human sensory judgment remains central."
+    },
+    "7516": {
+      "score": 22,
+      "rationale": "Tobacco preparation is physical processing; AI mainly supports monitoring and quality control."
+    },
+    "7521": {
+      "score": 25,
+      "rationale": "Chemical treatment and physical wood handling; AI assists monitoring but not application."
+    },
+    "7522": {
+      "score": 18,
+      "rationale": "Custom cabinetmaking requires manual measuring, cutting, assembly, and finishing."
+    },
+    "7523": {
+      "score": 40,
+      "rationale": "CNC programming and monitoring can be AI-assisted, but machine setup and physical operation remain."
+    },
+    "7531": {
+      "score": 22,
+      "rationale": "Sewing, fitting, and garment construction are manual; AI helps design and pattern generation."
+    },
+    "7532": {
+      "score": 35,
+      "rationale": "AI can generate patterns and optimize cutting layouts, but physical cutting and fabric handling remain human."
+    },
+    "7533": {
+      "score": 20,
+      "rationale": "AI can design embroidery patterns, but sewing and embroidery require hands-on machine or manual work."
+    },
+    "7534": {
+      "score": 10,
+      "rationale": "Upholstery is mainly physical fitting, padding, and finishing; AI offers little direct execution."
+    },
+    "7535": {
+      "score": 10,
+      "rationale": "Tanning and pelt dressing involve physical chemical processing and material handling, not AI-executable tasks."
+    },
+    "7536": {
+      "score": 15,
+      "rationale": "Shoemaking requires manual assembly and material shaping; AI can assist design but not perform core work."
+    },
+    "7541": {
+      "score": 5,
+      "rationale": "Underwater diving is entirely physical and safety-critical; AI can only assist planning or documentation."
+    },
+    "7542": {
+      "score": 10,
+      "rationale": "Blasting requires licensed physical placement and safety work; AI may help plan but cannot execute."
+    },
+    "7543": {
+      "score": 50,
+      "rationale": "AI vision can inspect and test many products, but varied handling and judgment still need people."
+    },
+    "7544": {
+      "score": 15,
+      "rationale": "Pest and weed control requires physical application and site work; AI can assist identification and planning."
+    },
+    "7549": {
+      "score": 10,
+      "rationale": "This residual craft group is mostly hands-on and varied; AI cannot perform core manual tasks."
+    },
+    "8111": {
+      "score": 10,
+      "rationale": "Mining and quarrying are physical, equipment-heavy jobs; AI assists monitoring but cannot extract material."
+    },
+    "8112": {
+      "score": 35,
+      "rationale": "AI can optimize and monitor mineral processing, but operators handle equipment, maintenance, and physical tasks."
+    },
+    "8113": {
+      "score": 20,
+      "rationale": "Well drilling requires physical rig operation and maintenance; AI can assist monitoring and control."
+    },
+    "8114": {
+      "score": 20,
+      "rationale": "Cement and stone machine operation is physical and equipment-bound; AI mainly supports monitoring and adjustment."
+    },
+    "8121": {
+      "score": 30,
+      "rationale": "AI can optimize furnace and metal processing parameters, but physical operation and maintenance remain human."
+    },
+    "8122": {
+      "score": 25,
+      "rationale": "Plating and coating require chemical handling and machine work; AI can monitor but not perform physical tasks."
+    },
+    "8131": {
+      "score": 35,
+      "rationale": "AI can control and optimize chemical processes, but operators handle physical plant, safety, and maintenance."
+    },
+    "8132": {
+      "score": 40,
+      "rationale": "AI can automate image processing and quality checks, but machine operation and physical handling remain."
+    },
+    "8141": {
+      "score": 20,
+      "rationale": "Rubber products machine operation involves physical setup, loading, and maintenance; AI mainly assists monitoring."
+    },
+    "8142": {
+      "score": 20,
+      "rationale": "Plastic products machine operation is physical and equipment-bound; AI can optimize parameters but not execute."
+    },
+    "8143": {
+      "score": 20,
+      "rationale": "Paper products machine operation requires physical handling and maintenance; AI supports monitoring and control."
+    },
+    "8151": {
+      "score": 25,
+      "rationale": "AI can monitor and optimize spinning and winding, but operators handle fibres, machines, and maintenance."
+    },
+    "8152": {
+      "score": 25,
+      "rationale": "Weaving and knitting machines need physical operation and maintenance; AI can assist monitoring and adjustment."
+    },
+    "8153": {
+      "score": 15,
+      "rationale": "Sewing machine operation is mainly physical fabric handling; AI cannot perform the core manual work."
+    },
+    "8154": {
+      "score": 30,
+      "rationale": "AI can optimize dyeing and cleaning recipes, but physical fabric handling and machine operation remain human."
+    },
+    "8155": {
+      "score": 5,
+      "rationale": "Physical machine operation; AI cannot perform hands-on fur/leather prep."
+    },
+    "8156": {
+      "score": 5,
+      "rationale": "Hands-on shoemaking machine work; AI cannot manipulate materials."
+    },
+    "8157": {
+      "score": 5,
+      "rationale": "Physical loading, sorting, and machine tending; AI cannot do core tasks."
+    },
+    "8159": {
+      "score": 5,
+      "rationale": "Varied physical textile/fur/leather machine operation; AI cannot perform hands-on work."
+    },
+    "8160": {
+      "score": 5,
+      "rationale": "Food processing machine operation is physical; AI cannot handle or process products."
+    },
+    "8171": {
+      "score": 10,
+      "rationale": "AI can assist process control, but physical plant operation remains human."
+    },
+    "8172": {
+      "score": 5,
+      "rationale": "Wood processing plant operation is hands-on; AI cannot run machinery physically."
+    },
+    "8181": {
+      "score": 5,
+      "rationale": "Glass and ceramics plant operation requires physical machine tending; AI cannot do it."
+    },
+    "8182": {
+      "score": 5,
+      "rationale": "Boiler operation involves physical monitoring and adjustment; AI cannot perform fully."
+    },
+    "8183": {
+      "score": 10,
+      "rationale": "AI vision can inspect, but packing/bottling/labelling machines need physical tending."
+    },
+    "8189": {
+      "score": 5,
+      "rationale": "Miscellaneous stationary plant operation is physical; AI cannot carry out core tasks."
+    },
+    "8211": {
+      "score": 5,
+      "rationale": "Mechanical assembly is hands-on; AI cannot physically assemble components."
+    },
+    "8212": {
+      "score": 5,
+      "rationale": "Electrical/electronic assembly requires manual dexterity; AI cannot do it."
+    },
+    "8219": {
+      "score": 5,
+      "rationale": "Assemblers not elsewhere classified do physical assembly; AI cannot perform."
+    },
+    "8311": {
+      "score": 20,
+      "rationale": "Automated train operation exists, but full driving still needs human monitoring."
+    },
+    "8312": {
+      "score": 15,
+      "rationale": "Railway signalling is automated, but brake/switch operation still needs human oversight."
+    },
+    "8321": {
+      "score": 5,
+      "rationale": "Motorcycle driving is physical and safety-critical; AI cannot operate vehicle."
+    },
+    "8322": {
+      "score": 10,
+      "rationale": "Self-driving cars not widely deployed; AI assists navigation but cannot drive fully."
+    },
+    "8331": {
+      "score": 10,
+      "rationale": "Bus/tram driving needs physical control and passenger safety; AI not ready."
+    },
+    "8332": {
+      "score": 10,
+      "rationale": "Heavy truck driving is physical and safety-critical; AI cannot replace driver."
+    },
+    "8341": {
+      "score": 5,
+      "rationale": "Mobile farm/forestry plant operation is physical and off-road; AI cannot do it."
+    },
+    "8342": {
+      "score": 5,
+      "rationale": "Earthmoving plant operation requires physical control; AI cannot operate fully."
+    },
+    "8343": {
+      "score": 5,
+      "rationale": "Crane and hoist operation is hands-on and safety-critical; AI cannot replace."
+    },
+    "8344": {
+      "score": 5,
+      "rationale": "Lifting truck operation is physical and in-person; AI cannot drive forklifts."
+    },
+    "8350": {
+      "score": 5,
+      "rationale": "Ships' deck work is physical maritime labor; AI cannot perform core tasks."
+    },
+    "9111": {
+      "score": 5,
+      "rationale": "Core cleaning is physical; AI only helps scheduling or supplies, not scrubbing."
+    },
+    "9112": {
+      "score": 5,
+      "rationale": "Physical cleaning tasks dominate; AI cannot mop, vacuum, or sanitize rooms."
+    },
+    "9121": {
+      "score": 5,
+      "rationale": "Hand laundering and pressing require manual labor; AI offers no direct capability."
+    },
+    "9122": {
+      "score": 5,
+      "rationale": "Vehicle cleaning is hands-on; AI cannot wash, scrub, or dry vehicles."
+    },
+    "9123": {
+      "score": 5,
+      "rationale": "Window cleaning requires physical access and manual work; AI cannot perform it."
+    },
+    "9129": {
+      "score": 5,
+      "rationale": "Other cleaning work is physical; AI only assists with scheduling or records."
+    },
+    "9211": {
+      "score": 5,
+      "rationale": "Crop labor is manual field work; AI cannot plant, weed, or harvest by hand."
+    },
+    "9212": {
+      "score": 5,
+      "rationale": "Livestock labor involves physical animal care; AI cannot feed or handle animals."
+    },
+    "9213": {
+      "score": 5,
+      "rationale": "Mixed farm labor is physical; AI cannot perform crop or livestock tasks."
+    },
+    "9214": {
+      "score": 5,
+      "rationale": "Garden and horticultural labor is hands-on; AI cannot plant or prune."
+    },
+    "9215": {
+      "score": 5,
+      "rationale": "Forestry labor requires physical cutting, planting, and hauling; AI cannot do it."
+    },
+    "9216": {
+      "score": 5,
+      "rationale": "Fishery and aquaculture labor is physical; AI cannot net, feed, or handle stock."
+    },
+    "9311": {
+      "score": 3,
+      "rationale": "Mining and quarrying labor is heavy manual work; AI cannot extract or haul materials."
+    },
+    "9312": {
+      "score": 3,
+      "rationale": "Civil engineering labor is physical site work; AI cannot dig, lift, or build."
+    },
+    "9313": {
+      "score": 3,
+      "rationale": "Building construction labor is hands-on; AI cannot carry, mix, or assemble materials."
+    },
+    "9321": {
+      "score": 5,
+      "rationale": "Hand packing is repetitive physical work; AI cannot grasp and pack items."
+    },
+    "9329": {
+      "score": 5,
+      "rationale": "Manufacturing labor is physical; AI cannot operate hands or handle materials directly."
+    },
+    "9331": {
+      "score": 5,
+      "rationale": "Hand and pedal vehicle driving is physical transport; AI cannot pedal or steer manually."
+    },
+    "9332": {
+      "score": 5,
+      "rationale": "Animal-drawn vehicle driving requires animal handling; AI cannot control animals."
+    },
+    "9333": {
+      "score": 5,
+      "rationale": "Freight handling is physical lifting and moving; AI cannot carry cargo."
+    },
+    "9334": {
+      "score": 5,
+      "rationale": "Shelf filling is physical stocking; AI cannot lift and place products."
+    },
+    "9411": {
+      "score": 10,
+      "rationale": "Fast food preparation is manual cooking and assembly; AI may take orders only."
+    },
+    "9412": {
+      "score": 5,
+      "rationale": "Kitchen help is physical cleaning and prep; AI cannot chop, wash, or carry."
+    },
+    "9510": {
+      "score": 5,
+      "rationale": "Street services require physical presence and manual tasks; AI cannot perform them."
+    },
+    "9520": {
+      "score": 10,
+      "rationale": "Street vending is physical selling; AI may handle payments or inventory records."
+    },
+    "9611": {
+      "score": 5,
+      "rationale": "Physical collection and loading; AI only aids routing and scheduling."
+    },
+    "9612": {
+      "score": 10,
+      "rationale": "Manual sorting is physical; AI vision assists but cannot handle waste."
+    },
+    "9613": {
+      "score": 5,
+      "rationale": "Street sweeping is hands-on; AI offers little beyond route planning."
+    },
+    "9621": {
+      "score": 10,
+      "rationale": "Delivery and carrying are physical; AI helps routing and notifications only."
+    },
+    "9622": {
+      "score": 5,
+      "rationale": "Varied manual odd jobs; AI cannot perform physical tasks."
+    },
+    "9623": {
+      "score": 20,
+      "rationale": "Meter reading and vending collection are physical; AI aids routing and data."
+    },
+    "9624": {
+      "score": 0,
+      "rationale": "Collecting water and firewood is entirely physical manual labour."
+    },
+    "9629": {
+      "score": 5,
+      "rationale": "Unclassified elementary work is mostly physical; AI has minimal role."
+    },
+    "0110": {
+      "score": 20,
+      "rationale": "AI assists planning, intelligence, logistics; command and combat remain human."
+    },
+    "0210": {
+      "score": 15,
+      "rationale": "AI aids administration and training; supervision and field duties remain human."
+    },
+    "0310": {
+      "score": 5,
+      "rationale": "Combat, drills, and equipment use are physical; AI support is marginal."
+    }
+  },
+  "updatedAt": "2026-10-19T07:55:27.832Z"
+}

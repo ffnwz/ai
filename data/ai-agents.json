@@ -1,0 +1,117 @@
+{
+  "version": 2,
+  "agents": [
+    {
+      "id": "claude",
+      "label": "Claude Code",
+      "githubProfiles": ["https://github.com/claude"],
+      "loginPatterns": ["claude", "claude[bot]"],
+      "emailPatterns": ["anthropic", "claude"]
+    },
+    {
+      "id": "copilot",
+      "label": "GitHub Copilot",
+      "githubProfiles": ["https://github.com/copilot"],
+      "loginPatterns": ["copilot", "copilot[bot]"],
+      "emailPatterns": ["copilot"]
+    },
+    {
+      "id": "codex",
+      "label": "OpenAI Codex",
+      "githubProfiles": ["https://github.com/openai", "https://github.com/openai/codex"],
+      "loginPatterns": ["codex", "codex[bot]"],
+      "emailPatterns": ["codex", "openai"]
+    },
+    {
+      "id": "gpt",
+      "label": "GPT / OpenAI",
+      "githubProfiles": ["https://github.com/openai"],
+      "loginPatterns": ["gpt", "gpt[bot]"],
+      "emailPatterns": ["gpt"]
+    },
+    {
+      "id": "gemini",
+      "label": "Gemini Code Assist",
+      "githubProfiles": ["https://github.com/google-gemini"],
+      "loginPatterns": ["gemini", "gemini[bot]"],
+      "emailPatterns": ["gemini"]
+    },
+    {
+      "id": "jules",
+      "label": "Jules",
+      "githubProfiles": ["https://github.com/google-labs-code", "https://github.com/google-labs-code/jules-action"],
+      "loginPatterns": ["jules", "jules[bot]"],
+      "emailPatterns": ["jules"]
+    },
+    {
+      "id": "aider",
+      "label": "Aider",
+      "githubProfiles": ["https://github.com/Aider-AI"],
+      "loginPatterns": ["aider", "aider[bot]"],
+      "emailPatterns": ["aider"]
+    },
+    {
+      "id": "devin",
+      "label": "Devin",
+      "githubProfiles": ["https://github.com/CognitionAI"],
+      "loginPatterns": ["devin", "devin[bot]"],
+      "emailPatterns": ["devin"]
+    },
+    {
+      "id": "cursor",
+      "label": "Cursor",
+      "githubProfiles": ["https://github.com/getcursor"],
+      "loginPatterns": ["cursor", "cursor[bot]"],
+      "emailPatterns": ["cursor"]
+    },
+    {
+      "id": "windsurf",
+      "label": "Windsurf",
+      "githubProfiles": ["https://github.com/Codeium"],
+      "loginPatterns": ["windsurf", "windsurf[bot]"],
+      "emailPatterns": ["windsurf", "codeium"]
+    },
+    {
+      "id": "cline",
+      "label": "Cline",
+      "githubProfiles": ["https://github.com/cline"],
+      "loginPatterns": ["cline", "cline[bot]"],
+      "emailPatterns": ["cline"]
+    },
+    {
+      "id": "qodo",
+      "label": "Qodo",
+      "githubProfiles": ["https://github.com/qodo-ai"],
+      "loginPatterns": ["qodo", "qodo[bot]"],
+      "emailPatterns": ["qodo"]
+    },
+    {
+      "id": "amazon-q",
+      "label": "Amazon Q Developer",
+      "githubProfiles": ["https://github.com/Amazon-Q-Developer"],
+      "loginPatterns": ["amazon-q-developer", "amazon-q", "amazonq", "q-developer", "qdeveloper"],
+      "emailPatterns": ["amazon-q", "amazonq", "q-developer"]
+    },
+    {
+      "id": "junie",
+      "label": "JetBrains Junie",
+      "githubProfiles": ["https://github.com/jetbrains-junie"],
+      "loginPatterns": ["junie", "junie[bot]"],
+      "emailPatterns": ["junie"]
+    },
+    {
+      "id": "cody",
+      "label": "Sourcegraph Cody",
+      "githubProfiles": ["https://github.com/sourcegraph"],
+      "loginPatterns": ["cody[bot]", "sourcegraph[bot]"],
+      "emailPatterns": ["cody@", "sourcegraph.com"]
+    },
+    {
+      "id": "replit",
+      "label": "Replit Agent",
+      "githubProfiles": ["https://github.com/replit"],
+      "loginPatterns": ["replit-agent", "replit[bot]"],
+      "emailPatterns": ["replit-agent", "replit.com"]
+    }
+  ]
+}

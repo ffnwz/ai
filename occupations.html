@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Countdown — профессии</title>
+  <meta name="description" content="Какую часть каждой профессии уже может выполнять AI: оценка 436 профессий ISCO-08 по частотности в США, Европе, России и Азии." />
+  <link rel="icon" type="image/png" href="robot-apple.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="methodology-page occupations-page">
+  <header class="topbar shell methodology-topbar">
+    <a class="brand" href="/" aria-label="AI Countdown"><span class="brand-mark" aria-hidden="true"><img src="robot-apple.png" alt="" /></span><span>AI COUNTDOWN</span></a>
+    <a class="methodology-back" href="/" data-i18n="back">На главную</a>
+  </header>
+  <main class="methodology-shell occupations-shell">
+    <div class="methodology-toolbar">
+      <span class="methodology-version" id="occupations-version">ПРОФЕССИИ</span>
+      <span class="methodology-locale" role="group" aria-label="Язык"><button type="button" data-locale="ru" class="active" aria-pressed="true">RU</button><span>/</span><button type="button" data-locale="en" aria-pressed="false">EN</button></span>
+    </div>
+
+    <section class="methodology-hero occupations-hero">
+      <p class="eyebrow" data-i18n="eyebrow">РАБОТА · ОЦЕНКА ПРОФЕССИЙ</p>
+      <h1 data-i18n="title">Какую часть каждой профессии уже может делать AI</h1>
+      <p class="methodology-lede" data-i18n="lede">Профессии международного классификатора ISCO-08, от самых массовых к редким. Для каждой показано, сколько работы берёт на себя нейросеть, а сколько остаётся человеку.</p>
+    </section>
+
+    <section class="occupations-summary" aria-live="polite">
+      <div class="occupations-median">
+        <strong id="occupations-median">—</strong>
+        <span data-i18n="medianLabel">медиана по профессиям · источник для кольца «Работа»</span>
+        <small id="occupations-assumption"></small>
+      </div>
+      <div class="occupations-regions" id="occupations-regions"></div>
+    </section>
+
+    <section class="occupations-controls">
+      <div class="occupations-legend">
+        <span><i class="occupations-swatch ai"></i><span data-i18n="legendAi">нейросеть</span></span>
+        <span><i class="occupations-swatch human"></i><span data-i18n="legendHuman">человек</span></span>
+        <small data-i18n="scale">0% — AI не может помочь · 50% — справляется с человеком · 100% — работает без человека</small>
+      </div>
+      <div class="occupations-filters">
+        <input id="occupations-search" type="search" autocomplete="off" data-i18n-placeholder="search" placeholder="Поиск профессии или кода ISCO" />
+        <select id="occupations-group" aria-label="Группа профессий"></select>
+        <select id="occupations-sort" aria-label="Сортировка">
+          <option value="frequency" data-i18n="sortFrequency">По частотности</option>
+          <option value="ai-desc" data-i18n="sortAiDesc">Больше всего AI</option>
+          <option value="ai-asc" data-i18n="sortAiAsc">Больше всего человека</option>
+        </select>
+      </div>
+    </section>
+
+    <p class="occupations-count" id="occupations-count"></p>
+    <ol class="occupations-list" id="occupations-list"></ol>
+    <p class="occupations-empty" id="occupations-empty" hidden></p>
+
+    <section class="occupations-meta" id="occupations-meta"></section>
+    <footer class="methodology-footer"><a class="external-link" href="methodology.html" data-i18n="methodology">Методология</a></footer>
+  </main>
+  <script src="occupations.js"></script>
+</body>
+</html>

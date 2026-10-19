@@ -1,0 +1,11 @@
+.env
+data/*-cache.json
+data/slopscore-cache.json
+data/code-index-catalog.json
+data/code-index-progress.json
+data/repository-analyses.json
+data/contributor-profiles.json
+data/github-contributors.json
+data/metric-series.json
+data/repository-analysis-locks/
+deploy.local.md
