@@ -1,3 +1,18 @@
+const AI_COUNTDOWN_BACKEND_ORIGIN = 'https://ai.ffnwz.lat';
+const IS_GITHUB_PAGES = /(^|\.)github\.io$/i.test(window.location.hostname);
+const API_ORIGIN = IS_GITHUB_PAGES ? AI_COUNTDOWN_BACKEND_ORIGIN : '';
+
+function apiUrl(path) {
+  return `${API_ORIGIN}${path}`;
+}
+
+function configureStaticFrontendLinks() {
+  if (!IS_GITHUB_PAGES) return;
+  document.querySelectorAll('[data-github-pages-href]').forEach((element) => {
+    element.setAttribute('href', element.dataset.githubPagesHref);
+  });
+}
+
 const translations = {
   "en": {
     "language": "Language",
@@ -1497,7 +1512,7 @@ async function shareChart() {
 
 async function loadSourceFeeds() {
   try {
-    const response = await fetch('/api/source-feeds', {
+    const response = await fetch(apiUrl('/api/source-feeds'), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
@@ -1511,7 +1526,7 @@ async function loadSourceFeeds() {
 
 async function loadGithubContributors() {
   try {
-    const response = await fetch('/api/github-contributors', {
+    const response = await fetch(apiUrl('/api/github-contributors'), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
@@ -1525,7 +1540,7 @@ async function loadGithubContributors() {
 
 async function loadCombinedSnapshot() {
   try {
-    const response = await fetch('/api/combined-snapshot', {
+    const response = await fetch(apiUrl('/api/combined-snapshot'), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
@@ -2177,7 +2192,7 @@ function deriveRepositoryAnalysisLeaderboard(repositories) {
 
 async function loadRepositoryAnalysisLeaderboard() {
   try {
-    const response = await fetch('/api/repository-analyses', {
+    const response = await fetch(apiUrl('/api/repository-analyses'), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
@@ -2345,7 +2360,7 @@ async function pollRepositoryAnalysisBackground() {
   repositoryAnalysisBackgroundInFlight = true;
   const repository = repositoryAnalysisBackgroundRepo;
   try {
-    const response = await fetch(`/api/repository-analysis?repo=${encodeURIComponent(repository)}`, { headers: { accept: 'application/json' } });
+    const response = await fetch(apiUrl(`/api/repository-analysis?repo=${encodeURIComponent(repository)}`), { headers: { accept: 'application/json' } });
     const payload = await response.json();
     if (!response.ok || payload.status === 'unavailable') throw new Error(getRepositoryApiErrorMessage(payload));
     renderRepositoryAnalysis(payload, { liveUpdate: true });
@@ -2554,7 +2569,7 @@ async function submitContributorAnalysis(value, { button, status }) {
   if (profileResult) profileResult.hidden = true;
 
   try {
-    const response = await fetch('/api/contributor-analysis', {
+    const response = await fetch(apiUrl('/api/contributor-analysis'), {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ profile: value })
@@ -2604,7 +2619,7 @@ async function submitRepositoryAnalysis(event) {
   if (result) result.hidden = true;
 
   try {
-    const response = await fetch('/api/repository-analysis', {
+    const response = await fetch(apiUrl('/api/repository-analysis'), {
       method: 'POST',
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({ repository: input.value.trim(), refresh: true })
@@ -2642,7 +2657,7 @@ async function submitRepositoryAnalysis(event) {
 
 async function loadWorkIndex() {
   try {
-    const response = await fetch('/api/work-index', {
+    const response = await fetch(apiUrl('/api/work-index'), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
@@ -2658,7 +2673,7 @@ async function loadWorkIndex() {
 
 async function loadCodeIndex() {
   try {
-    const response = await fetch('/api/code-index', {
+    const response = await fetch(apiUrl('/api/code-index'), {
       headers: { Accept: 'application/json' },
       cache: 'no-store'
     });
@@ -2993,6 +3008,7 @@ let savedLocale = 'ru';
 try { savedLocale = localStorage.getItem('ai-countdown-locale') || 'ru'; } catch (error) { /* use Russian fallback */ }
 
 async function initializeApp() {
+  configureStaticFrontendLinks();
   updateSiteWatermarks();
   applyLocale(savedLocale);
   await Promise.all([loadCodeIndex(), loadWorkIndex(), loadRepositoryAnalysisLeaderboard()]);

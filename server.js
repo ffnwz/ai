@@ -4185,6 +4185,23 @@ function sendApiError(response, error) {
   });
 }
 
+const ALLOWED_CORS_ORIGINS = new Set([
+  'https://ffnwz.github.io',
+  'https://ai.ffnwz.lat',
+  'http://127.0.0.1:8765',
+  'http://localhost:8765'
+]);
+
+function applyCorsHeaders(request, response) {
+  const origin = request.headers.origin;
+  if (!origin || !ALLOWED_CORS_ORIGINS.has(origin)) return;
+  response.setHeader('access-control-allow-origin', origin);
+  response.setHeader('access-control-allow-methods', 'GET, POST, OPTIONS');
+  response.setHeader('access-control-allow-headers', 'Accept, Content-Type');
+  response.setHeader('access-control-max-age', '600');
+  response.setHeader('vary', 'Origin');
+}
+
 function sendJson(response, statusCode, payload) {
   const body = JSON.stringify(payload);
   response.writeHead(statusCode, {
@@ -4246,6 +4263,13 @@ async function serveStatic(requestPath, response) {
 
 const server = http.createServer(async (request, response) => {
   const requestUrl = new URL(request.url, `http://${request.headers.host || `${HOST}:${PORT}`}`);
+  applyCorsHeaders(request, response);
+
+  if (request.method === 'OPTIONS' && requestUrl.pathname.startsWith('/api/')) {
+    response.writeHead(204);
+    response.end();
+    return;
+  }
 
   if (request.method === 'GET' && requestUrl.pathname === '/api/code-index') {
     const refresh = requestUrl.searchParams.get('refresh') === '1';

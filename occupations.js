@@ -1,3 +1,11 @@
+const AI_COUNTDOWN_BACKEND_ORIGIN = 'https://ai.ffnwz.lat';
+const IS_GITHUB_PAGES = /(^|\.)github\.io$/i.test(window.location.hostname);
+const API_ORIGIN = IS_GITHUB_PAGES ? AI_COUNTDOWN_BACKEND_ORIGIN : '';
+
+function apiUrl(path) {
+  return `${API_ORIGIN}${path}`;
+}
+
 const OCCUPATION_TEXT = {
   ru: {
     pageTitle: 'AI Countdown — профессии',
@@ -235,7 +243,7 @@ function applyOccupationLocale(locale) {
 
 async function loadOccupations() {
   try {
-    const response = await fetch('/api/work-occupations', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+    const response = await fetch(apiUrl('/api/work-occupations'), { headers: { Accept: 'application/json' }, cache: 'no-store' });
     if (!response.ok) throw new Error(`Work occupations API returned ${response.status}`);
     occupationData = await response.json();
   } catch (error) {

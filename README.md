@@ -67,6 +67,10 @@ npm start
 
 Open `http://127.0.0.1:8765/` after the server starts.
 
+## GitHub Pages frontend
+
+The static frontend is deployed from `.github/workflows/deploy-pages.yml`. On GitHub Pages, browser API requests are sent to `https://ai.ffnwz.lat`; GitHub tokens and database access remain backend-only.
+
 Create `.env` from `.env.example` and add a local fine-grained GitHub token. Keep the variable name and value private:
 
 ```env

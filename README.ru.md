@@ -67,6 +67,10 @@ npm start
 
 После запуска откройте `http://127.0.0.1:8765/`.
 
+## Фронтенд на GitHub Pages
+
+Статический фронтенд публикуется workflow-файлом `.github/workflows/deploy-pages.yml`. На GitHub Pages запросы браузера идут в `https://ai.ffnwz.lat`; GitHub-токены и доступ к базе остаются только на backend.
+
 Создайте `.env` на основе `.env.example` и добавьте локальный fine-grained GitHub-токен. Имя переменной и значение не публикуйте:
 
 ```env
