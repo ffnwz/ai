@@ -2993,7 +2993,7 @@ async function collectGithubContributors() {
     },
     note: getGithubApiToken()
       ? 'GitHub contribution graph is preferred; when it has no eligible repositories, public commit search is retained as a clearly marked lower-bound signal.'
-      : 'Fallback uses public GitHub commit search. Set GITHUB_FFNWZ_API_TOKEN for a fuller GraphQL contribution history.'
+      : 'Fallback uses public GitHub commit search. Configure a local GitHub token for a fuller GraphQL contribution history.'
   };
 }
 

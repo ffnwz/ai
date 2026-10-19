@@ -67,10 +67,10 @@ npm start
 
 Open `http://127.0.0.1:8765/` after the server starts.
 
-Create `.env` from `.env.example`. The GitHub token variable is:
+Create `.env` from `.env.example` and add a local fine-grained GitHub token. Keep the variable name and value private:
 
 ```env
-GITHUB_FFNWZ_API_TOKEN=github_pat_...
+GITHUB_TOKEN=github_pat_...
 ```
 
 Use a fine-grained token with the smallest required permissions. Never commit secrets, `.env`, local caches, analysis locks, or `deploy.local.md`.
@@ -87,6 +87,17 @@ Use a fine-grained token with the smallest required permissions. Never commit se
 Code uses compatible percentage sources, including AI Code Radar and AI Countdown's own repository analyses. Slop Score is kept as a separate heuristic signal. GitHub AI-contributor data, Bot Commits, `github_explosion`, OSSInsight, company statements, surveys, occupational exposure, and workforce observations provide context and cross-checks; they are not silently averaged into one global percentage.
 
 The main dashboard still contains prototype values for Work and Life. Company statements and surveys describe different units of observation and must not be treated as direct measurements of replaced human work.
+
+## Contributing
+
+The project is open to evidence-focused contributions. Please use the public [GitHub repository](https://github.com/ffnwz/ai) to suggest:
+
+- methodology changes or clarifications;
+- new public sources and datasets;
+- corrections to source values, dates, or provenance;
+- reproducible improvements to the repository analysis.
+
+Please include a link to the evidence and explain which denominator, time period, and unit of measurement it uses. Open a GitHub issue for discussion or a pull request for a concrete change.
 
 ## Limitations
 

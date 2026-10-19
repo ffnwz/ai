@@ -152,6 +152,12 @@ const translations = {
       "methodologyLink": "How the numbers are calculated",
       "occupationsLink": "AI and human share by occupation"
     },
+    "contribute": {
+      "eyebrow": "OPEN PROJECT",
+      "title": "Help make the index more precise",
+      "copy": "Suggest methodology changes, new sources, or data corrections in the public repository.",
+      "link": "Open the GitHub repository"
+    },
     "repoAnalysis": {
       "eyebrow": "CHECK A REPOSITORY",
       "title": "Who wrote the code in this repository?",
@@ -362,7 +368,8 @@ const translations = {
     },
     "footer": {
       "left": "tracking the work AI takes on",
-      "right": "Prototype: Code is a sample signal; Work is a median of sources; Life is illustrative. Methodology and sources are open."
+      "right": "Prototype: Code is a sample signal; Work is a median of sources; Life is illustrative. Methodology and sources are open.",
+      "github": "Source code and suggestions on GitHub"
     },
     "aria": {
       "rings": "AI involvement in code and work, and an illustrative Life indicator"
@@ -538,6 +545,12 @@ const translations = {
       "copy": "Измерения репозиториев, опросы и заявления компаний описывают разные стороны замещения. У каждого источника — своя выборка, дата и единица измерения.",
       "methodologyLink": "Как считаются показатели",
       "occupationsLink": "Доля AI и человека по профессиям"
+    },
+    "contribute": {
+      "eyebrow": "ОТКРЫТЫЙ ПРОЕКТ",
+      "title": "Помогите сделать индекс точнее",
+      "copy": "Предлагайте изменения в методологию, новые источники и исправления данных в открытом репозитории.",
+      "link": "Открыть репозиторий на GitHub"
     },
     "repoAnalysis": {
       "eyebrow": "ПРОВЕРИТЬ РЕПОЗИТОРИЙ",
@@ -749,7 +762,8 @@ const translations = {
     },
     "footer": {
       "left": "наблюдаем за замещением человеческой работы",
-      "right": "Прототип: Код — сигнал в выборке; Работа — медиана источников; Жизнь — условное значение. Методология и источники открыты."
+      "right": "Прототип: Код — сигнал в выборке; Работа — медиана источников; Жизнь — условное значение. Методология и источники открыты.",
+      "github": "Исходный код и предложения на GitHub"
     },
     "aria": {
       "rings": "Участие AI в коде и работе и условный показатель жизни"
