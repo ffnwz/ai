@@ -35,7 +35,7 @@ try {
 
     Write-Host "Preparing deployment snapshot (secrets and local caches excluded)..." -ForegroundColor Cyan
     & robocopy $ProjectRoot $stage /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /XJ /NFL /NDL /NP `
-        /XD '.git' '.openai' 'node_modules' 'data\repository-analysis-locks' `
+        /XD '.git' '.openai' '.github' '.local' 'node_modules' 'data\repository-analysis-locks' `
         /XF '.env' 'deploy.local.md' '*.log' 'slopscore-cache.json' 'code-index-cache.json' `
             'code-index-progress.json' 'code-index-catalog.json' 'repository-analyses.json' `
             'contributor-profiles.json' 'github-contributors.json' 'github-contributors-cache.json' `

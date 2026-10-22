@@ -28,6 +28,7 @@ Invoke-CheckStep 'server.js syntax' 'node' @('--check', 'server.js')
 Invoke-CheckStep 'app.js syntax' 'node' @('--check', 'app.js')
 Invoke-CheckStep 'life.js syntax' 'node' @('--check', 'life.js')
 Invoke-CheckStep 'occupations.js syntax' 'node' @('--check', 'occupations.js')
+Invoke-CheckStep 'barriers.js syntax' 'node' @('--check', 'barriers.js')
 Invoke-CheckStep 'Work rating files' 'npm' @('run', 'work:verify')
 Invoke-CheckStep 'Life rating files' 'npm' @('run', 'life:verify')
 
@@ -45,7 +46,7 @@ Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'data') -Filter '*.json' -Rec
 }
 
 if (-not $SkipApi) {
-    foreach ($path in @('/', '/ru', '/code', '/work', '/life', '/methodology', '/robots.txt', '/sitemap.xml', '/og-en.png', '/og-ru.png', '/last.json', '/api/code-index-progress', '/api/life-tasks', '/api/self-building', '/api/metric-series', '/api/combined-snapshot')) {
+    foreach ($path in @('/', '/ru', '/code', '/work', '/life', '/barriers', '/methodology', '/robots.txt', '/sitemap.xml', '/llms.txt', '/ai-index.json', '/data/code-index-catalog.json', '/data/robot-barriers.json', '/data/life/life-tasks.json', '/data/work/isco08-occupations.json', '/og-en.png', '/og-ru.png', '/last.json', '/api/code-index-progress', '/api/life-tasks', '/api/self-building', '/api/metric-series', '/api/combined-snapshot')) {
         try {
             $response = Invoke-WebRequest -UseBasicParsing -Uri "$BaseUrl$path" -TimeoutSec 30
             if ($response.StatusCode -lt 200 -or $response.StatusCode -ge 400) { throw "HTTP $($response.StatusCode)" }

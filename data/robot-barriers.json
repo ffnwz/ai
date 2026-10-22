@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "updatedAt": "2026-10-22",
+  "scope": "General-purpose robots in homes and workplaces",
+  "scale": {
+    "min": 0,
+    "max": 100,
+    "meaning": "Editorial readiness estimate for broad, safe, reliable and economical use; not a scientific benchmark score.",
+    "100PercentCaveat": "A 100% milestone is valid only for the stated narrow scope and date. It does not mean that universal robots are solved everywhere."
+  },
+  "barriers": [
+    {
+      "id": "generality",
+      "titleRu": "Обобщение между средами и корпусами",
+      "titleEn": "Generalization across worlds and bodies",
+      "progress": 36,
+      "contexts": ["life", "work"],
+      "summaryRu": "Робот должен переносить навык на новую квартиру, предмет, человека и собственное тело без ручной перенастройки.",
+      "summaryEn": "A robot must transfer a skill to a new home, object, person, and its own body without manual retuning.",
+      "evidenceRu": "RoboDojo разделяет обобщение, память, точность, длинные действия и open-vocabulary инструкции; разрыв между симуляцией и реальным миром остаётся.",
+      "nextTestRu": "Один протокол на новых сценах и нескольких корпусах с одинаковыми метриками переноса.",
+      "sources": ["https://arxiv.org/abs/2607.04434", "https://arxiv.org/abs/2307.15818"]
+    },
+    {
+      "id": "dexterity",
+      "titleRu": "Деликатная моторика и тактильный контакт",
+      "titleEn": "Dexterity and tactile contact",
+      "progress": 32,
+      "contexts": ["life", "work"],
+      "summaryRu": "Мокрый пакет, провод, пуговица и хрупкий предмет требуют разных режимов силы, трения и обратной связи.",
+      "summaryEn": "A wet bag, cable, button, and fragile object require different force, friction, and feedback.",
+      "evidenceRu": "TacO показывает, что польза тактильного сенсора зависит от материала, модальности и задачи; универсальной роботической кожи пока нет.",
+      "nextTestRu": "Смешанные контактные задачи с occlusion, неизвестной массой и меняющимся трением.",
+      "sources": ["https://arxiv.org/abs/2605.21976", "https://arxiv.org/abs/2401.12496"]
+    },
+    {
+      "id": "data",
+      "titleRu": "Данные, sim-to-real и sample efficiency",
+      "titleEn": "Data, sim-to-real, and sample efficiency",
+      "progress": 43,
+      "contexts": ["life", "work"],
+      "summaryRu": "Видео человека не равно траектории робота: нужны действия, силы, столкновения, неудачи и состояние конкретного тела.",
+      "summaryEn": "A human video is not a robot trajectory; actions, forces, collisions, failures, and embodiment state are needed.",
+      "evidenceRu": "DROID даёт 76 тысяч траекторий из 564 сцен, а Open X-Embodiment объединяет 22 робота и 527 навыков; физические данные всё ещё дороги.",
+      "nextTestRu": "Новый навык после десятков демонстраций с измерением переноса на незнакомое железо.",
+      "sources": ["https://arxiv.org/abs/2403.12945", "https://arxiv.org/abs/2310.08864"]
+    },
+    {
+      "id": "planning",
+      "titleRu": "Длинные задачи, память и неоднозначные инструкции",
+      "titleEn": "Long tasks, memory, and ambiguity",
+      "progress": 27,
+      "contexts": ["life", "work"],
+      "summaryRu": "Помыть кухню или подготовить заказ — это десятки зависимых шагов, где ошибка в начале меняет весь план.",
+      "summaryEn": "Cleaning a kitchen or preparing an order means dozens of dependent steps, where an early error changes the plan.",
+      "evidenceRu": "В LongAct лучшие модели достигали 59% выполнения целей, но только 16% полного задания; новый benchmark с неопределённостью сообщает 45,3% лучшего success.",
+      "nextTestRu": "Оценивать полное задание, память, предусловия и восстановление, а не отдельные короткие действия.",
+      "sources": ["https://arxiv.org/abs/2605.14504", "https://arxiv.org/abs/2610.17326"]
+    },
+    {
+      "id": "recovery",
+      "titleRu": "Обнаружение ошибки и восстановление",
+      "titleEn": "Error detection and recovery",
+      "progress": 33,
+      "contexts": ["life", "work"],
+      "summaryRu": "Надёжность — это заметить сбой, безопасно остановиться и вернуть задачу человеку.",
+      "summaryEn": "Reliability means noticing a failure, stopping safely, and handing the task back to a person.",
+      "evidenceRu": "Runtime-monitoring подходы учатся предсказывать риск до неизбежного сбоя и снижать нагрузку на оператора; нужны общие failure taxonomies и логи длинных развёртываний.",
+      "nextTestRu": "Время до обнаружения, безопасная остановка, эскалация и восстановление после каждого сбоя.",
+      "sources": ["https://arxiv.org/abs/2310.17552"]
+    },
+    {
+      "id": "safety",
+      "titleRu": "Безопасность рядом с людьми",
+      "titleEn": "Safety around people",
+      "progress": 44,
+      "contexts": ["life", "work"],
+      "summaryRu": "Робот должен оценивать риск для ребёнка, пожилого человека, животного и имущества, а не только избегать столкновения.",
+      "summaryEn": "A robot must assess risk to a child, older adult, animal, and property, not only avoid collisions.",
+      "evidenceRu": "Для cobot есть измеримые режимы силы и дистанции; ASIMOV-Agentic добавляет отказ от опасных действий, protective stop, OOD и запрос помощи.",
+      "nextTestRu": "Независимый safety-case для редких, но тяжёлых сценариев до массового запуска.",
+      "sources": ["https://www.nist.gov/publications/implementing-speed-and-separation-monitoring-collaborative-robot-workcells", "https://deepmind.google/research/evals/?hl=ca"]
+    },
+    {
+      "id": "power",
+      "titleRu": "Батарея, тепло, полезная нагрузка",
+      "titleEn": "Battery, heat, and payload",
+      "progress": 54,
+      "contexts": ["life", "work"],
+      "summaryRu": "Полезный робот должен долго двигаться, считать и удерживать груз без слишком тяжёлой батареи и перегрева.",
+      "summaryEn": "A useful robot must move, compute, and carry for long periods without an oversized battery or overheating.",
+      "evidenceRu": "Обзор 2026 года показывает конфликт между энергоёмкостью, массой, безопасностью, теплом и геометрией гуманоидного корпуса.",
+      "nextTestRu": "Полный рабочий день с реальной нагрузкой и предсказуемым снижением производительности при разряде.",
+      "sources": ["https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.76736", "https://deepmind.google/blog/gemini-robotics-on-device-brings-ai-to-local-robotic-devices/"]
+    },
+    {
+      "id": "hardware",
+      "titleRu": "Износ, uptime и обслуживание",
+      "titleEn": "Wear, uptime, and serviceability",
+      "progress": 35,
+      "contexts": ["life", "work"],
+      "summaryRu": "Робот должен выдерживать тысячи циклов, диагностироваться и ремонтироваться без долгого простоя.",
+      "summaryEn": "A robot must survive thousands of cycles, diagnose itself, and be repaired without long downtime.",
+      "evidenceRu": "IFR выделяет cycle time, energy consumption и maintenance costs; в опросе PMMI 69% пользователей назвали reliability и uptime очень важными.",
+      "nextTestRu": "Часы полезной работы на час обслуживания, доступность запчастей и повторяемость после ремонта.",
+      "sources": ["https://ifr.org/ifr-press-releases/top-5-global-robotics-trends-2026", "https://www.pmmi.org/report/2026-robotics-in-packaging-and-processing"]
+    },
+    {
+      "id": "economics",
+      "titleRu": "Цена, производительность и окупаемость",
+      "titleEn": "Cost, throughput, and payback",
+      "progress": 41,
+      "contexts": ["work"],
+      "summaryRu": "Работающий робот должен быть выгоднее человека или узкого автомата с учётом простоя, обучения, интеграции и страховки.",
+      "summaryEn": "A working robot must beat a person or narrow automation after downtime, training, integration, and insurance.",
+      "evidenceRu": "Промышленные роботы масштабируются в повторяемых средах, но гуманоид конкурирует с отлаженным процессом и известным throughput.",
+      "nextTestRu": "Total cost of ownership, throughput и стоимость исключений на одной операции за несколько месяцев.",
+      "sources": ["https://ifr.org/ifr-press-releases/news/five-million-robots-now-operate-in-factories-globally", "https://ifr.org/ifr-press-releases/top-5-global-robotics-trends-2026"]
+    },
+    {
+      "id": "deployment",
+      "titleRu": "Интеграция IT/OT, стандарты и ответственность",
+      "titleEn": "IT/OT integration, standards, and liability",
+      "progress": 48,
+      "contexts": ["life", "work"],
+      "summaryRu": "Нужно понять, кто отвечает за ошибку, где хранятся данные и как робот встраивается в ERP, двери, расписания и правила.",
+      "summaryEn": "Deployment must resolve liability, data handling, ERP and door integration, schedules, and local rules.",
+      "evidenceRu": "IFR в 2026 выделяет слияние IT и OT, cybersecurity, стандарты и liability как отдельные приоритеты.",
+      "nextTestRu": "Аудит решений, кибербезопасность, право на остановку и понятный владелец риска для каждого сценария.",
+      "sources": ["https://ifr.org/ifr-press-releases/top-5-global-robotics-trends-2026"]
+    }
+  ],
+  "scoped100PercentMilestones": [
+    {"titleRu":"Повторяемый цикл в производственной ячейке","titleEn":"A repeatable cycle in a production cell","date":"2026-09-24","scope":"fixed, repeatable production cell; data for 2025","source":"https://ifr.org/ifr-press-releases/news/five-million-robots-now-operate-in-factories-globally"},
+    {"titleRu":"Базовые режимы безопасности cobot","titleEn":"Core cobot safety modes","date":"2016-08-01","scope":"force and speed/separation monitoring under collaborative-robot standards","source":"https://www.nist.gov/publications/implementing-speed-and-separation-monitoring-collaborative-robot-workcells"},
+    {"titleRu":"Автономный транспорт внутри структурированной фабрики","titleEn":"Autonomous transport inside a structured factory","date":"2025-11-19","scope":"structured indoor factory routes and known operating conditions","source":"https://ifr.org/ifr-press-releases/news/pioneering-robot-otto-wins-the-2025-iera-award"},
+    {"titleRu":"Локальный inference на самом роботе","titleEn":"On-device inference on the robot","date":"2025-06-24","scope":"on-device model inference on supported robotic devices","source":"https://deepmind.google/blog/gemini-robotics-on-device-brings-ai-to-local-robotic-devices/"}
+  ],
+  "frontier": [
+    {"titleRu":"Экран и офис","titleEn":"Screens and offices","progress":84},
+    {"titleRu":"Цех и склад","titleEn":"Factories and warehouses","progress":72},
+    {"titleRu":"Магазин и сервис","titleEn":"Retail and service","progress":41},
+    {"titleRu":"Дом","titleEn":"Home","progress":24},
+    {"titleRu":"Уход и дети","titleEn":"Care and children","progress":16}
+  ],
+  "research": [
+    {"tag":"GENERALIZATION","title":"RT-2","url":"https://arxiv.org/abs/2307.15818"},
+    {"tag":"DATA / EMBODIMENTS","title":"Open X-Embodiment / RT-X","url":"https://arxiv.org/abs/2310.08864"},
+    {"tag":"IN-THE-WILD DATA","title":"DROID","url":"https://arxiv.org/abs/2403.12945"},
+    {"tag":"TACTILE SENSING","title":"TacO","url":"https://arxiv.org/abs/2605.21976"},
+    {"tag":"SAFETY","title":"ASIMOV-Agentic","url":"https://deepmind.google/research/evals/?hl=ca"},
+    {"tag":"RELIABILITY","title":"Runtime Monitoring","url":"https://arxiv.org/abs/2310.17552"},
+    {"tag":"LONG HORIZON","title":"LongAct","url":"https://arxiv.org/abs/2605.14504"},
+    {"tag":"TOUCH + VISION","title":"DexTouch","url":"https://arxiv.org/abs/2401.12496"},
+    {"tag":"SIM + REAL","title":"RoboDojo","url":"https://arxiv.org/abs/2607.04434"},
+    {"tag":"ENERGY","title":"Battery technology review","url":"https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.76736"},
+    {"tag":"UPTIME","title":"PMMI Robotics 2026","url":"https://www.pmmi.org/report/2026-robotics-in-packaging-and-processing"},
+    {"tag":"MARKET","title":"IFR Trends 2026","url":"https://ifr.org/ifr-press-releases/top-5-global-robotics-trends-2026"}
+  ]
+}

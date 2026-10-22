@@ -1,0 +1,136 @@
+{
+  "name": "AI Countdown",
+  "url": "https://ai.ffnwz.lat/",
+  "description": "Открытая карта того, какую часть кода, работы, повседневных задач и физической работы уже берёт на себя AI.",
+  "descriptionEn": "An open map of how much code, work, everyday tasks, and physical work AI already takes on.",
+  "updatedAt": "2026-10-22",
+  "languages": ["ru", "en"],
+  "audience": ["search engines", "AI agents", "researchers", "builders"],
+  "contentPolicy": {
+    "numbersAre": "editorial estimates or source-backed observations, depending on the page",
+    "numbersAreNot": "a universal scientific measure of intelligence or full job replacement",
+    "preferredCitation": "cite the page and the linked primary source; preserve the date and scope of every number",
+    "javascript": "Interactive tables may be rendered by JavaScript, but the site publishes this index and the linked JSON datasets for non-browser readers."
+  },
+  "pages": [
+    {
+      "url": "https://ai.ffnwz.lat/",
+      "path": "/",
+      "type": "WebSite",
+      "title": "AI Countdown — How much of life does AI already occupy?",
+      "titleRu": "AI Countdown — какую часть жизни уже занимает AI?",
+      "description": "The overview of AI participation in code, company workflows, and everyday life.",
+      "descriptionRu": "Обзор участия AI в коде, рабочих процессах и повседневной жизни.",
+      "updatedAt": "2026-10-22",
+      "alternates": {"en": "https://ai.ffnwz.lat/", "ru": "https://ai.ffnwz.lat/ru", "x-default": "https://ai.ffnwz.lat/"},
+      "related": ["/code", "/work", "/life", "/barriers", "/methodology"]
+    },
+    {
+      "url": "https://ai.ffnwz.lat/ru",
+      "path": "/ru",
+      "type": "WebPage",
+      "title": "AI Countdown — какую часть жизни уже занимает AI?",
+      "titleEn": "AI Countdown — How much of life does AI already occupy?",
+      "description": "Русская версия обзора AI Countdown с открытыми источниками и методологией.",
+      "descriptionEn": "Russian version of the AI Countdown overview with open sources and methodology.",
+      "updatedAt": "2026-10-22",
+      "alternates": {"en": "https://ai.ffnwz.lat/", "ru": "https://ai.ffnwz.lat/ru", "x-default": "https://ai.ffnwz.lat/"},
+      "related": ["/code", "/work", "/life", "/barriers", "/methodology"]
+    },
+    {
+      "url": "https://ai.ffnwz.lat/code",
+      "path": "/code",
+      "type": "Dataset",
+      "title": "AI Countdown — scanned public repositories",
+      "titleRu": "AI Countdown — просканированные публичные репозитории",
+      "description": "A registry of public repositories and commit-history observations used for the code signal.",
+      "descriptionRu": "Реестр публичных репозиториев и наблюдений по истории коммитов для сигнала «Код».",
+      "updatedAt": "2026-10-22",
+      "dataset": "https://ai.ffnwz.lat/data/code-index-catalog.json",
+      "api": "https://ai.ffnwz.lat/api/code-index"
+    },
+    {
+      "url": "https://ai.ffnwz.lat/work",
+      "path": "/work",
+      "type": "Dataset",
+      "title": "AI Countdown — AI share by occupation",
+      "titleRu": "AI Countdown — доля AI по профессиям",
+      "description": "A 436-occupation ISCO-08 register with an editorial estimate of AI task coverage and the remaining human share.",
+      "descriptionRu": "Реестр 436 профессий ISCO-08 с редакционной оценкой охвата задач AI и оставшейся доли человека.",
+      "updatedAt": "2026-10-22",
+      "dataset": "https://ai.ffnwz.lat/data/work/isco08-occupations.json",
+      "api": "https://ai.ffnwz.lat/api/work-occupations",
+      "caveat": "The occupation percentage is task exposure/coverage, not a forecast of layoffs or complete replacement."
+    },
+    {
+      "url": "https://ai.ffnwz.lat/life",
+      "path": "/life",
+      "type": "Dataset",
+      "title": "AI Countdown — everyday tasks",
+      "titleRu": "AI Countdown — повседневные задачи",
+      "description": "A transparent register of recurring household and personal-administration tasks, frequency, duration, and available automation.",
+      "descriptionRu": "Прозрачный реестр повторяющихся бытовых и личных организационных задач, их частотности, длительности и доступной автоматизации.",
+      "updatedAt": "2026-10-22",
+      "dataset": "https://ai.ffnwz.lat/data/life/life-tasks.json",
+      "api": "https://ai.ffnwz.lat/api/life-tasks",
+      "caveat": "Occurrences per year and typical minutes are editorial starting assumptions and should be calibrated with survey evidence."
+    },
+    {
+      "url": "https://ai.ffnwz.lat/barriers",
+      "path": "/barriers",
+      "type": "ResearchOverview",
+      "title": "What keeps general-purpose robots from living and working beside people",
+      "titleRu": "Что мешает универсальным роботам жить и работать рядом с людьми",
+      "description": "A scoped map of ten barriers to reliable robots in homes and workplaces, with editorial progress estimates, research links, and narrow 100% milestones.",
+      "descriptionRu": "Карта десяти барьеров для надёжных роботов в домах и на работе: прогресс, исследования и узкие вехи, закрытые на 100%.",
+      "updatedAt": "2026-10-22",
+      "progressScale": "0–100 is an editorial readiness estimate for broad, safe, economical use; it is not a benchmark score.",
+      "barriers": [
+        {"id": "generality", "title": "Обобщение между средами и корпусами", "progress": 36, "contexts": ["life", "work"]},
+        {"id": "dexterity", "title": "Деликатная моторика и тактильный контакт", "progress": 32, "contexts": ["life", "work"]},
+        {"id": "data", "title": "Данные, sim-to-real и sample efficiency", "progress": 43, "contexts": ["life", "work"]},
+        {"id": "planning", "title": "Длинные задачи, память и неоднозначные инструкции", "progress": 27, "contexts": ["life", "work"]},
+        {"id": "recovery", "title": "Обнаружение ошибки и восстановление", "progress": 33, "contexts": ["life", "work"]},
+        {"id": "safety", "title": "Безопасность рядом с людьми", "progress": 44, "contexts": ["life", "work"]},
+        {"id": "power", "title": "Батарея, тепло, полезная нагрузка", "progress": 54, "contexts": ["life", "work"]},
+        {"id": "hardware", "title": "Износ, uptime и обслуживание", "progress": 35, "contexts": ["life", "work"]},
+        {"id": "economics", "title": "Цена, производительность и окупаемость", "progress": 41, "contexts": ["work"]},
+        {"id": "deployment", "title": "Интеграция IT/OT, стандарты и ответственность", "progress": 48, "contexts": ["life", "work"]}
+      ],
+      "scoped100PercentMilestones": [
+        {"title": "Повторяемый цикл в производственной ячейке", "date": "2026-09-24", "scope": "fixed, repeatable production cell; data for 2025"},
+        {"title": "Базовые режимы безопасности cobot", "date": "2016-08-01", "scope": "force and speed/separation monitoring under collaborative-robot standards"},
+        {"title": "Автономный транспорт внутри структурированной фабрики", "date": "2025-11-19", "scope": "structured indoor factory routes and known operating conditions"},
+        {"title": "Локальный inference на самом роботе", "date": "2025-06-24", "scope": "on-device model inference on supported robotic devices"}
+      ],
+      "research": "https://ai.ffnwz.lat/data/robot-barriers.json",
+      "sourceRegister": "https://ai.ffnwz.lat/data/sources.json"
+    },
+    {
+      "url": "https://ai.ffnwz.lat/methodology",
+      "path": "/methodology",
+      "type": "AboutPage",
+      "title": "AI Countdown — methodology",
+      "titleRu": "AI Countdown — методология",
+      "description": "Definitions, source register, caveats, and the distinction between task coverage, AI assistance, and full process autonomy.",
+      "descriptionRu": "Определения, реестр источников, ограничения и различие между охватом задач, помощью AI и полной автономностью процесса.",
+      "updatedAt": "2026-10-22",
+      "related": ["/data/sources.json", "/README.md", "/README.ru.md"]
+    }
+  ],
+  "publicDatasets": [
+    {"url": "https://ai.ffnwz.lat/data/life/life-tasks.json", "type": "Dataset", "updatedAt": "2026-10-19", "format": "application/json"},
+    {"url": "https://ai.ffnwz.lat/data/work/isco08-occupations.json", "type": "Dataset", "updatedAt": "2026-10-19", "format": "application/json"},
+    {"url": "https://ai.ffnwz.lat/data/code-index-catalog.json", "type": "Dataset", "updatedAt": "2026-10-18", "format": "application/json"},
+    {"url": "https://ai.ffnwz.lat/data/robot-barriers.json", "type": "Dataset", "updatedAt": "2026-10-22", "format": "application/json"},
+    {"url": "https://ai.ffnwz.lat/data/sources.json", "type": "SourceRegister", "format": "application/json"}
+  ],
+  "navigation": [
+    {"label": "Overview", "url": "https://ai.ffnwz.lat/"},
+    {"label": "Code", "url": "https://ai.ffnwz.lat/code"},
+    {"label": "Work", "url": "https://ai.ffnwz.lat/work"},
+    {"label": "Life", "url": "https://ai.ffnwz.lat/life"},
+    {"label": "Robots / barriers", "url": "https://ai.ffnwz.lat/barriers"},
+    {"label": "Methodology", "url": "https://ai.ffnwz.lat/methodology"}
+  ]
+}

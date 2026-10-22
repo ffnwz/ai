@@ -5099,13 +5099,13 @@ async function readJsonRequestBody(request, maxBytes = 20_000) {
 // Only the public site is served. Server code, .env, deploy notes, scripts, and
 // runtime data under ROOT are never reachable over HTTP.
 const PUBLIC_STATIC_FILES = new Set([
-  'index.html', 'ru.html', 'occupations.html', 'life.html', 'code.html', 'methodology.html', 'og-card.html',
-  'app.js', 'occupations.js', 'life.js', 'code.js', 'styles.css',
+  'index.html', 'ru.html', 'occupations.html', 'life.html', 'code.html', 'methodology.html', 'barriers.html', 'og-card.html',
+  'app.js', 'occupations.js', 'life.js', 'code.js', 'barriers.js', 'styles.css',
   'robot-apple.png', 'og-en.png', 'og-ru.png', 'og-en.svg', 'og-ru.svg',
-  'robots.txt', 'sitemap.xml', 'README.md', 'README.ru.md'
+  'robots.txt', 'sitemap.xml', 'llms.txt', 'ai-index.json', 'README.md', 'README.ru.md'
 ]);
 // Reference data that is committed to git and linked from the site.
-const PUBLIC_DATA_FILE = /^data\/(?:(?:work|life)\/[A-Za-z0-9._/-]+\.json|sources\.json|ai-agents\.json|editorial-observations\.json|self-building-observations\.json)$/;
+const PUBLIC_DATA_FILE = /^data\/(?:(?:work|life)\/[A-Za-z0-9._/-]+\.json|code-index-catalog\.json|robot-barriers\.json|sources\.json|ai-agents\.json|editorial-observations\.json|self-building-observations\.json)$/;
 
 function safeStaticPath(requestPath) {
   let decoded;
@@ -5125,7 +5125,9 @@ function safeStaticPath(requestPath) {
     '/code': 'code.html',
     '/code/': 'code.html',
     '/methodology': 'methodology.html',
-    '/methodology/': 'methodology.html'
+    '/methodology/': 'methodology.html',
+    '/barriers': 'barriers.html',
+    '/barriers/': 'barriers.html'
   };
   const relative = (routeFiles[decoded] || decoded.replace(/^[/\\]+/, '')).replace(/\\/g, '/');
   if (relative.split('/').some((part) => part === '..' || part.startsWith('.'))) return null;

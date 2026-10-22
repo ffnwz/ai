@@ -1,0 +1,41 @@
+# AI Countdown
+
+> AI Countdown is an open, date-stamped map of how much AI already does in code, work, everyday life, and physical robotics. The project is editorial and source-linked: a percentage is meaningful only together with its scope, date, and method.
+
+## Start here
+
+- [Overview](https://ai.ffnwz.lat/): the three signals — code, work, and life — and the project’s source notes.
+- [Русская версия](https://ai.ffnwz.lat/ru): Russian overview.
+- [Machine-readable index](https://ai.ffnwz.lat/ai-index.json): pages, datasets, barriers, dates, caveats, and navigation.
+- [Methodology](https://ai.ffnwz.lat/methodology): definitions, source register, and limitations.
+
+## Main datasets
+
+- [Scanned public repositories](https://ai.ffnwz.lat/code): public repository and commit-history observations.
+- [Code catalog JSON](https://ai.ffnwz.lat/data/code-index-catalog.json): machine-readable repository catalog.
+- [Occupations](https://ai.ffnwz.lat/work): AI task coverage across 436 ISCO-08 occupations.
+- [Occupations JSON](https://ai.ffnwz.lat/data/work/isco08-occupations.json): machine-readable occupation register.
+- [Everyday tasks](https://ai.ffnwz.lat/life): recurring household and personal-admin tasks.
+- [Everyday tasks JSON](https://ai.ffnwz.lat/data/life/life-tasks.json): machine-readable task register.
+- [Source register](https://ai.ffnwz.lat/data/sources.json): source URLs and status notes.
+
+## Physical robotics
+
+- [Robot barriers](https://ai.ffnwz.lat/barriers): ten barriers to reliable robots in homes and workplaces, with editorial progress bars and research links.
+- [Robot barriers JSON](https://ai.ffnwz.lat/data/robot-barriers.json): machine-readable barrier register, evidence notes, tests, research URLs, and scoped 100% milestones.
+- The barrier page marks four items as **100% only in a narrow, stated scope**. This does not mean that a universal robot is solved in all homes, factories, or care settings.
+- The main open barriers are generalization, dexterity and touch, physical data and sim-to-real transfer, long-horizon planning, recovery, safety, energy, uptime, economics, and IT/OT integration with liability.
+
+## How to interpret numbers
+
+- “AI share” is not the same as full job replacement.
+- The life register uses transparent starting assumptions for annual frequency and minutes; it is not a population survey.
+- The robot progress bars are editorial readiness estimates, not a shared scientific benchmark.
+- Preserve the publication/update date and the scope when quoting a number.
+- Prefer the linked primary research, standards, or industry statistics for verification.
+
+## Machine-readable conventions
+
+- All public pages have self-referencing canonical URLs and JSON-LD describing the page.
+- Interactive tables have linked JSON datasets so an agent does not need to execute the UI to find the underlying register.
+- `robots.txt` allows normal public crawling and blocks only internal `/api/` routes and `/last.json`.

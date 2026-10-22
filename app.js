@@ -20,7 +20,8 @@ const translations = {
     "nav": {
       "signals": "signals",
       "model": "model",
-      "sources": "sources"
+      "sources": "sources",
+      "robots": "robots"
     },
     "hero": {
       "eyebrow": "TRACKING THE HUMAN WORK AI TAKES ON",
@@ -186,7 +187,8 @@ const translations = {
       "registryCopy": "The registry includes live feeds, open datasets, public dashboards, company statements, and cross-checks. Each link keeps its original scope and measurement unit.",
       "methodologyLink": "How the numbers are calculated",
       "occupationsLink": "AI and human share by occupation",
-      "lifeTasksLink": "Everyday tasks and devices"
+      "lifeTasksLink": "Everyday tasks and devices",
+      "robotsLink": "What keeps robots from doing more"
     },
     "contribute": {
       "eyebrow": "OPEN PROJECT",
@@ -434,7 +436,8 @@ const translations = {
     "nav": {
       "signals": "сигналы",
       "model": "модель",
-      "sources": "источники"
+      "sources": "источники",
+      "robots": "роботы"
     },
     "hero": {
       "eyebrow": "ЗАМЕЩЕНИЕ ЧЕЛОВЕЧЕСКОЙ РАБОТЫ",
@@ -600,7 +603,8 @@ const translations = {
       "registryCopy": "В реестре собраны live feeds, открытые датасеты, публичные дашборды, заявления компаний и источники для перепроверки. У каждой ссылки сохранены исходный охват и единица измерения.",
       "methodologyLink": "Как считаются показатели",
       "occupationsLink": "Доля AI и человека по профессиям",
-      "lifeTasksLink": "Повседневные задачи и устройства"
+      "lifeTasksLink": "Повседневные задачи и устройства",
+      "robotsLink": "Что мешает роботам"
     },
     "contribute": {
       "eyebrow": "ОТКРЫТЫЙ ПРОЕКТ",
